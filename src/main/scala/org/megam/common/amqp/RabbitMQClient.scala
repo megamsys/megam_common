@@ -23,7 +23,7 @@ import java.util.concurrent.{ThreadFactory, Executors}
 import RabbitMQClient._
 import java.util.concurrent.atomic.AtomicInteger
 import com.rabbitmq.client._
-
+import com.rabbitmq.client.Channel
 /**
  * @author ram
  *
