@@ -49,17 +49,17 @@ object AMQPResponseCode {
 
   object Ok extends AMQPResponseCode(200, "Ok")
 
- object ServiceUnavailable extends AMQPResponseCode(503, "Service Unavailable")
+  object ServiceUnavailable extends AMQPResponseCode(503, "Service Unavailable")
 
   def fromInt(i: Int): Option[AMQPResponseCode] = i match {
-    case Accepted.code => Accepted.some
-     case ClientTimeout.code => ClientTimeout.some
-    case NoContent.code => NoContent.some
-    case NotAcceptable.code => NotAcceptable.some
-    case NotFound.code => NotFound.some
-    case NotModified.code => NotModified.some
-    case Ok.code => Ok.some
-    case ServiceUnavailable.code => ServiceUnavailable.some    
-    case _ => none
+    case Accepted.code           => Accepted.some
+    case ClientTimeout.code      => ClientTimeout.some
+    case NoContent.code          => NoContent.some
+    case NotAcceptable.code      => NotAcceptable.some
+    case NotFound.code           => NotFound.some
+    case NotModified.code        => NotModified.some
+    case Ok.code                 => Ok.some
+    case ServiceUnavailable.code => ServiceUnavailable.some
+    case _                       => none
   }
 }

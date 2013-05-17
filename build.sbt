@@ -15,6 +15,21 @@ scalaVersion := "2.10.1"
 
 scalacOptions := Seq("-unchecked", "-deprecation")
 
+resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots"
+
+resolvers  +=  "Sonatype OSS Snapshots"  at  "https://oss.sonatype.org/content/repositories/snapshots"
+
+resolvers  += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
+
+resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases"
+
+resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/public"
+      
+resolvers += "Twitter Repo" at "http://maven.twttr.com"   
+      
+     
+       
+
 libraryDependencies ++= {
   val scalaCheckVersion = "1.10.1"
   val specs2Version = "1.14"
@@ -27,7 +42,7 @@ libraryDependencies ++= {
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "com.twitter" % "util-zk-common" % zkVersion, 
+    "com.twitter" % "util-zk-common" % zkVersion,
     "com.rabbitmq" % "amqp-client" % amqpVersion,    
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test"    

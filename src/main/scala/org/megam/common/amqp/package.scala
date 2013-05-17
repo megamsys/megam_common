@@ -20,7 +20,12 @@ import scalaz.effect.IO
 import scalaz.NonEmptyList._
 import Scalaz._
 import java.nio.charset.{ Charset }
-
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz.toJSON
+import scala.collection.breakOut
+import net.liftweb.json.scalaz.Base
+import net.liftweb.json.scalaz.JsonScalaz.JSONR
+import net.liftweb.json.scalaz.JsonScalaz.JSONW
 /**
  * @author ram
  *

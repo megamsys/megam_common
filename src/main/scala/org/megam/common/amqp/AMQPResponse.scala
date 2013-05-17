@@ -15,7 +15,6 @@
 */
 package org.megam.common.amqp
 
-
 import scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
@@ -34,8 +33,8 @@ import scala.collection.convert.Wrappers.JConcurrentMapWrapper
  *
  */
 case class AMQPResponse(code: AMQPResponseCode,
-                        rawBody: RawBody,
-                        timeReceived: Date = new Date()) {
+  rawBody: RawBody,
+  timeReceived: Date = new Date()) {
   import AMQPResponse._
 
   private lazy val rawBodyMap = new JConcurrentMapWrapper(new ConcurrentHashMap[Charset, String])
@@ -47,12 +46,12 @@ case class AMQPResponse(code: AMQPResponseCode,
   }
 
   def toJValue(implicit charset: Charset = UTF8Charset): JValue = {
-    jValueMap.getOrElseUpdate(charset, toJSON(this))
+    jValueMap.getOrElseUpdate(charset, toJSON(this)(AMQPResponseSerialization.writer))
   }
 
   def toJson(prettyPrint: Boolean = false)(implicit charset: Charset = UTF8Charset): String = {
     jsonMap.getOrElseUpdate((charset, prettyPrint), {
-      if(prettyPrint) {
+      if (prettyPrint) {
         pretty(render(toJValue))
       } else {
         compactRender(toJValue)
@@ -63,10 +62,9 @@ case class AMQPResponse(code: AMQPResponseCode,
 }
 
 object AMQPResponse {
-  
-  
+
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AMQPResponse] = {
-    fromJSON(jValue)
+    fromJSON(jValue)(AMQPResponseSerialization.reader)
   }
 
   def fromJson(json: String): Result[AMQPResponse] = (Validation.fromTryCatch {
@@ -83,8 +81,7 @@ object AMQPResponse {
       err.fold(
         u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
         n => "no such field %s in json %s".format(n.name, n.json.toString),
-        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc)
-      )
+        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
     }.list.mkString("\n")
   })
 }

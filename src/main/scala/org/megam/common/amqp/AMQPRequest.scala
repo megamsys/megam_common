@@ -60,12 +60,14 @@ trait AMQPRequest {
    */
   def executeAsyncUnsafe: Promise[AMQPResponse] = prepareAsync.unsafePerformIO()
 
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON   
-    toJSON("temp")
+  def toJValue(implicit client: AMQPClient): JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    val requestSerialization = new AMQPRequestSerialization(client)
+    toJSON(this)(requestSerialization.writer)
+
   }
 
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+  def toJson(prettyPrint: Boolean = false)(implicit client: AMQPClient): String = if (prettyPrint) {
     pretty(render(toJValue))
   } else {
     compactRender(toJValue)
@@ -75,11 +77,14 @@ trait AMQPRequest {
 
 object AMQPRequest {
 
-  def fromJValue(jValue: JValue): Result[AMQPRequest] = {    
-    fromJSON(jValue)
+  def fromJValue(jValue: JValue)(implicit client: AMQPClient): Result[AMQPRequest] = {
+    import net.liftweb.json.JsonAST.JValue
+    val requestSerialization = new AMQPRequestSerialization(client)
+    fromJSON(jValue)(requestSerialization.reader)
+
   }
 
-  def fromJson(json: String): Result[AMQPRequest] = (fromTryCatch {
+  def fromJson(json: String)(implicit client: AMQPClient): Result[AMQPRequest] = (fromTryCatch {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
