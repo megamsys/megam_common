@@ -37,19 +37,29 @@ object Zoo {
    * Timeout value as loaded from the config file using ConfigFactory.
    */
   val timeout = 2.seconds
-  
+
+  val path: ZooPath = "/machines"
+
   /**
    * Location of the ZK server(s), loaded from the config file using ConfigFactory.
    */
   val addresses = new InetSocketAddress("localhost", 2181) :: Nil
+
+  lazy val zkClient = new ZooKeeperClient(timeout.toIntAmount, addresses.asJava)
   
+
+/*  Create a ZookeeperMap which comprises of the whole tree.
+ *  
+ *  ZooKeeperMap < String > zkMap = makeUninitializedMap(parentPath); 
+
   
-  lazy val zk =  new ZooKeeperClient(timeout.toIntAmount, addresses.asJava)
- /*
   /**
    * This is gonna create a new node on ZooKeeper
    */
-  def add(path: String, value: String, createMode: CreateMode) = zk create (path, value.getBytes, createMode)
+  def add(path: String, value: String, createMode: CreateMode) = {
+    ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);  
+   zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
+   }
 
   /**
    * This is gonna update the value of a node on ZooKeeper
@@ -70,7 +80,7 @@ object Zoo {
    * Callback
    */
    
-  def on(path: String)(runnable: NodeStatusChange => Unit) = {
+ def on(path: String)(runnable: NodeStatusChange => Unit) = {
    zk watchNode (path, {
       (data: Option[Array[Byte]]) =>
         data match {

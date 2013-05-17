@@ -17,5 +17,6 @@ package object common {
    */
   type *** = Any
 
+  type ZooPath = String
 
 }

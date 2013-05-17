@@ -50,12 +50,15 @@ class AMQPRequestSerialization(client: AMQPClient) extends SerializationBase[AMQ
     override def read(json: JValue): Result[AMQPRequest] = {
 
       val typeField = field[AMQPRequestType](AMQPRequestTypeKey)(json)(AMQPRequestTypeReader)
+      
       typeField.flatMap { reqType: AMQPRequestType =>
-        val idField = field[Messages](MessageKey)(json)(MessageReader)
-        val baseApplicative = idField
+        val msgs1 = field[Messages](MessageKey)(json)(MessageReader)
+        val msgs2 = field[Messages](MessageKey)(json)(MessageReader)
+
+        val baseApplicative = msgs1 |@| msgs2
         val res: ValidationNel[Error, AMQPRequest] = reqType match {
-          case PUB => client.publish(idField)
-          case SUB => baseApplicative(client.subscribe(_))
+          case PUB => baseApplicative(client.publish(_,_))
+          case SUB => baseApplicative(client.subscribe(_,_))
           case _   => UncategorizedError("request type", "unsupported request type %s".format(reqType.stringVal), List()).failNel
         }
         res

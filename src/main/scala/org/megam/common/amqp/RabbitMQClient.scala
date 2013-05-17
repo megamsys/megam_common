@@ -151,14 +151,14 @@ class RabbitMQClient(val connectionTimeout: Int = RabbitMQClient.DefaultConnecti
    *
    */
 
-  override def publish(m: Messages): PublishRequest = new PublishRequest {
-    override val messages = m
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m)
+  override def publish(m1: Messages, m2: Messages): PublishRequest = new PublishRequest {
+    override val messages = m1
+    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1)
   }
 
-  override def subscribe(m: Messages): SubscribeRequest = new SubscribeRequest {
-    override val messages = m
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftSubscribeOp(m)
+  override def subscribe(m1: Messages, m2: Messages): SubscribeRequest = new SubscribeRequest {
+    override val messages = m1
+    override def prepareAsync: IO[Promise[AMQPResponse]] = liftSubscribeOp(m1)
 
   }
 
