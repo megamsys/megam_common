@@ -22,6 +22,6 @@ package org.megam.common.amqp
 import org.megam.common.amqp._
 
 trait AMQPClient {
-  def subscribe(messages: Messages): SubscribeRequest
-  def publish(messages: Messages): PublishRequest
+  def subscribe(messages1: Messages,messages2: Messages): SubscribeRequest
+  def publish(messages1: Messages, messages2: Messages): PublishRequest
 }

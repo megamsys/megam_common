@@ -93,8 +93,10 @@ object AMQPRequest {
 
 trait PublishRequest extends AMQPRequest {
   override val requestType = AMQPRequestType.PUB
+  
 }
 
 trait SubscribeRequest extends AMQPRequest {
   override val requestType = AMQPRequestType.SUB
+
 }
