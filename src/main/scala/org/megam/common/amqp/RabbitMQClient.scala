@@ -19,11 +19,12 @@ import scalaz._
 import Scalaz._
 import scalaz.effect.IO
 import scalaz.concurrent._
-import java.util.concurrent.{ThreadFactory, Executors}
+import java.util.concurrent.{ ThreadFactory, Executors }
 import RabbitMQClient._
 import java.util.concurrent.atomic.AtomicInteger
 import com.rabbitmq.client._
 import com.rabbitmq.client.Channel
+import com.typesafe.config._
 /**
  * @author ram
  *
@@ -35,10 +36,17 @@ import com.rabbitmq.client.Channel
  * publish   : this uses the scalaz.concurrent feature to execute each of the publish operation in its own thread.
  * subscribe : this uses the scalaz.concurrent feature to execute each of the subscribe operation in its own thread.
  */
-class RabbitMQClient(val connectionTimeout: Int = RabbitMQClient.DefaultConnectionTimeout,
+/*class RabbitMQClient(val connectionTimeout: Int = RabbitMQClient.DefaultConnectionTimeout,
   val maxChannels: Int = RabbitMQClient.DefaultChannelMax,
   val strategy: Strategy = Strategy.Executor(amqpThreadPool),
-  val uris: String, val exchange: String, val queue: String) extends AMQPClient {
+  uris: String, exchange: String, queue: String) extends AMQPClient {*/
+
+ class RabbitMQClient(connectionTimeout: Int ,
+  maxChannels: Int , strategy: Strategy ,
+  uris: String, exchange: String, queue: String) extends AMQPClient {
+  
+   def this(uris: String, exchange: String, queue: String) = 
+     this(RabbitMQClient.DefaultConnectionTimeout, RabbitMQClient.DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)         
 
   /**
    * convert uris to an array of RabbitMQ's Address objects
@@ -48,16 +56,23 @@ class RabbitMQClient(val connectionTimeout: Int = RabbitMQClient.DefaultConnecti
    * rest of the code just reuses the old evaluation.
    *
    */
-  private lazy val urisToAddress: Array[Address] = ???
+println("Execute method")
+  //val conf = ConfigFactory.load("~/code/megam/workspace/megam_common/src/main/resources/megam.conf")
+  //println("Config-------------->"+conf)
+  private lazy val urisToAddress: Array[Address] = {
+    //val uriAddress = conf.getString("app.amqp.uri")  
+    println(uris)
+    val uri = uris.split(":")        
+    val add = Array(new Address(uri(0), 5672))    
+    add
+  }
 
   /**
    * Connect to the rabbitmq system using the connection factory.
    */
   private val connManager: Connection = {
-    val factory: ConnectionFactory = new ConnectionFactory()
-
-    val addrArr: Array[Address] = urisToAddress
-
+    val factory: ConnectionFactory = new ConnectionFactory()       
+    val addrArr: Array[Address] = urisToAddress   
     val cm = factory.newConnection(addrArr)
     cm
   }
@@ -66,7 +81,10 @@ class RabbitMQClient(val connectionTimeout: Int = RabbitMQClient.DefaultConnecti
    *  Create a channel on the connection.
    *  Refer RabbitMQ Java guide for more info :  http://www.rabbitmq.com/api-guide.html#consuming
    */
-  private val channel: Channel = ???
+  private val channel: Channel = connManager.createChannel()
+   channel.exchangeDeclare(exchange, "direct", true)
+    val queueName = channel.queueDeclare().getQueue()
+    channel.queueBind(queueName, exchange, "key")
   /* channel.exchangeDeclare(exchangeName, "direct", true);
 	channel.queueDeclare(queueName, true, false, false, null);
 	channel.queueBind(queueName, exchangeName, routingKey);
@@ -77,15 +95,15 @@ class RabbitMQClient(val connectionTimeout: Int = RabbitMQClient.DefaultConnecti
    * The strategy is a threadpooled executors.
    * This mean any IO monad will be threadpooled when executed.
    */
-  private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
-
+  //private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
+private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t))
   protected def liftPublishOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
-
+    println(messages)   
     messages.foreach { list: NonEmptyList[(String, String)] =>
       list.foreach { tup: (String, String) =>
-      //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
-          //httpMessage.addHeader(tup._1, tup._2)
-      //  }
+        //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
+        //httpMessage.addHeader(tup._1, tup._2)
+        //  }
       }
     }
 
@@ -106,9 +124,9 @@ class RabbitMQClient(val connectionTimeout: Int = RabbitMQClient.DefaultConnecti
   protected def liftSubscribeOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
     messages.foreach { list: NonEmptyList[(String, String)] =>
       list.foreach { tup: (String, String) =>
-      //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
-          //httpMessage.addHeader(tup._1, tup._2)
-      //  }
+        //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
+        //httpMessage.addHeader(tup._1, tup._2)
+        //  }
       }
     }
 
