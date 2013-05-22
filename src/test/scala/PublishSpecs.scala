@@ -19,55 +19,52 @@ import org.specs2.mutable._
 import org.specs2.Specification
 import org.megam.common.amqp._
 import org.specs2.matcher.MatchResult
-import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
-import com.stackmob.newman._
-import com.stackmob.newman.dsl._
 
 /**
  * @author rajthilak
  *
  */
-class PublishSpecs extends Specification   {
+class PublishSpecs extends Specification {
+
   
-  println("jhsgfhjdf")
-   def is = 
-    "ApacheHttpClientSpecs".title ^ end ^
+  def is =
+    "PublishSpecs".title ^ end ^
       """
-  ApacheHttpClient is the HttpClient implementation that actually hits the internet
+  RabbitMQClient is an implementation of AMQPClient that connects to a RabbitMQ server
   """ ^ end ^
-      "The Client Should" ^
-      // "Correctly do GET requests" ! Get().succeeds ^
-      "Correctly do POST requests" ! Post().succeeds ^
+      "The AMQP Client Should" ^
+      "Correctly do a PUB to a queue" ! Publish().succeeds ^
       end
+
       
-  trait Test {
-    val uris = "uris"
-    val exchange = "exchange"
-    val queue = "queue1"
-      val message1 = Messages("id" -> "test", "name" -> "Common")     
-        println("Execute method")
-      val client = new RabbitMQClient("localhost:5672","exchange","queue1")
-      
-      protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok)(fn: AMQPResponse => MatchResult[T]) = {
-        println("jhsdfdfb")
+  trait TestContext {
+    
+    val uris = "localhost:5672"
+    val exchange_name = "exchange"
+    val queue_name = "queue1"
+          
+    val message1 = Messages("id" -> "test", "name" -> "Common")
+    
+    println("Setting up RabbitMQClient")
+    
+    val client = new RabbitMQClient(uris, exchange_name, queue_name)
+
+    protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok)(fn: AMQPResponse => MatchResult[T]) = {
+      println("Executing AMQPRequest")
       val r = t.executeUnsafe
 
       r.code must beEqualTo(expectedCode) and fn(r)
     }
     protected def ensureAMQPOk(h: AMQPResponse) = h.code must beEqualTo(AMQPResponseCode.Ok)
-   }
-  
-     //  new RabbitMQClient(2,2,"uris","exchange","queue1")
-     
-  
- 
-  case class Post() extends Test {
-         println("Execute method")
-         def succeeds =  execute(client.publish(message1, message1))(ensureAMQPOk(_))
- 
-  } 
-  
-  
+  }
+
+
+  case class Publish() extends TestContext {
+    println("Run PUB")
+    def succeeds = execute(client.publish(message1, message1))(ensureAMQPOk(_))
+
+  }
+
 }
 
 
