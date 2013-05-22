@@ -56,12 +56,7 @@ import com.typesafe.config._
    * rest of the code just reuses the old evaluation.
    *
    */
-println("Execute method")
-  //val conf = ConfigFactory.load("~/code/megam/workspace/megam_common/src/main/resources/megam.conf")
-  //println("Config-------------->"+conf)
   private lazy val urisToAddress: Array[Address] = {
-    //val uriAddress = conf.getString("app.amqp.uri")  
-    println(uris)
     val uri = uris.split(":")        
     val add = Array(new Address(uri(0), 5672))    
     add
@@ -73,7 +68,9 @@ println("Execute method")
   private val connManager: Connection = {
     val factory: ConnectionFactory = new ConnectionFactory()       
     val addrArr: Array[Address] = urisToAddress   
+    println("Connecting to " + addrArr.mkString("{"," :: ","}"))
     val cm = factory.newConnection(addrArr)
+    println("Connected to " + addrArr.mkString("{"," ","}"))
     cm
   }
 
