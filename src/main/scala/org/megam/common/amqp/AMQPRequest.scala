@@ -68,9 +68,9 @@ trait AMQPRequest {
   }
 
   def toJson(prettyPrint: Boolean = false)(implicit client: AMQPClient): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    pretty(render(toJValue(client)))
   } else {
-    compactRender(toJValue)
+    compactRender(toJValue(client))
   }
 
 }

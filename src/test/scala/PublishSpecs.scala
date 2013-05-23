@@ -39,11 +39,11 @@ class PublishSpecs extends Specification {
       
   trait TestContext {
     
-    val uris = "localhost:5672"
-    val exchange_name = "exchange"
-    val queue_name = "queue1"
+    val uris = "amqp://localhost:5672,amqp://rabbitmq@megam.co:5672"
+    val exchange_name = "logs"
+    val queue_name = "sampleQueue"
           
-    val message1 = Messages("id" -> "test", "name" -> "Common")
+    val message1 = Messages("id" -> "test", "name" -> "Common", "header" -> "megam")
     
     println("Setting up RabbitMQClient")
     
@@ -61,7 +61,7 @@ class PublishSpecs extends Specification {
 
   case class Publish() extends TestContext {
     println("Run PUB")
-    def succeeds = execute(client.publish(message1, message1))(ensureAMQPOk(_))
+    def succeeds = execute(client.publish(message1, message1, client))(ensureAMQPOk(_))
 
   }
 

@@ -25,6 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import com.rabbitmq.client._
 import com.rabbitmq.client.Channel
 import com.typesafe.config._
+import scala.collection._
+import org.megam.common.amqp._
 /**
  * @author ram
  *
@@ -41,12 +43,12 @@ import com.typesafe.config._
   val strategy: Strategy = Strategy.Executor(amqpThreadPool),
   uris: String, exchange: String, queue: String) extends AMQPClient {*/
 
- class RabbitMQClient(connectionTimeout: Int ,
-  maxChannels: Int , strategy: Strategy ,
-  uris: String, exchange: String, queue: String) extends AMQPClient {
-  
-   def this(uris: String, exchange: String, queue: String) = 
-     this(RabbitMQClient.DefaultConnectionTimeout, RabbitMQClient.DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)         
+class RabbitMQClient(connectionTimeout: Int,
+  maxChannels: Int, strategy: Strategy,
+  uris: String, exchange: String, queue: String) extends AMQPClient with AMQPRequest{
+
+  def this(uris: String, exchange: String, queue: String) =
+    this(RabbitMQClient.DefaultConnectionTimeout, RabbitMQClient.DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
 
   /**
    * convert uris to an array of RabbitMQ's Address objects
@@ -57,8 +59,35 @@ import com.typesafe.config._
    *
    */
   private lazy val urisToAddress: Array[Address] = {
-    val uri = uris.split(":")        
-    val add = Array(new Address(uri(0), 5672))    
+    val urlWithPort = uris.split(",")
+    var add = Array[Address]()
+    def countWords(text: String) = {
+      var count = 0
+      for (rawWord <- text.split("[,]+")) {
+        val word = rawWord.toLowerCase
+        count += 1
+      }
+      count
+    }
+    val URL = """(http|ftp|amqp)://(.*)|\/([a-z]|[0-9]|@|&|#|/)+""".r
+
+    def splitURL(url: String) = url match {
+      case URL(protocol, domain, tld) =>
+        println((protocol, domain, tld))
+        domain
+    }
+    /*  println(countWords(uris))  
+    for ( i <- 0 to countWords(uris)-1 ) {
+      println(urlWithPort(i))
+      val domainWithPort = splitURL(urlWithPort(i))
+      val splitDomain = domainWithPort.split(":")     
+      add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
+    }
+    println(countWords(uris))    
+    println(add)*/
+    val domainWithPort = splitURL(urlWithPort(0))
+    val splitDomain = domainWithPort.split(":")
+    add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
     add
   }
 
@@ -66,11 +95,11 @@ import com.typesafe.config._
    * Connect to the rabbitmq system using the connection factory.
    */
   private val connManager: Connection = {
-    val factory: ConnectionFactory = new ConnectionFactory()       
-    val addrArr: Array[Address] = urisToAddress   
-    println("Connecting to " + addrArr.mkString("{"," :: ","}"))
+    val factory: ConnectionFactory = new ConnectionFactory()
+    val addrArr: Array[Address] = urisToAddress
+    println("Connecting to " + addrArr.mkString("{", " :: ", "}"))
     val cm = factory.newConnection(addrArr)
-    println("Connected to " + addrArr.mkString("{"," ","}"))
+    println("Connected to " + addrArr.mkString("{", " ", "}"))
     cm
   }
 
@@ -79,9 +108,9 @@ import com.typesafe.config._
    *  Refer RabbitMQ Java guide for more info :  http://www.rabbitmq.com/api-guide.html#consuming
    */
   private val channel: Channel = connManager.createChannel()
-   channel.exchangeDeclare(exchange, "direct", true)
-    val queueName = channel.queueDeclare().getQueue()
-    channel.queueBind(queueName, exchange, "key")
+  channel.exchangeDeclare(exchange, "fanout", true)
+  val queueName = channel.queueDeclare().getQueue()
+  channel.queueBind(queueName, exchange, "sampleLog")
   /* channel.exchangeDeclare(exchangeName, "direct", true);
 	channel.queueDeclare(queueName, true, false, false, null);
 	channel.queueBind(queueName, exchangeName, routingKey);
@@ -93,16 +122,19 @@ import com.typesafe.config._
    * This mean any IO monad will be threadpooled when executed.
    */
   //private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
-private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t))
+  private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t))
   protected def liftPublishOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
-    println(messages)   
-    messages.foreach { list: NonEmptyList[(String, String)] =>
-      list.foreach { tup: (String, String) =>
+    println(messages)
+    val messageBodyBytes = "hello".getBytes()
+    channel.basicPublish(exchange, "sampleLog", null, messageBodyBytes)
+    println(toJson(true))
+    //messages.foreach { list: NonEmptyList[(String, String)] =>
+      //list.foreach { tup: (String, String) =>
         //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
         //httpMessage.addHeader(tup._1, tup._2)
         //  }
-      }
-    }
+      //}
+    //}
 
     /**
      * call the basicPublish and return the results.
@@ -166,9 +198,9 @@ private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t))
    *
    */
 
-  override def publish(m1: Messages, m2: Messages): PublishRequest = new PublishRequest {
+  override def publish(m1: Messages, m2: Messages, client: AMQPClient): PublishRequest = new PublishRequest {
     override val messages = m1
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1)
+    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1, client)
   }
 
   override def subscribe(m1: Messages, m2: Messages): SubscribeRequest = new SubscribeRequest {
