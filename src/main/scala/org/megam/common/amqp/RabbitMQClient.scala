@@ -44,9 +44,9 @@ import org.megam.common.amqp._
   uris: String, exchange: String, queue: String) extends AMQPClient {*/
 
 class RabbitMQClient(connectionTimeout: Int,
-  maxChannels: Int, strategy: Strategy,
-  def this(uris: String, exchange: String, queue: String) =
-    this(RabbitMQClient.DefaultConnectionTimeout, RabbitMQClient.DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
+  maxChannels: Int, strategy: Strategy, uris: String, exchange: String, queue: String) extends AMQPClient {
+
+  def this(uris: String, exchange: String, queue: String) = this(RabbitMQClient.DefaultConnectionTimeout, RabbitMQClient.DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
 
   /**
    * convert uris to an array of RabbitMQ's Address objects
@@ -56,33 +56,32 @@ class RabbitMQClient(connectionTimeout: Int,
    * rest of the code just reuses the old evaluation.
    *
    */
+
   private lazy val urisToAddress: Array[Address] = {
     val urisWithPort = uris.split(",")
-   
+
     /**
      *  Regex that splits an uri from amqp://<userid>@hostname:port/vhost to a tuple
      *  (userid, hostname, post, vhost)
-     *  
-     */ 
-    val urisSplitter = """(http|ftp|amqp)://(.*)|\/([a-z]|[0-9]|@|&|#|/)+""".r
-    
+     *
+     */
+    val urisSplitter = """(http|ftp|amqp)\:\/\/([a-z]+)\@(.*)\:([0-9]+)\/([a-z]+)""".r
+
     /*
      * Splits a single URI of the form  amqp://<userid>@hostname:port/vhost 
      * Returns a tuple (userid, hostname, port, host) => put it in a type class
      */
-    def splitURI(uri: String):RawURI = uri match {
+    def splitURI(uri: String): RawURI = uri match {
       case urisSplitter(protocol, userid, hostname, port, vhost) =>
         println((protocol, userid, hostname, port, vhost))
-        RawURI(userid, hostname,port,vhost)
+        RawURI(userid, hostname, port, vhost)
     }
-  
-    val t = urisWithPort.map(uri => splitURI(uri))
-    
-   // add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
-  //  add
-    Nil
 
- 
+    val t = urisWithPort.map(uri => splitURI(uri))
+    val l2 = t.map(rawUri => new Address(rawUri._2, (rawUri._3).toInt))
+    val add = Array(new Address("localhost", 5672))
+    l2
+  }
 
   /**
    * Connect to the rabbitmq system using the connection factory.
@@ -103,7 +102,7 @@ class RabbitMQClient(connectionTimeout: Int,
   private val channel: Channel = connManager.createChannel()
   channel.exchangeDeclare(exchange, "fanout", true)
   val queueName = channel.queueDeclare().getQueue()
-  channel.queueBind(queueName, exchange, "sampleLog")
+  channel.queueBind(queueName, exchange, "sampleMessage")
   /* channel.exchangeDeclare(exchangeName, "direct", true);
 	channel.queueDeclare(queueName, true, false, false, null);
 	channel.queueBind(queueName, exchangeName, routingKey);
@@ -117,16 +116,16 @@ class RabbitMQClient(connectionTimeout: Int,
   //private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
   private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t))
   protected def liftPublishOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
-    println(messages)
-    val messageBodyBytes = "hello".getBytes()
-    channel.basicPublish(exchange, "sampleLog", null, messageBodyBytes)   
 
+    val messageJson = MessagePayLoad(messages).toJson(false)
+    println("-------->" + messageJson)
+    channel.basicPublish(exchange, "sampleMessage", null, messageJson.getBytes())
     //messages.foreach { list: NonEmptyList[(String, String)] =>
-      //list.foreach { tup: (String, String) =>
-        //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
-        //httpMessage.addHeader(tup._1, tup._2)
-        //  }
-      //}
+    //list.foreach { tup: (String, String) =>
+    //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
+    //httpMessage.addHeader(tup._1, tup._2)
+    //  }
+    //}
     //}
 
     /**
@@ -138,8 +137,9 @@ class RabbitMQClient(connectionTimeout: Int,
      *  val responseCode = rabbitResponse.getAllHeaders.map(h => (h.getName, h.getValue)).toList
      *  val responseBody = Option(rabbitResponse.getEntity).map(new BufferedHttpEntity(_)).map(EntityUtils.toByteArray(_))
      */
-    val responseCode = ???
-    val responseBody = ???
+    val body = RawBody(messageJson)
+    val responseCode = AMQPResponseCode.Ok
+    val responseBody = body
     AMQPResponse(responseCode, responseBody)
   }
 

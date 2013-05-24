@@ -39,9 +39,10 @@ class PublishSpecs extends Specification {
       
   trait TestContext {
     
-    val uris = "amqp://localhost:5672,amqp://rabbitmq@megam.co:5672"
-    val exchange_name = "logs"
-    val queue_name = "sampleQueue"
+    //val uris = "amqp://userid@localhost:5672/vHost,amqp://rabbitmq@megam.co:5672/vHost"
+    val uris = "amqp://user@localhost:5672/vhost,amqp://rabbitmq@megam.co:5672/vhost"
+    val exchange_name = "testMessages"
+    val queue_name = "testQueue"
           
     val message1 = Messages("id" -> "test", "name" -> "Common", "header" -> "megam")
     
