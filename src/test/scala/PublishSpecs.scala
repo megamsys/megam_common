@@ -61,7 +61,7 @@ class PublishSpecs extends Specification {
 
   case class Publish() extends TestContext {
     println("Run PUB")
-    def succeeds = execute(client.publish(message1, message1, client))(ensureAMQPOk(_))
+    def succeeds = execute(client.publish(message1, message1))(ensureAMQPOk(_))
 
   }
 

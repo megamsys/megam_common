@@ -45,7 +45,7 @@ import org.megam.common.amqp._
 
 class RabbitMQClient(connectionTimeout: Int,
   maxChannels: Int, strategy: Strategy,
-  uris: String, exchange: String, queue: String) extends AMQPClient with AMQPRequest{
+  uris: String, exchange: String, queue: String) extends AMQPClient{
 
   def this(uris: String, exchange: String, queue: String) =
     this(RabbitMQClient.DefaultConnectionTimeout, RabbitMQClient.DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
@@ -85,6 +85,10 @@ class RabbitMQClient(connectionTimeout: Int,
     }
     println(countWords(uris))    
     println(add)*/
+    val str= "A>Augsburg;B>Berlin"
+    
+    val urll = Map(urlWithPort(0).split("://").map(_ split ":").map(s =>  (s(0),s(1))):_*)
+    println("===================>"+urll)
     val domainWithPort = splitURL(urlWithPort(0))
     val splitDomain = domainWithPort.split(":")
     add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
@@ -127,7 +131,7 @@ class RabbitMQClient(connectionTimeout: Int,
     println(messages)
     val messageBodyBytes = "hello".getBytes()
     channel.basicPublish(exchange, "sampleLog", null, messageBodyBytes)
-    println(toJson(true))
+    //println(toJson(true))
     //messages.foreach { list: NonEmptyList[(String, String)] =>
       //list.foreach { tup: (String, String) =>
         //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
@@ -198,9 +202,9 @@ class RabbitMQClient(connectionTimeout: Int,
    *
    */
 
-  override def publish(m1: Messages, m2: Messages, client: AMQPClient): PublishRequest = new PublishRequest {
+  override def publish(m1: Messages, m2: Messages): PublishRequest = new PublishRequest {
     override val messages = m1
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1, client)
+    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1)
   }
 
   override def subscribe(m1: Messages, m2: Messages): SubscribeRequest = new SubscribeRequest {
