@@ -71,5 +71,12 @@ package object amqp {
     def apply(b: Array[Byte]): Array[Byte] = b
     lazy val empty = Array[Byte]()
   }
+  
+  type RawURI = (String, String, String, String)
+  object RawURI {
+    def apply(userid: String ="megam", hostname: String, port: String, vhost: String = "megam"): RawURI = new RawURI(userid, hostname, port, vhost)
+  }
+  
+
 
 }

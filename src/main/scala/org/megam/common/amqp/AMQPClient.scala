@@ -23,5 +23,5 @@ import org.megam.common.amqp._
 
 trait AMQPClient {
   def subscribe(messages1: Messages,messages2: Messages): SubscribeRequest
-  def publish(messages1: Messages, messages2: Messages, client: AMQPClient): PublishRequest
+  def publish(messages1: Messages, messages2: Messages): PublishRequest
 }

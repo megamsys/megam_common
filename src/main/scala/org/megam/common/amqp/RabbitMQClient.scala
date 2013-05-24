@@ -45,7 +45,7 @@ import org.megam.common.amqp._
 
 class RabbitMQClient(connectionTimeout: Int,
   maxChannels: Int, strategy: Strategy,
-  uris: String, exchange: String, queue: String) extends AMQPClient with AMQPRequest{
+  uris: String, exchange: String, queue: String) extends AMQPClient {
 
   def this(uris: String, exchange: String, queue: String) =
     this(RabbitMQClient.DefaultConnectionTimeout, RabbitMQClient.DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
@@ -59,36 +59,30 @@ class RabbitMQClient(connectionTimeout: Int,
    *
    */
   private lazy val urisToAddress: Array[Address] = {
-    val urlWithPort = uris.split(",")
-    var add = Array[Address]()
-    def countWords(text: String) = {
-      var count = 0
-      for (rawWord <- text.split("[,]+")) {
-        val word = rawWord.toLowerCase
-        count += 1
-      }
-      count
+    val urisWithPort = uris.split(",")
+   
+    /**
+     *  Regex that splits an uri from amqp://<userid>@hostname:port/vhost to a tuple
+     *  (userid, hostname, post, vhost)
+     *  
+     */ 
+    val urisSplitter = """(http|ftp|amqp)://(.*)|\/([a-z]|[0-9]|@|&|#|/)+""".r
+    
+    /*
+     * Splits a single URI of the form  amqp://<userid>@hostname:port/vhost 
+     * Returns a tuple (userid, hostname, port, host) => put it in a type class
+     */
+    def splitURI(uri: String):RawURI = uri match {
+      case urisSplitter(protocol, userid, hostname, port, vhost) =>
+        println((protocol, userid, hostname, port, vhost))
+        RawURI(userid, hostname,port,vhost)
     }
-    val URL = """(http|ftp|amqp)://(.*)|\/([a-z]|[0-9]|@|&|#|/)+""".r
-
-    def splitURL(url: String) = url match {
-      case URL(protocol, domain, tld) =>
-        println((protocol, domain, tld))
-        domain
-    }
-    /*  println(countWords(uris))  
-    for ( i <- 0 to countWords(uris)-1 ) {
-      println(urlWithPort(i))
-      val domainWithPort = splitURL(urlWithPort(i))
-      val splitDomain = domainWithPort.split(":")     
-      add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
-    }
-    println(countWords(uris))    
-    println(add)*/
-    val domainWithPort = splitURL(urlWithPort(0))
-    val splitDomain = domainWithPort.split(":")
-    add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
-    add
+    
+    val t = urisWithPort.map(uri => splitURI(uri))
+    
+   // add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
+  //  add
+    Nil
   }
 
   /**
@@ -127,7 +121,7 @@ class RabbitMQClient(connectionTimeout: Int,
     println(messages)
     val messageBodyBytes = "hello".getBytes()
     channel.basicPublish(exchange, "sampleLog", null, messageBodyBytes)
-    println(toJson(true))
+   
     //messages.foreach { list: NonEmptyList[(String, String)] =>
       //list.foreach { tup: (String, String) =>
         //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
@@ -198,9 +192,9 @@ class RabbitMQClient(connectionTimeout: Int,
    *
    */
 
-  override def publish(m1: Messages, m2: Messages, client: AMQPClient): PublishRequest = new PublishRequest {
+  override def publish(m1: Messages, m2: Messages): PublishRequest = new PublishRequest {
     override val messages = m1
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1, client)
+    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1)
   }
 
   override def subscribe(m1: Messages, m2: Messages): SubscribeRequest = new SubscribeRequest {
