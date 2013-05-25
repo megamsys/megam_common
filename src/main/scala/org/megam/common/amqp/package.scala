@@ -77,6 +77,6 @@ package object amqp {
     def apply(userid: String ="megam", hostname: String, port: String, vhost: String = "megam"): RawURI = new RawURI(userid, hostname, port, vhost)
   }
   
-
+  //override def toString =  (userid, hostname, port, vhost).mkString("[",",","]")
 
 }

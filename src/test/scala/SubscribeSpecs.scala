@@ -69,12 +69,10 @@ class SubscribeSpecs extends Specification {
           case _ => UncategorizedError("request type",
             "unsupported response %s".format(result.stringVal), List()).failNel
         }
-      res
-      
+      res      
     }
     
   }
-
 
   case class Subscribe() extends TestContext {
     println("Run SUB")

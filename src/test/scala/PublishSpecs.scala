@@ -26,7 +26,6 @@ import org.specs2.matcher.MatchResult
  */
 class PublishSpecs extends Specification {
 
-  
   def is =
     "PublishSpecs".title ^ end ^
       """
@@ -36,17 +35,16 @@ class PublishSpecs extends Specification {
       "Correctly do a PUB to a queue" ! Publish().succeeds ^
       end
 
-      
   trait TestContext {
-    
-    val uris = "amqp://localhost:5672,amqp://rabbitmq@megam.co:5672"
-    val exchange_name = "logs"
-    val queue_name = "sampleQueue"
-          
+
+    val uris = "amqp://user@localhost:5672/vhost,amqp://rabbitmq@megam.co:5672/vhost"
+    val exchange_name = "testMessages"
+    val queue_name = "testQueue"
+
     val message1 = Messages("id" -> "test", "name" -> "Common", "header" -> "megam")
-    
+
     println("Setting up RabbitMQClient")
-    
+
     val client = new RabbitMQClient(uris, exchange_name, queue_name)
 
     protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok)(fn: AMQPResponse => MatchResult[T]) = {
@@ -58,11 +56,9 @@ class PublishSpecs extends Specification {
     protected def ensureAMQPOk(h: AMQPResponse) = h.code must beEqualTo(AMQPResponseCode.Ok)
   }
 
-
   case class Publish() extends TestContext {
     println("Run PUB")
     def succeeds = execute(client.publish(message1, message1))(ensureAMQPOk(_))
-
   }
 
 }

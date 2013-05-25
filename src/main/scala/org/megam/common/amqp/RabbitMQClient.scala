@@ -38,8 +38,7 @@ import org.megam.common.amqp._
  */
 
 class RabbitMQClient(connectionTimeout: Int,
-  maxChannels: Int, strategy: Strategy,
-  uris: String, exchange: String, queue: String) extends AMQPClient {
+  maxChannels: Int, strategy: Strategy, uris: String, exchange: String, queue: String) extends AMQPClient {
 
   def this(uris: String, exchange: String, queue: String) =
     this(DefaultConnectionTimeout, DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
@@ -53,14 +52,15 @@ class RabbitMQClient(connectionTimeout: Int,
    *
    */
   private lazy val urisToAddress: Array[Address] = {
-    val urisWithPort = uris.split(",")
+    val urisArray = uris.split(",")
 
     /**
      *  Regex that splits an uri from amqp://<userid>@hostname:port/vhost to a tuple
      *  (userid, hostname, post, vhost)
      *
      */
-    val urisSplitter = """(http|ftp|amqp)://(.*)|\/([a-z]|[0-9]|@|&|#|/)+""".r
+
+    val urisSplitter = """(http|ftp|amqp)\:\/\/([a-z]+)\@(.*)\:([0-9]+)\/([a-z]+)""".r
 
     /*
      * Splits a single URI of the form  amqp://<userid>@hostname:port/vhost 
@@ -68,15 +68,12 @@ class RabbitMQClient(connectionTimeout: Int,
      */
     def splitURI(uri: String): RawURI = uri match {
       case urisSplitter(protocol, userid, hostname, port, vhost) =>
-        println((protocol, userid, hostname, port, vhost))
         RawURI(userid, hostname, port, vhost)
     }
 
-    val t = urisWithPort.map(uri => splitURI(uri))
+    val rabbitCrudeAddresses = urisArray.map(uri => splitURI(uri))
 
-    // add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
-    //  add
-    Nil
+    rabbitCrudeAddresses.map(rawUri => new Address(rawUri._2, (rawUri._3).toInt))
   }
 
   /**
@@ -103,13 +100,12 @@ class RabbitMQClient(connectionTimeout: Int,
     channel.queueBind(queueName, exchange, "sampleLog")
     channel
   }
-  
+
   /**
    *  A DefaultConsumer, which takes a fn (F[A] = > Validation[Failure, Success]
    *  This also needs the channel. Verify it.
    */
-  private val defaultConsumer: Consumer = RabbitMQConsumer(channel, f);    
-  
+  private val defaultConsumer: Consumer = RabbitMQConsumer(channel, f);
 
   /**
    * This function wraps an function (t => T) into  concurrent scalaz IO using a strategy.
@@ -117,27 +113,29 @@ class RabbitMQClient(connectionTimeout: Int,
    * This mean any IO monad will be threadpooled when executed.
    */
   private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
-  
-  protected def liftPublishOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {  
-    /**
-     * call the basicPublish and return the results.
-     *
-    channel.basicPublish(exchange, "sampleLog", null, messageBodyBytes)
-    * 
-    */
 
-    val responseCode = ???
-    val responseBody = ???
+  protected def liftPublishOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
+    val messageJson = MessagePayLoad(messages).toJson(false)
+    println("Hurray publishing :" + messageJson)
+    /**
+     * What is the null ?
+     */
+    channel.basicPublish(exchange, "sampleMessage", null, messageJson.getBytes())
+
+    val body = RawBody(messageJson)  // Just return the json back, this will logged saying the message was delivered.
+    val responseCode = AMQPResponseCode.Ok
+    val responseBody = body
     AMQPResponse(responseCode, responseBody)
   }
-  
-   /** Also we need to know if channel.basicConsumer is blocking or non blocking.
-    *  If its blocking, then the caller will wait for the results
-    **/ 
+
+  /**
+   * Also we need to know if channel.basicConsumer is blocking or non blocking.
+   *  If its blocking, then the caller will wait for the results
+   */
   protected def liftSubscribeOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
     // use the consumer
     // channel.basicConsume(queue, true, consumer)
-    
+
     val responseCode = ???
     val responseBody = ???
     AMQPResponse(responseCode, responseBody)
@@ -150,8 +148,8 @@ class RabbitMQClient(connectionTimeout: Int,
   }
 
   /**
-   * The subscribe will take a fn, that will get invoked when a message is received from 
-   * a queue.   
+   * The subscribe will take a fn, that will get invoked when a message is received from
+   * a queue.
    */
   override def subscribe(m1: Messages, m2: Messages): SubscribeRequest = new SubscribeRequest {
     override val messages = m1
