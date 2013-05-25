@@ -25,6 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import com.rabbitmq.client._
 import scala.collection._
 import org.megam.common.amqp._
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
 /**
  * @author ram
  *
@@ -93,20 +95,21 @@ class RabbitMQClient(connectionTimeout: Int,
    *  Refer RabbitMQ Java guide for more info :  http://www.rabbitmq.com/api-guide.html#consuming
    *  The type of exchange should be configurable (fanout, direct etc..)
    */
-  private val channel: Channel = {
-    connManager.createChannel()
-    channel.exchangeDeclare(exchange, "fanout", true)
-    val queueName = channel.queueDeclare().getQueue()
-    channel.queueBind(queueName, exchange, "sampleLog")
-    channel
+  private lazy val channel: Channel = {
+    println("-----------Called Channel")
+    val tmpChannel = connManager.createChannel()
+    tmpChannel.exchangeDeclare(exchange, "fanout", true)
+    val queueName = tmpChannel.queueDeclare().getQueue()
+    tmpChannel.queueBind(queueName, exchange, "sampleLog")
+    tmpChannel
   }
 
   /**
    *  A DefaultConsumer, which takes a fn (F[A] = > Validation[Failure, Success]
    *  This also needs the channel. Verify it.
    */
-  private val defaultConsumer: Consumer = RabbitMQConsumer(channel, f);
-
+  //private val defaultConsumer: Consumer = RabbitMQConsumer(channel, f);
+  private def defaultConsumer(f: AMQPResponse => ValidationNel[Error, String]): Consumer = { new RabbitMQConsumer(channel, f) }
   /**
    * This function wraps an function (t => T) into  concurrent scalaz IO using a strategy.
    * The strategy is a threadpooled executors.
@@ -122,7 +125,7 @@ class RabbitMQClient(connectionTimeout: Int,
      */
     channel.basicPublish(exchange, "sampleMessage", null, messageJson.getBytes())
 
-    val body = RawBody(messageJson)  // Just return the json back, this will logged saying the message was delivered.
+    val body = RawBody(messageJson) // Just return the json back, this will logged saying the message was delivered.
     val responseCode = AMQPResponseCode.Ok
     val responseBody = body
     AMQPResponse(responseCode, responseBody)
@@ -132,9 +135,10 @@ class RabbitMQClient(connectionTimeout: Int,
    * Also we need to know if channel.basicConsumer is blocking or non blocking.
    *  If its blocking, then the caller will wait for the results
    */
-  protected def liftSubscribeOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
+  protected def liftSubscribeOp(f: AMQPResponse => ValidationNel[Error, String]): IO[Promise[AMQPResponse]] = wrapIOPromise {
     // use the consumer
-    // channel.basicConsume(queue, true, consumer)
+    val consumer = defaultConsumer(f)
+    channel.basicConsume(queue, true, consumer)
 
     val responseCode = ???
     val responseBody = ???
@@ -151,9 +155,9 @@ class RabbitMQClient(connectionTimeout: Int,
    * The subscribe will take a fn, that will get invoked when a message is received from
    * a queue.
    */
-  override def subscribe(m1: Messages, m2: Messages): SubscribeRequest = new SubscribeRequest {
-    override val messages = m1
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftSubscribeOp(m1)
+  override def subscribe(f: AMQPResponse => ValidationNel[Error, String]): SubscribeRequest = new SubscribeRequest {
+    override val messages = None
+    override def prepareAsync: IO[Promise[AMQPResponse]] = liftSubscribeOp(f)
 
   }
 

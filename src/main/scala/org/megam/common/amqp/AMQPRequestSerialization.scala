@@ -58,7 +58,7 @@ class AMQPRequestSerialization(client: AMQPClient) extends SerializationBase[AMQ
         val baseApplicative = msgs1 |@| msgs2
         val res: ValidationNel[Error, AMQPRequest] = reqType match {
           case PUB => baseApplicative(client.publish(_,_))
-          case SUB => baseApplicative(client.subscribe(_,_))
+          //case SUB => baseApplicative(client.subscribe())
           case _   => UncategorizedError("request type", "unsupported request type %s".format(reqType.stringVal), List()).failNel
         }
         res

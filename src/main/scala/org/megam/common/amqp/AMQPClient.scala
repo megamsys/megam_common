@@ -20,8 +20,13 @@ package org.megam.common.amqp
  *
  */
 import org.megam.common.amqp._
+import scalaz._
+import Scalaz._
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
 
 trait AMQPClient {
-  def subscribe(messages1: Messages,messages2: Messages): SubscribeRequest
+  //def subscribe(messages1: Messages,messages2: Messages): SubscribeRequest
+  def subscribe(f: AMQPResponse => ValidationNel[Error, String]): SubscribeRequest
   def publish(messages1: Messages, messages2: Messages): PublishRequest
 }

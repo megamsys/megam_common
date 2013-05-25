@@ -19,7 +19,12 @@ import org.specs2.mutable._
 import org.specs2.Specification
 import org.megam.common.amqp._
 import org.specs2.matcher.MatchResult
-
+import scalaz._
+import scalaz.Validation._
+import Scalaz._
+import jsonscalaz._
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
 /**
  * @author rajthilak
  *
@@ -39,9 +44,9 @@ class SubscribeSpecs extends Specification {
       
   trait TestContext {
     
-    val uris = "amqp://rabbitmq@localhost:5672, amqp://rabbitmq@megam.co:5672"
-    val exchange_name = "logs"
-    val queue_name = "sampleQueue"
+     val uris = "amqp://user@localhost:5672/vhost,amqp://rabbitmq@megam.co:5672/vhost"
+    val exchange_name = "testMessages"
+    val queue_name = "testQueue"
           
     val message1 = Messages("id" -> "test", "name" -> "Common", "header" -> "megam")
     
@@ -49,11 +54,11 @@ class SubscribeSpecs extends Specification {
     
     val client = new RabbitMQClient(uris, exchange_name, queue_name)
 
-    protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok)(fn: AMQPResponse => MatchResult[T]) = {
+    protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok) = {
       println("Executing AMQPRequest")
       val r = t.executeUnsafe // Returns a AMQPResponse
 
-      r.code must beEqualTo(expectedCode) and fn(r)
+      r.code must beEqualTo(expectedCode) 
     }
     
     /**
@@ -65,10 +70,10 @@ class SubscribeSpecs extends Specification {
       val result = h.toJson(true) // the response is parsed back
       
       val res: ValidationNel[Error, String] = result match {
-          case respJSON => respJSON.successfulNel[String]          
-          case _ => UncategorizedError("request type",
-            "unsupported response %s".format(result.stringVal), List()).failNel
-        }
+          case respJSON => respJSON.successNel         
+          case _ => UncategorizedError("request type","unsupported response type", List()).failNel
+                   
+        } 
       res      
     }
     
@@ -76,7 +81,7 @@ class SubscribeSpecs extends Specification {
 
   case class Subscribe() extends TestContext {
     println("Run SUB")
-    def succeeds = execute(client.subscribe(message1, message1))(quenchThirst(_))
+    def succeeds = execute(client.subscribe(quenchThirst))
 
   }
 
