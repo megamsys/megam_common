@@ -24,22 +24,22 @@ import org.specs2.matcher.MatchResult
  * @author rajthilak
  *
  */
-class PublishSpecs extends Specification {
+class SubscribeSpecs extends Specification {
 
   
   def is =
-    "PublishSpecs".title ^ end ^
+    "SubscribeSpecs".title ^ end ^
       """
   RabbitMQClient is an implementation of AMQPClient that connects to a RabbitMQ server
   """ ^ end ^
       "The AMQP Client Should" ^
-      "Correctly do a PUB to a queue" ! Publish().succeeds ^
+      "Correctly do a SUB to a queue" ! Subscribe().succeeds ^
       end
 
       
   trait TestContext {
     
-    val uris = "amqp://localhost:5672,amqp://rabbitmq@megam.co:5672"
+    val uris = "amqp://rabbitmq@localhost:5672, amqp://rabbitmq@megam.co:5672"
     val exchange_name = "logs"
     val queue_name = "sampleQueue"
           
@@ -51,17 +51,34 @@ class PublishSpecs extends Specification {
 
     protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok)(fn: AMQPResponse => MatchResult[T]) = {
       println("Executing AMQPRequest")
-      val r = t.executeUnsafe
+      val r = t.executeUnsafe // Returns a AMQPResponse
 
       r.code must beEqualTo(expectedCode) and fn(r)
     }
-    protected def ensureAMQPOk(h: AMQPResponse) = h.code must beEqualTo(AMQPResponseCode.Ok)
+    
+    /**
+     * This is a callback function invoked when an consumer thirsty for a response wants it to be quenched.
+     * The response is a either a success or  a failure delivered as scalaz (ValidationNel). 
+     */
+    protected def quenchThirst(h: AMQPResponse) =  {
+      
+      val result = h.toJson(true) // the response is parsed back
+      
+      val res: ValidationNel[Error, String] = result match {
+          case respJSON => respJSON.successfulNel[String]          
+          case _ => UncategorizedError("request type",
+            "unsupported response %s".format(result.stringVal), List()).failNel
+        }
+      res
+      
+    }
+    
   }
 
 
-  case class Publish() extends TestContext {
-    println("Run PUB")
-    def succeeds = execute(client.publish(message1, message1))(ensureAMQPOk(_))
+  case class Subscribe() extends TestContext {
+    println("Run SUB")
+    def succeeds = execute(client.subscribe(message1, message1))(quenchThirst(_))
 
   }
 

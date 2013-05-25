@@ -23,8 +23,6 @@ import java.util.concurrent.{ ThreadFactory, Executors }
 import RabbitMQClient._
 import java.util.concurrent.atomic.AtomicInteger
 import com.rabbitmq.client._
-import com.rabbitmq.client.Channel
-import com.typesafe.config._
 import scala.collection._
 import org.megam.common.amqp._
 /**
@@ -38,17 +36,13 @@ import org.megam.common.amqp._
  * publish   : this uses the scalaz.concurrent feature to execute each of the publish operation in its own thread.
  * subscribe : this uses the scalaz.concurrent feature to execute each of the subscribe operation in its own thread.
  */
-/*class RabbitMQClient(val connectionTimeout: Int = RabbitMQClient.DefaultConnectionTimeout,
-  val maxChannels: Int = RabbitMQClient.DefaultChannelMax,
-  val strategy: Strategy = Strategy.Executor(amqpThreadPool),
-  uris: String, exchange: String, queue: String) extends AMQPClient {*/
 
 class RabbitMQClient(connectionTimeout: Int,
   maxChannels: Int, strategy: Strategy,
   uris: String, exchange: String, queue: String) extends AMQPClient {
 
   def this(uris: String, exchange: String, queue: String) =
-    this(RabbitMQClient.DefaultConnectionTimeout, RabbitMQClient.DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
+    this(DefaultConnectionTimeout, DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
 
   /**
    * convert uris to an array of RabbitMQ's Address objects
@@ -60,28 +54,28 @@ class RabbitMQClient(connectionTimeout: Int,
    */
   private lazy val urisToAddress: Array[Address] = {
     val urisWithPort = uris.split(",")
-   
+
     /**
      *  Regex that splits an uri from amqp://<userid>@hostname:port/vhost to a tuple
      *  (userid, hostname, post, vhost)
-     *  
-     */ 
+     *
+     */
     val urisSplitter = """(http|ftp|amqp)://(.*)|\/([a-z]|[0-9]|@|&|#|/)+""".r
-    
+
     /*
      * Splits a single URI of the form  amqp://<userid>@hostname:port/vhost 
      * Returns a tuple (userid, hostname, port, host) => put it in a type class
      */
-    def splitURI(uri: String):RawURI = uri match {
+    def splitURI(uri: String): RawURI = uri match {
       case urisSplitter(protocol, userid, hostname, port, vhost) =>
         println((protocol, userid, hostname, port, vhost))
-        RawURI(userid, hostname,port,vhost)
+        RawURI(userid, hostname, port, vhost)
     }
-    
+
     val t = urisWithPort.map(uri => splitURI(uri))
-    
-   // add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
-  //  add
+
+    // add = Array(new Address(splitDomain(0), splitDomain(1).toInt))
+    //  add
     Nil
   }
 
@@ -100,103 +94,65 @@ class RabbitMQClient(connectionTimeout: Int,
   /**
    *  Create a channel on the connection.
    *  Refer RabbitMQ Java guide for more info :  http://www.rabbitmq.com/api-guide.html#consuming
+   *  The type of exchange should be configurable (fanout, direct etc..)
    */
-  private val channel: Channel = connManager.createChannel()
-  channel.exchangeDeclare(exchange, "fanout", true)
-  val queueName = channel.queueDeclare().getQueue()
-  channel.queueBind(queueName, exchange, "sampleLog")
-  /* channel.exchangeDeclare(exchangeName, "direct", true);
-	channel.queueDeclare(queueName, true, false, false, null);
-	channel.queueBind(queueName, exchangeName, routingKey);
-    */
+  private val channel: Channel = {
+    connManager.createChannel()
+    channel.exchangeDeclare(exchange, "fanout", true)
+    val queueName = channel.queueDeclare().getQueue()
+    channel.queueBind(queueName, exchange, "sampleLog")
+    channel
+  }
+  
+  /**
+   *  A DefaultConsumer, which takes a fn (F[A] = > Validation[Failure, Success]
+   *  This also needs the channel. Verify it.
+   */
+  private val defaultConsumer: Consumer = RabbitMQConsumer(channel, f);    
+  
 
   /**
    * This function wraps an function (t => T) into  concurrent scalaz IO using a strategy.
    * The strategy is a threadpooled executors.
    * This mean any IO monad will be threadpooled when executed.
    */
-  //private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
-  private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t))
-  protected def liftPublishOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
-    println(messages)
-    val messageBodyBytes = "hello".getBytes()
+  private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
+  
+  protected def liftPublishOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {  
+    /**
+     * call the basicPublish and return the results.
+     *
     channel.basicPublish(exchange, "sampleLog", null, messageBodyBytes)
-   
-    //messages.foreach { list: NonEmptyList[(String, String)] =>
-      //list.foreach { tup: (String, String) =>
-        //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
-        //httpMessage.addHeader(tup._1, tup._2)
-        //  }
-      //}
-    //}
+    * 
+    */
 
-    /**
-     * call the basicPublish and return the results.
-     *
-     * val rabbitResp = ???
-     *
-     * Split the results as deemed fit. Fit it in the AMQPResponse as a tuple.
-     *  val responseCode = rabbitResponse.getAllHeaders.map(h => (h.getName, h.getValue)).toList
-     *  val responseBody = Option(rabbitResponse.getEntity).map(new BufferedHttpEntity(_)).map(EntityUtils.toByteArray(_))
-     */
     val responseCode = ???
     val responseBody = ???
     AMQPResponse(responseCode, responseBody)
   }
-
+  
+   /** Also we need to know if channel.basicConsumer is blocking or non blocking.
+    *  If its blocking, then the caller will wait for the results
+    **/ 
   protected def liftSubscribeOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
-    messages.foreach { list: NonEmptyList[(String, String)] =>
-      list.foreach { tup: (String, String) =>
-        //  if (!tup._1.equalsIgnoreCase(CONTENT_LENGTH)) {
-        //httpMessage.addHeader(tup._1, tup._2)
-        //  }
-      }
-    }
-
-    /**
-     * call the basicPublish and return the results.
-     *
-     * val rabbitResp = ???
-     *
-     * Split the results as deemed fit. Fit it in the AMQPResponse as a tuple.
-     *   boolean autoAck = false;
-     * channel.basicConsume(queueName, autoAck, "myConsumerTag",
-     * new DefaultConsumer(channel) {
-     * @Override
-     * public void handleDelivery(String consumerTag,
-     * Envelope envelope,
-     * AMQP.BasicProperties properties,
-     * byte[] body)
-     * throws IOException
-     * {
-     * String routingKey = envelope.getRoutingKey();
-     * String contentType = properties.contentType;
-     * long deliveryTag = envelope.getDeliveryTag();
-     * // (process the message components here ...)
-     * channel.basicAck(deliveryTag, false);
-     * }
-     * });
-     *
-     *    * Split the results as deemed fit. Fit it in the AMQPResponse as a tuple.
-     *  val responseCode = rabbitResponse.getAllHeaders.map(h => (h.getName, h.getValue)).toList
-     *  val responseBody = Option(rabbitResponse.getEntity).map(new BufferedHttpEntity(_)).map(EntityUtils.toByteArray(_))
-     */
+    // use the consumer
+    // channel.basicConsume(queue, true, consumer)
+    
     val responseCode = ???
     val responseBody = ???
     AMQPResponse(responseCode, responseBody)
 
   }
-
-  /**
-   * byte[] messageBodyBytes = "Hello, world!".getBytes();
-   *
-   */
 
   override def publish(m1: Messages, m2: Messages): PublishRequest = new PublishRequest {
     override val messages = m1
     override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1)
   }
 
+  /**
+   * The subscribe will take a fn, that will get invoked when a message is received from 
+   * a queue.   
+   */
   override def subscribe(m1: Messages, m2: Messages): SubscribeRequest = new SubscribeRequest {
     override val messages = m1
     override def prepareAsync: IO[Promise[AMQPResponse]] = liftSubscribeOp(m1)
