@@ -31,7 +31,6 @@ import net.liftweb.json.scalaz.JsonScalaz._
  */
 class SubscribeSpecs extends Specification {
 
-  
   def is =
     "SubscribeSpecs".title ^ end ^
       """
@@ -41,42 +40,41 @@ class SubscribeSpecs extends Specification {
       "Correctly do a SUB to a queue" ! Subscribe().succeeds ^
       end
 
-      
   trait TestContext {
-    
-     val uris = "amqp://user@localhost:5672/vhost,amqp://rabbitmq@megam.co:5672/vhost"
+
+    val uris = "amqp://user@localhost:5672/vhost,amqp://rabbitmq@megam.co:5672/vhost"
     val exchange_name = "testMessages"
     val queue_name = "testQueue"
-          
+
     val message1 = Messages("id" -> "test", "name" -> "Common", "header" -> "megam")
-    
+
     println("Setting up RabbitMQClient")
-    
+
     val client = new RabbitMQClient(uris, exchange_name, queue_name)
 
     protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok) = {
       println("Executing AMQPRequest")
       val r = t.executeUnsafe // Returns a AMQPResponse
 
-      r.code must beEqualTo(expectedCode) 
+      r.code must beEqualTo(expectedCode)
     }
-    
+
     /**
      * This is a callback function invoked when an consumer thirsty for a response wants it to be quenched.
-     * The response is a either a success or  a failure delivered as scalaz (ValidationNel). 
+     * The response is a either a success or  a failure delivered as scalaz (ValidationNel).
      */
-    protected def quenchThirst(h: AMQPResponse) =  {
-      
+    protected def quenchThirst(h: AMQPResponse) = {
+
       val result = h.toJson(true) // the response is parsed back
-      
+
       val res: ValidationNel[Error, String] = result match {
-          case respJSON => respJSON.successNel         
-          case _ => UncategorizedError("request type","unsupported response type", List()).failNel
-                   
-        } 
-      res      
+        case respJSON => respJSON.successNel
+        case _        => UncategorizedError("request type", "unsupported response type", List()).failNel
+
+      }
+      res
     }
-    
+
   }
 
   case class Subscribe() extends TestContext {
