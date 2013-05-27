@@ -43,10 +43,9 @@ class SubscribeSpecs extends Specification {
   trait TestContext {
 
     val uris = "amqp://user@localhost:5672/vhost,amqp://rabbitmq@megam.co:5672/vhost"
-    val exchange_name = "testMessages"
-    val queue_name = "testQueue"
-
-    val message1 = Messages("id" -> "test", "name" -> "Common", "header" -> "megam")
+    val exchange_name = "megam_exchange"
+    val queue_name = "megam_queue"
+    val routingKey = "megam_key"
 
     println("Setting up RabbitMQClient")
 
@@ -79,7 +78,7 @@ class SubscribeSpecs extends Specification {
 
   case class Subscribe() extends TestContext {
     println("Run SUB")
-    def succeeds = execute(client.subscribe(quenchThirst))
+    def succeeds = execute(client.subscribe(quenchThirst, routingKey))
 
   }
 

@@ -39,7 +39,7 @@ class RabbitMQConsumer(channel: Channel, f: AMQPResponse => ValidationNel[Error,
     val routingKey = envelope.getRoutingKey()
 
     val body_text = new String(body, UTF8Charset)
-    println("----" + body_text)
+    println("Subscribed Message" + body_text)
     //val contentType = properties.contentType
     val deliveryTag = envelope.getDeliveryTag()
     val validate = f(AMQPResponse(AMQPResponseCode.Ok, RawBody(body_text)))

@@ -17,6 +17,7 @@ package org.megam.common.amqp
 
 import scalaz._
 import Scalaz._
+import scalaz.NonEmptyList._
 import scalaz.effect.IO
 import scalaz.concurrent._
 import java.util.concurrent.{ ThreadFactory, Executors }
@@ -39,49 +40,33 @@ import net.liftweb.json.scalaz.JsonScalaz._
  * subscribe : this uses the scalaz.concurrent feature to execute each of the subscribe operation in its own thread.
  */
 
-class RabbitMQClient(connectionTimeout: Int,
-  maxChannels: Int, strategy: Strategy, uris: String, exchange: String, queue: String) extends AMQPClient {
+class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: String,
+  strategy: Strategy, uris: String, exchangeName: String, queueName: String) extends AMQPClient {
 
   def this(uris: String, exchange: String, queue: String) =
-    this(DefaultConnectionTimeout, DefaultChannelMax, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
+    this(DefaultConnectionTimeout, DefaultChannelMax, DefaultExchangeType, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
 
   /**
    * convert uris to an array of RabbitMQ's Address objects
-   * Address(host, port) ...
    * If you have failover servers then feed them in the conf file.
-   * As its lazy val, this gets evaluated only once when its first called and the
-   * rest of the code just reuses the old evaluation.
-   *
+   * Regex that splits an uri from amqp://<userid>@hostname:port/vhost to a tuple
+   *  (userid, hostname, post, vhost)
    */
   private lazy val urisToAddress: Array[Address] = {
-    val urisArray = uris.split(",")
-
-    /**
-     *  Regex that splits an uri from amqp://<userid>@hostname:port/vhost to a tuple
-     *  (userid, hostname, post, vhost)
-     *
-     */
-
     val urisSplitter = """(http|ftp|amqp)\:\/\/([a-z]+)\@(.*)\:([0-9]+)\/([a-z]+)""".r
 
-    /*
-     * Splits a single URI of the form  amqp://<userid>@hostname:port/vhost 
-     * Returns a tuple (userid, hostname, port, host) => put it in a type class
-     */
-    def splitURI(uri: String): RawURI = uri match {
+    val rabbitCrudeAddresses = uris.split(",").map(uri => uri match {
       case urisSplitter(protocol, userid, hostname, port, vhost) =>
         RawURI(userid, hostname, port, vhost)
-    }
-
-    val rabbitCrudeAddresses = urisArray.map(uri => splitURI(uri))
-
+    })
+    rabbitCrudeAddresses foreach RawURI.show
     rabbitCrudeAddresses.map(rawUri => new Address(rawUri._2, (rawUri._3).toInt))
   }
 
   /**
    * Connect to the rabbitmq system using the connection factory.
    */
-  private val connManager: Connection = {
+  private lazy val connManager: Connection = {
     val factory: ConnectionFactory = new ConnectionFactory()
     val addrArr: Array[Address] = urisToAddress
     println("Connecting to " + addrArr.mkString("{", " :: ", "}"))
@@ -91,39 +76,21 @@ class RabbitMQClient(connectionTimeout: Int,
   }
 
   /**
-   *  Create a channel on the connection.
-   *  Refer RabbitMQ Java guide for more info :  http://www.rabbitmq.com/api-guide.html#consuming
-   *  The type of exchange should be configurable (fanout, direct etc..)
-   */
-  private lazy val channel: Channel = {
-    println("-----------Called Channel")
-    val tmpChannel = connManager.createChannel()
-    tmpChannel.exchangeDeclare(exchange, "fanout", true)
-    val queueName = tmpChannel.queueDeclare().getQueue()
-    tmpChannel.queueBind(queueName, exchange, "sampleLog")
-    tmpChannel
-  }
-
-  /**
-   *  A DefaultConsumer, which takes a fn (F[A] = > Validation[Failure, Success]
-   *  This also needs the channel. Verify it.
-   */
-  //private val defaultConsumer: Consumer = RabbitMQConsumer(channel, f);
-  private def defaultConsumer(f: AMQPResponse => ValidationNel[Error, String]): Consumer = { new RabbitMQConsumer(channel, f) }
-  /**
    * This function wraps an function (t => T) into  concurrent scalaz IO using a strategy.
    * The strategy is a threadpooled executors.
    * This mean any IO monad will be threadpooled when executed.
    */
   private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
 
-  protected def liftPublishOp(messages: Messages): IO[Promise[AMQPResponse]] = wrapIOPromise {
+  protected def liftPublishOp(messages: Messages, routingKey: RoutingKey): IO[Promise[AMQPResponse]] = wrapIOPromise {
     val messageJson = MessagePayLoad(messages).toJson(false)
+    val pubChannel = ChannelQueue(routingKey).forreq(Some(AMQPRequestType.PUB))
     println("Hurray publishing :" + messageJson)
     /**
      * What is the null ?
+     *
      */
-    channel.basicPublish(exchange, "sampleMessage", null, messageJson.getBytes())
+    pubChannel.basicPublish(exchangeName, routingKey, null, messageJson.getBytes())
 
     val body = RawBody(messageJson) // Just return the json back, this will logged saying the message was delivered.
     val responseCode = AMQPResponseCode.Ok
@@ -134,30 +101,67 @@ class RabbitMQClient(connectionTimeout: Int,
   /**
    * Also we need to know if channel.basicConsumer is blocking or non blocking.
    *  If its blocking, then the caller will wait for the results
+   *  A DefaultConsumer, which takes a fn (F[A] = > Validation[Failure, Success]
+   *  This also needs the channel.
    */
-  protected def liftSubscribeOp(f: AMQPResponse => ValidationNel[Error, String]): IO[Promise[AMQPResponse]] = wrapIOPromise {
+  protected def liftSubscribeOp(f: AMQPResponse => ValidationNel[Error, String], routingKey: RoutingKey): IO[Promise[AMQPResponse]] = wrapIOPromise {
     // use the consumer
-    val consumer = defaultConsumer(f)
-    channel.basicConsume(queue, true, consumer)
+    val subChannel = ChannelQueue(routingKey).forreq(None)
+    val consumer = new RabbitMQConsumer(subChannel, f)
 
-    val responseCode = ???
-    val responseBody = ???
+    subChannel.basicConsume(queueName, true, consumer)
+
+    //val body = 
+    val responseCode = AMQPResponseCode.Ok
+    val responseBody = RawBody("Message Subcribe was successfully")
     AMQPResponse(responseCode, responseBody)
 
   }
 
-  override def publish(m1: Messages, m2: Messages): PublishRequest = new PublishRequest {
+  override def publish(m1: Messages, key: RoutingKey): PublishRequest = new PublishRequest {
     override val messages = m1
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1)
+    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1, key)
   }
 
   /**
    * The subscribe will take a fn, that will get invoked when a message is received from
    * a queue.
    */
-  override def subscribe(f: AMQPResponse => ValidationNel[Error, String]): SubscribeRequest = new SubscribeRequest {
+  override def subscribe(f: AMQPResponse => ValidationNel[Error, String], key: RoutingKey): SubscribeRequest = new SubscribeRequest {
     override val messages = None
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftSubscribeOp(f)
+    override def prepareAsync: IO[Promise[AMQPResponse]] = liftSubscribeOp(f, key)
+
+  }
+
+  case class ChannelQueue(routing: RoutingKey) {
+
+    def channel: Channel = connManager.createChannel()
+
+    /**
+     * Declare a queue named as "queueName", durable : true,
+     * exclusive: false (ie. not restricted to this connection),
+     * autodelete: false (ie. let the queue remain), and no other arguments.
+     */
+    val queue: ValidationNel[Error, Option[String]] = {
+      val que = Some(channel.queueDeclare(queueName, true, false, false, null).getQueue())
+      que match {
+        case Some(name) => que.successNel
+        case _          => UncategorizedError("Queue creation", "Queue %s creation failure".format(queueName), List()).failNel
+
+      }
+    }
+
+    /**
+     * prepares the channel for the AMQP request.
+     */
+    def forreq(reqType: Option[AMQPRequestType]): Channel = {
+      reqType match {
+        case Some(reqType) => { channel.exchangeDeclare(exchangeName, exchangeType, true); queue }
+        case None          => channel
+      }
+      channel.queueBind(queueName, exchangeName, routing)
+      channel
+    }
 
   }
 
@@ -167,6 +171,7 @@ object RabbitMQClient {
 
   private[RabbitMQClient] val DefaultConnectionTimeout = ConnectionFactory.DEFAULT_CONNECTION_TIMEOUT
   private[RabbitMQClient] val DefaultChannelMax = ConnectionFactory.DEFAULT_CHANNEL_MAX
+  private[RabbitMQClient] val DefaultExchangeType = "fanout"
 
   private val threadNumber = new AtomicInteger(1)
   lazy val amqpThreadPool = Executors.newCachedThreadPool(new ThreadFactory() {
@@ -176,3 +181,5 @@ object RabbitMQClient {
     }
   })
 }
+
+

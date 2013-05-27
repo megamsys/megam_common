@@ -58,38 +58,10 @@ trait AMQPRequest {
    * alias for prepareAsync.unsafePerformIO(). executes the HTTP request in a Promise
    * @return a promise representing the HttpResponse that was returned from this HTTP request
    */
-  def executeAsyncUnsafe: Promise[AMQPResponse] = prepareAsync.unsafePerformIO()
-
-  def toJValue(implicit client: AMQPClient): JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    val requestSerialization = new AMQPRequestSerialization(client)
-    toJSON(this)(requestSerialization.writer)
-
-  }
-
-  def toJson(prettyPrint: Boolean = false)(implicit client: AMQPClient): String = if (prettyPrint) {
-    pretty(render(toJValue(client)))
-  } else {
-    compactRender(toJValue(client))
-  }
+  def executeAsyncUnsafe: Promise[AMQPResponse] = prepareAsync.unsafePerformIO()  
 
 }
 
-object AMQPRequest {
-
-  def fromJValue(jValue: JValue)(implicit client: AMQPClient): Result[AMQPRequest] = {
-    import net.liftweb.json.JsonAST.JValue
-    val requestSerialization = new AMQPRequestSerialization(client)
-    fromJSON(jValue)(requestSerialization.reader)
-
-  }
-
-  def fromJson(json: String)(implicit client: AMQPClient): Result[AMQPRequest] = (fromTryCatch {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-}
 
 trait PublishRequest extends AMQPRequest {
   override val requestType = AMQPRequestType.PUB

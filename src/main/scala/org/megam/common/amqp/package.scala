@@ -31,6 +31,7 @@ import net.liftweb.json.scalaz.JsonScalaz.JSONW
  *
  */
 package object amqp {
+  
   val UTF8Charset = Charset.forName("UTF-8")
 
   type IOValidation[Fail, Success] = IO[Validation[Fail, Success]]
@@ -65,18 +66,25 @@ package object amqp {
   }
 
   type RawBody = Array[Byte]
+  
   implicit val RawBodyMonoid: Monoid[RawBody] = Monoid.instance(_ ++ _, Array[Byte]())
+  
   object RawBody {
     def apply(s: String, charset: Charset = UTF8Charset): Array[Byte] = s.getBytes(charset)
     def apply(b: Array[Byte]): Array[Byte] = b
     lazy val empty = Array[Byte]()
   }
-  
+
   type RawURI = (String, String, String, String)
+ 
   object RawURI {
-    def apply(userid: String ="megam", hostname: String, port: String, vhost: String = "megam"): RawURI = new RawURI(userid, hostname, port, vhost)
+    
+    def apply(userid: String = "megam", hostname: String, port: String, vhost: String = "megam"): RawURI = new RawURI(userid, hostname, port, vhost)
+    def show(ruri: RawURI) = (ruri._1 + " " + ruri._2 + " " + ruri._3 + " " + ruri._4)
+
   }
   
-  //override def toString =  (userid, hostname, port, vhost).mkString("[",",","]")
+  type RoutingKey = String
+
 
 }

@@ -27,6 +27,6 @@ import net.liftweb.json.scalaz.JsonScalaz._
 
 trait AMQPClient {
   //def subscribe(messages1: Messages,messages2: Messages): SubscribeRequest
-  def subscribe(f: AMQPResponse => ValidationNel[Error, String]): SubscribeRequest
-  def publish(messages1: Messages, messages2: Messages): PublishRequest
+  def subscribe(f: AMQPResponse => ValidationNel[Error, String], key: RoutingKey): SubscribeRequest
+  def publish(messages1: Messages, key: RoutingKey): PublishRequest
 }
