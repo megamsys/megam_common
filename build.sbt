@@ -44,6 +44,7 @@ libraryDependencies ++= {
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
     "com.twitter" % "util-zk-common" % zkVersion,
+    "com.stackmob" %% "scaliak" % "0.7.0",
     "com.rabbitmq" % "amqp-client" % amqpVersion,    
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",   
