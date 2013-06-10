@@ -24,10 +24,15 @@ import com.stackmob.scaliak._
  * @author ram
  *
  */
-case class Bag(key: String, value: String)
+case class GunnySack(key: String, value: String)
 
-class Riak(uri: String, bucketName: String) {
-  import Riak._
+/*
+ * Any class that wants RiakOperations shall implement this trait. 
+ * The invoker shall provide a "bucketName". The uri will be pulled from the configuration
+ */
+class GSRiak(uri: String, bucketName: String) {
+
+  import GSRiak._
 
   /**
    * Connect to the riak system using the scaliak client.
@@ -38,7 +43,7 @@ class Riak(uri: String, bucketName: String) {
    * connect the existing bucket in riak client
    * if doesn't bucket then, create a new bucket
    */
-  private val bucket: ScaliakBucket = {
+  private lazy val bucket: ScaliakBucket = {
     client.generateAndSetClientId()
     val bucket = client.bucket(bucketName).unsafePerformIO() match {
       case Success(b) => b
@@ -47,31 +52,29 @@ class Riak(uri: String, bucketName: String) {
     bucket
   }
 
+  //do a dummy ping. If an exception is thrown, then Riak connection doesn't exists. 
+  val ping = client.ping
+  //When the client starts 
+  val bucketsList = client.listBuckets.unsafePerformIO
+
   /*
-   * put the specified key and their value to riak bucket
+   * store the specified key and their value to riak bucket
    */
-  def put(key: String, value: String) {
-    if (bucket.store(new Bag(key, value)).unsafePerformIO().isFailure) {
-      throw new Exception("failed to store object")
-    }
+  def store[K, V](key: String, value: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    val stored = bucket.store(new GunnySack(key, value)).unsafePerformIO()
+    stored
   }
 
   /*
    * fetch a Bag object
    * and return the option node object
    */
-  def fetch(key: String): Option[Bag] = {
-    val fetchResult: ValidationNel[Throwable, Option[Bag]] = bucket.fetch(key).unsafePerformIO()
-    fetchResult match {
-      case Success(mbFetched) => {
-        println(mbFetched some { v => v.key + ":" + v.value } none { "did not find key" })
-        mbFetched
-      }
-      case Failure(es) => throw es.head
-    }
+  def fetch(key: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    val fetchResult: ValidationNel[Throwable, Option[GunnySack]] = bucket.fetch(key).unsafePerformIO()
+    fetchResult
   }
 
-  private def printFetchRes(v: ValidationNel[Throwable, Option[Bag]]): IO[Unit] = v match {
+  private def printFetchRes(v: ValidationNel[Throwable, Option[GunnySack]]): IO[Unit] = v match {
     case Success(mbFetched) => {
       println(
         mbFetched some { "fetched: " + _.toString } none { "key does not exist" }).pure[IO]
@@ -83,10 +86,12 @@ class Riak(uri: String, bucketName: String) {
 
 }
 
-object Riak {
+object GSRiak {
 
-  implicit val BagConverter: ScaliakConverter[Bag] = ScaliakConverter.newConverter[Bag](
-    (o: ReadObject) => new Bag(o.key, o.stringValue).successNel,
-    (o: Bag) => WriteObject(o.key, o.value.getBytes))
+  implicit val GunnySackConverter: ScaliakConverter[GunnySack] = ScaliakConverter.newConverter[GunnySack](
+    (o: ReadObject) => new GunnySack(o.key, o.stringValue).successNel,
+    (o: GunnySack) => WriteObject(o.key, o.value.getBytes))
+
+  def apply(uri: String, bucketName: String) = new GSRiak(uri, bucketName)
 
 }
