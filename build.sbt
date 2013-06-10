@@ -26,8 +26,6 @@ resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases"
 resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/public"
       
 resolvers += "Twitter Repo" at "http://maven.twttr.com"   
-      
-     
        
 
 libraryDependencies ++= {
@@ -36,7 +34,7 @@ libraryDependencies ++= {
   val scalazVersion = "7.0.0"
   val zkVersion = "6.3.2"
   val amqpVersion = "3.0.4"
-  val liftJsonVersion = "2.5-RC5"
+  val liftJsonVersion = "2.5"
   val typeSafeConfig = "0.3.0"
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
@@ -44,6 +42,7 @@ libraryDependencies ++= {
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
     "com.twitter" % "util-zk-common" % zkVersion,
+    "com.stackmob" %% "scaliak" % "0.7.1",
     "com.rabbitmq" % "amqp-client" % amqpVersion,    
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",   
