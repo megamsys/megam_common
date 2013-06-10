@@ -9,7 +9,7 @@ import sbt._
 
 name := "megam_common"
 
-organization := "org.megam"
+organization := "com.github.indykish"
 
 scalaVersion := "2.10.1"
 
@@ -26,8 +26,6 @@ resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases"
 resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/public"
       
 resolvers += "Twitter Repo" at "http://maven.twttr.com"   
-      
-     
        
 
 libraryDependencies ++= {

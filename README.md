@@ -5,6 +5,7 @@ Megam common libraries for scala, Java.
 
 * `AMQP` : AMQP client
 * `Zoo`  : Zookeeper client
+* 'Riak` : Riak scaffolding mediator to the (scaliak driver by stackmob)[https://github.com/stackmob/scaliak]
 
 
 ### Requirements
@@ -18,10 +19,22 @@ Megam common libraries for scala, Java.
 
 ## Usage
 
-At the minimum you need a configuration file with the following.
+We'll see the usage in `akka`, `play` or `standalone programs in Scala`
+
+* Akka
+* Play framework
+* Any other standalone (`extends App` in Scala)
+
+At the minimum you need a configuration file with the following. 
+
+### Akka
+
+// The global settings file loaded as an extension.
 
 ```json
-// The global settings file loaded as an extension.
+
+
+
 app { 
 	
 	amqp { 
@@ -33,12 +46,33 @@ app {
 	
 	}
 }
+
 ```
+
+### Play Framework 
+
+// The global settings file loaded as an extension.
+
+```json
+
+
+
+app { 
+	
+	amqp { 
+		uris = ["amqp://megam:team4megam@rabbitmq1.megam.co.in:5200/megam","amqp://megam:team4megam@rabbitmq2.megam.co.in:5200/megam"], 
+		exchange = "megam_exchange",		
+		queue = "megam_conf"
+	} 
+	zoo {
+	
+	}
+}
+
+```
+
 ###
 
-`amqp:` 
-
-`zoo:` 
 
 
 ### Prepare your program
@@ -51,22 +85,30 @@ Before your run it,
 
 ```xml
 	<dependency>
-	<groupId>org.megam</groupId>
-	<artifactId>common</artifactId>
-	<version>0.1</version>
+	<groupId>com.github.indykish</groupId>
+	<artifactId>megam_common</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
 	</dependency>
 ```
+### Akka
 
-> Invoking AMQP Client as an extension in akka
+* Invoking AMQP Client as an extension in akka
 
 ```scala
 
+
 ```
 
-   
-### Running the application
+### Play
 
-Refer the BasicExample.java to get started. 
+* Invoking AMQP Client as an extension in akka
+
+```scala
+
+
+```
+   
+
 
 We are glad to help if you have questions, or request for new features..
 
@@ -74,7 +116,8 @@ We are glad to help if you have questions, or request for new features..
 
 #### TO - DO
 
-* Zookeeper
+* Logging/Better Failure handling
+* Testing in progress
 
 	
 # License
@@ -83,7 +126,7 @@ We are glad to help if you have questions, or request for new features..
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
 | **Author:**          | Rajthilak (<rajthilak@megam.co.in>)
-|		       | KishorekumarNeelamegam (<nkishore@megam.co.in>)
+|		               | KishorekumarNeelamegam (<nkishore@megam.co.in>)
 | **Copyright:**       | Copyright (c) 2012-2013 Megam Systems.
 | **License:**         | Apache License, Version 2.0
 
