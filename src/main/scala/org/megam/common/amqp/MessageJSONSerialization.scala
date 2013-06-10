@@ -58,6 +58,15 @@ object MessageJSONSerialization extends SerializationBase[Messages] {
   }
 
   implicit override val writer = new JSONW[Messages] {
-    override def write(h: Messages): JValue = JString(h.toString)
+    
+    override def write(h: Messages): JValue = {
+      val listv = h match {
+      case Some(x) =>
+        println(x.toList)
+        x.toList
+    }
+    val messageValue = listv.map(_._2).mkString     
+      JString(messageValue)
+    }
   }
 }

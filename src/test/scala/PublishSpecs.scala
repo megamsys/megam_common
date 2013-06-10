@@ -41,7 +41,7 @@ class PublishSpecs extends Specification {
     val exchange_name = "megam_exchange"
     val queue_name = "megam_queue"
     val routingKey = "megam_key"
-    val message1 = Messages("id" -> "2000", "name" -> "requests", "header" -> "megam_common")
+    val message1 = Messages("id" -> "sample")
 
     println("Setting up RabbitMQClient")
 

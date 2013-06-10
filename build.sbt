@@ -9,7 +9,7 @@ import sbt._
 
 name := "megam_common"
 
-organization := "org.megam"
+organization := "com.github.indykish"
 
 scalaVersion := "2.10.1"
 

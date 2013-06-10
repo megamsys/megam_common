@@ -33,9 +33,8 @@ case class MessagePayLoad(messages: Messages) {
     
 
   def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON   
     toJSON(this)(MessagePayLoadSerialization.writer)
-
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {

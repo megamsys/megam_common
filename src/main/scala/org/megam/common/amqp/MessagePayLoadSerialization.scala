@@ -33,8 +33,8 @@ object MessagePayLoadSerialization extends SerializationBase[MessagePayLoad] {
   import org.megam.common.amqp.MessageJSONSerialization.{ writer => MessageWriter, reader => MessageReader }
 
   override implicit val writer = new JSONW[MessagePayLoad] {
-    override def write(h: MessagePayLoad): JValue = {
-      JObject(
+    override def write(h: MessagePayLoad): JValue = {      
+      JObject(          
         JField(MessageKey, toJSON(h.messages)(MessageWriter)) :: Nil)
     }
   }
