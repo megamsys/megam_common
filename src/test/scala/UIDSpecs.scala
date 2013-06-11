@@ -17,29 +17,39 @@
  * @author subash
  *
  */
-class UIDSpecs {
-  
+
+import org.specs2._
+import org.specs2.mutable._
+import org.specs2.Specification
+import org.megam.common.amqp._
+import org.specs2.matcher.MatchResult
+
+import org.megam.common.uid.UID
+
+class UIDSpecs extends Specification {
+
   def is =
     "UIDSpecs".title ^ end ^
       """
   UID is an implementation of TwitterSnowflakeId service 
   """ ^ end ^
       "The UID Client Should" ^
-      "Correctly return a Unique ID" !UID().succeeds ^
+      "Correctly return a Unique ID for agent act" ! UIDActService().succeeds ^
+      "Correctly return a Unique ID for agent nod" ! UIDActService().succeeds ^
       end
-      
-      protected def ensureUIDOk(h: Long ) = h.code must beEqualTo(1111)
+
+  def execute[T](t: Long, expectedPrefix: String)(fn: Long => MatchResult[T]) = {
+    t.toString must startWith(expectedPrefix) and fn(t)
   }
 
-  case class UID()  {
-    
-    def succeeds = (new UID("sub"))).get(ensureUIDOk(_))
+  protected def ensureUIDOk(h: Long) = h must beGreaterThan(0L)
+
+  case class UIDActService() {
+    def succeeds = execute(UID("localhost", 5670, "act").get,"act")(ensureUIDOk(_))
   }
 
-}
-      
-      
-      
-      
+  case class UIDNodService() {
+    def succeeds = execute(UID("localhost", 5670, "nod").get,"nod")(ensureUIDOk(_))
+  }
 
 }
