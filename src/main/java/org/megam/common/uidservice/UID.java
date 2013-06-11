@@ -28,10 +28,14 @@ import org.apache.thrift.protocol.*;
 
 import com.twitter.service.snowflake.gen.*;
 
-
 public class UID {
 
-	public UID(String count, String servers, String agent) throws Exception {
+	private Snowflake.Client client;
+	private String agent;
+
+	public UID(String agent) throws Exception {
+
+		this.agent = agent;
 
 		String host = "localhost";
 		int port = 7609;
@@ -41,11 +45,17 @@ public class UID {
 
 		TProtocol protocol = new TBinaryProtocol(transport);
 
-		Snowflake.Client client = new Snowflake.Client(protocol);
+		client = new Snowflake.Client(protocol);
+
+	}
+
+	public long get() throws Exception{
 
 		long worker_id = client.get_id(agent);
 
 		System.out.println("worker_id" + worker_id);
+
+		return worker_id;
 
 	}
 
