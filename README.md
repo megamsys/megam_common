@@ -5,7 +5,8 @@ Megam common libraries for scala, Java.
 
 * `AMQP` : AMQP client
 * `Zoo`  : Zookeeper client
-* 'Riak` : Riak scaffolding mediator to the (scaliak driver by stackmob)[https://github.com/stackmob/scaliak]
+* `Riak` : Riak scaffolding mediator to the [scaliak driver by stackmob](https://github.com/stackmob/scaliak)
+* `UID`  : A Unique identity generating service client for scala which connects to twitters [snowflake](https://github.com/twitter/snowflake)
 
 
 ### Requirements
@@ -13,6 +14,11 @@ Megam common libraries for scala, Java.
 > 
 [RabbitMQ 3.0.4 +](http://www.rabbitmq.com)
 [OpenJDK 7.0](http://openjdk.java.net/install/index.html)
+[Riak 1.3.1 +](http://basho.com)
+[Snowflake server](http://github.com/twitter/snowflake) 
+
+* Snowflake Ubuntu DEB Bundle(13.04) is available here 
+
 
 
 #### Tested on Ubuntu 13.04, AWS - EC2
