@@ -39,6 +39,7 @@ class UIDSpecs extends Specification {
       end
 
   def execute[T](t: Long, expectedPrefix: String)(fn: Long => MatchResult[T]) = {
+    println(t)
     t.toString must startWith(expectedPrefix) and fn(t)
   }
 
