@@ -82,9 +82,10 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
    */
   private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
 
-  protected def liftPublishOp(messages: Messages, routingKey: RoutingKey): IO[Promise[AMQPResponse]] = wrapIOPromise {
+  protected def liftPublishOp(messages: Messages, routingKey: RoutingKey): IO[Promise[AMQPResponse]] = wrapIOPromise {    
     val messageJson = MessagePayLoad(messages).toJson(false)
-    val pubChannel = ChannelQueue(routingKey).forreq(Some(AMQPRequestType.PUB))
+    val pubChannel = ChannelQueue(routingKey).forreq(Some(AMQPRequestType.PUB))   
+
     println("Hurray publishing :" + messageJson)
     /**
      * What is the null ?

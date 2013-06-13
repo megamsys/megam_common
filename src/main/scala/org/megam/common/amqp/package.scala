@@ -36,7 +36,7 @@ package object amqp {
 
   type IOValidation[Fail, Success] = IO[Validation[Fail, Success]]
 
-  type Message = (String, String)
+  type Message = (String, String) 
   type MessageList = NonEmptyList[Message]
   type Messages = Option[MessageList]
 

@@ -19,7 +19,7 @@ import scalaz._
 import Scalaz._
 import scalaz.effect.IO
 import com.stackmob.scaliak._
-
+import com.basho.riak.client.query.indexes.{RiakIndexes, IntIndex, BinIndex}
 /**
  * @author ram
  *
@@ -74,6 +74,46 @@ class GSRiak(uri: String, bucketName: String) {
     fetchResult
   }
 
+  def storeWithIndex(key: String, value: String) = {
+    val existingMetadataKey = "Field2_int"
+     val existingMetadataVal = "1002"     
+    
+       
+    val bindex = BinIndex.named("email")
+      val bvalue = Set("val5")
+     val testwriteObject = WriteObject(
+    "mykey12",
+    "".getBytes, "",
+    null,
+    metadata = Map(existingMetadataKey -> existingMetadataVal),
+    binIndexes = Map((bindex, bvalue))
+    )
+    
+     val testObject = ReadObject(
+    "mykey12",
+    "", "",
+    null, "".getBytes,
+    metadata = Map(existingMetadataKey -> existingMetadataVal),
+    binIndexes = Map((bindex, bvalue))
+    )
+    val value2 = testObject.addMetadata("a", "b")
+    val value3 = testObject.binIndex("Field7_bin")
+    
+    println("write object"+testwriteObject._binIndexes)
+       println("write object"+testwriteObject._metadata)
+     println("=====================================>"+value2)
+    println("--------------------"+value3)
+    val value4 = fetchIndexByValue("val5")
+     println("--------------------"+value4)
+     println("++++++++"+bindex.getName())
+  }
+  
+  def fetchIndexByValue(email: String): Validation[Throwable, List[String]] = {
+     val valueI: Validation[Throwable, List[String]] = bucket.fetchIndexByValue("email_bin", email).unsafePerformIO()   
+     println(valueI)
+     valueI
+  }
+  
   private def printFetchRes(v: ValidationNel[Throwable, Option[GunnySack]]): IO[Unit] = v match {
     case Success(mbFetched) => {
       println(
