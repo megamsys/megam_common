@@ -18,6 +18,9 @@
  *
  */
 
+import scalaz._
+import Scalaz._
+
 import org.specs2._
 import org.specs2.mutable._
 import org.specs2.Specification
@@ -25,6 +28,7 @@ import org.megam.common.amqp._
 import org.specs2.matcher.MatchResult
 
 import org.megam.common.uid.UID
+import org.megam.common.uid._
 
 class UIDSpecs extends Specification {
 
@@ -34,23 +38,32 @@ class UIDSpecs extends Specification {
   UID is an implementation of TwitterSnowflakeId service 
   """ ^ end ^
       "The UID Client Should" ^
-      "Correctly return a Unique ID for agent act" ! UIDActService().succeeds ^
+      "Correctly return a Unique ID for agent act" ! UIDActNoneService().succeeds ^
       "Correctly return a Unique ID for agent nod" ! UIDActService().succeeds ^
       end
 
-  def execute[T](t: Long, expectedPrefix: String)(fn: Long => MatchResult[T]) = {
-    println(t)
-    t.toString must startWith(expectedPrefix) and fn(t)
+  def execute[T](t: ValidationNel[Throwable, UniqueID], expectedPrefix: String)(fn: UniqueID => MatchResult[T]) = {
+    val res = t match {
+      case Success(uid) => uid
+      case Failure(errThrown) => {
+        println("*=----------------------------------------*\n")
+        errThrown.head.printStackTrace
+        println("*=----------------------------------------*\n")
+        UniqueID.empty
+      }
+    }
+    println(res.get._1 + res.get._2)
+    res.get._1.toString must startWith(expectedPrefix) and fn(res)
   }
 
-  protected def ensureUIDOk(h: Long) = h must beGreaterThan(0L)
+  protected def ensureUIDOk(h: UniqueID) = h.get._2 must beGreaterThan(0L)
+
+  case class UIDActNoneService() {
+    def succeeds = execute(UID("localhost", 5670, "act").get, "non")(ensureUIDOk(_))
+  }
 
   case class UIDActService() {
-    def succeeds = execute(UID("localhost", 5670, "act").get,"act")(ensureUIDOk(_))
-  }
-
-  case class UIDNodService() {
-    def succeeds = execute(UID("localhost", 5670, "nod").get,"nod")(ensureUIDOk(_))
+    def succeeds = execute(UID("localhost", 5670, "act").get, "act")(ensureUIDOk(_))
   }
 
 }

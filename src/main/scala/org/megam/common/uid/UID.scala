@@ -15,6 +15,11 @@
 */
 package org.megam.common.uid
 
+import scalaz._
+import scalaz.Validation._
+import scalaz.NonEmptyList._
+
+import Scalaz._
 import org.apache.thrift.transport.{ TSocket }
 import org.apache.thrift.protocol.{ TProtocol, TBinaryProtocol }
 
@@ -34,9 +39,18 @@ class UID(host: String, port: Int, agent: String) {
 
   private lazy val client = new Snowflake.Client(protocol)
 
-  def get():Long = {
-    client.get_id(agent)
+  def get: ValidationNel[Throwable, UniqueID] = {
+    (fromTryCatch {
+      client.get_id(agent)
+    } leftMap { t: Throwable => 
+                   new Throwable(
+                """Unique ID Generation failure for 'agent:' '%s'
+            |
+            |Please verify your ID Generation server host name ,port. Refer the stacktrace for more information
+            |If this error persits, ask for help on the forums.""".format(agent).stripMargin + "\n ",t)      
+    }).toValidationNel.flatMap { i: Long => Validation.success[Throwable, UniqueID](UniqueID(agent, i)).toValidationNel }
   }
+
 }
 
 object UID {
