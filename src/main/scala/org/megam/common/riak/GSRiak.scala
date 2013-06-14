@@ -19,12 +19,26 @@ import scalaz._
 import Scalaz._
 import scalaz.effect.IO
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{RiakIndexes, IntIndex, BinIndex}
+import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
+import com.basho.riak.client.cap.VClock
 /**
  * @author ram
  *
  */
-case class GunnySack(key: String, value: String)
+import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+
+case class GunnySack(key: String, value: String, contentType: String = RiakConstants.CTYPE_TEXT_UTF8,
+  links: Option[NonEmptyList[ScaliakLink]] = none, metadata: Map[String, String] = Map(),
+  binIndexes: Map[BinIndex, Set[String]] = Map(), intIndexes: Map[IntIndex, Set[Int]] = Map(),
+  vClock: Option[VClock] = none, vTag: String = "",
+  lastModified: java.util.Date = new java.util.Date(System.currentTimeMillis)) {
+
+  override def toString = {
+    // key + " " + value +"contentType:" + contentType + 
+    // binIndexes.map(b => )
+    ""
+  }
+}
 
 /*
  * Any class that wants RiakOperations shall implement this trait. 
@@ -60,8 +74,8 @@ class GSRiak(uri: String, bucketName: String) {
   /*
    * store the specified key and their value to riak bucket
    */
-  def store[K, V](key: String, value: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val stored = bucket.store(new GunnySack(key, value)).unsafePerformIO()
+  def store[K, V](gs: GunnySack): ValidationNel[Throwable, Option[GunnySack]] = {
+    val stored = bucket.store(gs).unsafePerformIO()
     stored
   }
 
@@ -74,46 +88,11 @@ class GSRiak(uri: String, bucketName: String) {
     fetchResult
   }
 
-  def storeWithIndex(key: String, value: String) = {
-    val existingMetadataKey = "Field2_int"
-     val existingMetadataVal = "1002"     
-    
-       
-    val bindex = BinIndex.named("email")
-      val bvalue = Set("val5")
-     val testwriteObject = WriteObject(
-    "mykey12",
-    "".getBytes, "",
-    null,
-    metadata = Map(existingMetadataKey -> existingMetadataVal),
-    binIndexes = Map((bindex, bvalue))
-    )
-    
-     val testObject = ReadObject(
-    "mykey12",
-    "", "",
-    null, "".getBytes,
-    metadata = Map(existingMetadataKey -> existingMetadataVal),
-    binIndexes = Map((bindex, bvalue))
-    )
-    val value2 = testObject.addMetadata("a", "b")
-    val value3 = testObject.binIndex("Field7_bin")
-    
-    println("write object"+testwriteObject._binIndexes)
-       println("write object"+testwriteObject._metadata)
-     println("=====================================>"+value2)
-    println("--------------------"+value3)
-    val value4 = fetchIndexByValue("val5")
-     println("--------------------"+value4)
-     println("++++++++"+bindex.getName())
+  def fetchIndexByValue(g: GunnySack): ValidationNel[Throwable, List[String]] = {
+    val indexVal = bucket.fetchIndexByValue(g.key + "_bin", g.value).unsafePerformIO()
+    indexVal.toValidationNel
   }
-  
-  def fetchIndexByValue(email: String): Validation[Throwable, List[String]] = {
-     val valueI: Validation[Throwable, List[String]] = bucket.fetchIndexByValue("email_bin", email).unsafePerformIO()   
-     println(valueI)
-     valueI
-  }
-  
+
   private def printFetchRes(v: ValidationNel[Throwable, Option[GunnySack]]): IO[Unit] = v match {
     case Success(mbFetched) => {
       println(
@@ -129,8 +108,10 @@ class GSRiak(uri: String, bucketName: String) {
 object GSRiak {
 
   implicit val GunnySackConverter: ScaliakConverter[GunnySack] = ScaliakConverter.newConverter[GunnySack](
-    (o: ReadObject) => new GunnySack(o.key, o.stringValue).successNel,
-    (o: GunnySack) => WriteObject(o.key, o.value.getBytes))
+    (o: ReadObject) => GunnySack(o.key, o.stringValue, o.contentType, o.links, o.metadata, o.binIndexes, o.intIndexes,
+      o.vClock.some, o.vTag, o.lastModified).successNel,
+    (o: GunnySack) => WriteObject(o.key, o.value.getBytes, o.contentType, o.links, o.metadata, o.vClock, 
+        o.vTag, o.binIndexes,o.intIndexes, o.lastModified))
 
   def apply(uri: String, bucketName: String) = new GSRiak(uri, bucketName)
 
