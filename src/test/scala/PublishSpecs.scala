@@ -15,11 +15,13 @@
 */
 //package test
 import org.specs2._
+import scalaz._
+import Scalaz._
 import org.specs2.mutable._
 import org.specs2.Specification
 import org.megam.common.amqp._
 import org.specs2.matcher.MatchResult
-import org.megam.common.riak._
+
 /**
  * @author rajthilak
  *
@@ -36,7 +38,7 @@ class PublishSpecs extends Specification {
       end
 
   trait TestContext {
-     private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "mybucket")
+
     val uris = "amqp://user@localhost:5672/vhost,amqp://rabbitmq@megam.co:5672/vhost"
     val exchange_name = "megam_exchange"
     val queue_name = "megam_queue"
@@ -50,8 +52,7 @@ class PublishSpecs extends Specification {
     protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok)(fn: AMQPResponse => MatchResult[T]) = {
       println("Executing AMQPRequest")
       val r = t.executeUnsafe
-      
-      //riak.storeWithIndex("mykey12", "haiii")
+
       r.code must beEqualTo(expectedCode) and fn(r)
     }
     protected def ensureAMQPOk(h: AMQPResponse) = h.code must beEqualTo(AMQPResponseCode.Ok)
