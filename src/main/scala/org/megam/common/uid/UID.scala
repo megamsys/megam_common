@@ -20,28 +20,21 @@ import scalaz.Validation._
 import scalaz.NonEmptyList._
 
 import Scalaz._
-import org.apache.thrift.transport.{ TSocket }
-import org.apache.thrift.protocol.{ TProtocol, TBinaryProtocol }
+import org.apache.thrift.transport.{TTransport}
 
-import com.twitter.service.snowflake.gen._
 
 /**
  * @author ram
  *
  */
-class UID(host: String, port: Int, agent: String) {
-
-  val protocol: TProtocol = {
-    val transport = new TSocket(host, port)
-    transport.open()
-    new TBinaryProtocol(transport)
-  }
-
-  private lazy val client = new Snowflake.Client(protocol)
+class UID(hostname: String, port: Int, agent: String, soTimeoutMS: Int = 20) {
+  
+  private lazy val service: UniqueIDService = 
+    USnowflakeClient.create(hostname, port,soTimeoutMS)
 
   def get: ValidationNel[Throwable, UniqueID] = {
     (fromTryCatch {
-      client.get_id(agent)
+      service._2.get_id(agent)
     } leftMap { t: Throwable => 
                    new Throwable(
                 """Unique ID Generation failure for 'agent:' '%s'
