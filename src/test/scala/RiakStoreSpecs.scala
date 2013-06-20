@@ -32,7 +32,7 @@ import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 
 class RiakStoreSpecs extends mutable.Specification {
 
-  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "mybucket")
+  private lazy val riak: GSRiak = GSRiak("http://riak1.megam.co.in:8098/riak/", "mybucket")
   val metadataKey = "Field"
   val metadataVal = "1002"
   val bindex = BinIndex.named("email")

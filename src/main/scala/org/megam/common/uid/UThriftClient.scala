@@ -43,8 +43,7 @@ class UThriftClient[T](implicit man: Manifest[T]) {
   def create(hostname: String, port: Int, soTimeoutMS: Int): (TTransport, T) = {
     val socket = new TSocket(hostname, port, soTimeoutMS)
     val transport = new TFramedTransport(socket)
-    val protocol: TProtocol  = new TBinaryProtocol(transport)
-
+    val protocol: TProtocol  = new TBinaryProtocol(transport)    
     transport.open()
     logger.debug(("creating new TSocket: remote-host = %s remote-port = %d local-port = %d timeout = %d").
         format(hostname, socket.getSocket.getPort, socket.getSocket.getLocalPort, soTimeoutMS))

@@ -28,10 +28,10 @@ import org.apache.thrift.transport.{TTransport}
  *
  */
 class UID(hostname: String, port: Int, agent: String, soTimeoutMS: Int = 20) {
-  
+ 
   private lazy val service: UniqueIDService = 
     USnowflakeClient.create(hostname, port,soTimeoutMS)
-
+ 
   def get: ValidationNel[Throwable, UniqueID] = {
     (fromTryCatch {
       service._2.get_id(agent)

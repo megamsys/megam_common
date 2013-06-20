@@ -63,9 +63,12 @@ class GSRiak(uri: String, bucketName: String) {
 
   //do a dummy ping. If an exception is thrown, then Riak connection doesn't exists. 
   val ping = client.ping
+  
   //When the client starts 
   val bucketsList = client.listBuckets.unsafePerformIO
-
+  
+  //List the all keys in bucket
+  val keysList = bucket.listKeys.unsafePerformIO()
   /*
    * store the specified key and their value to riak bucket
    */
@@ -82,8 +85,8 @@ class GSRiak(uri: String, bucketName: String) {
   def fetch(key: String): ValidationNel[Throwable, Option[GunnySack]] = {
     val fetchResult: ValidationNel[Throwable, Option[GunnySack]] = bucket.fetch(key).unsafePerformIO()
     fetchResult
-  }
-
+  }   
+  
   def fetchIndexByValue(g: GunnySack): ValidationNel[Throwable, List[String]] = {
     val indexVal = bucket.fetchIndexByValue(g.key + "_bin", g.value).unsafePerformIO()
     println(indexVal)
