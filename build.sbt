@@ -32,7 +32,7 @@ libraryDependencies ++= {
   val scalaCheckVersion = "1.10.1"
   val specs2Version = "1.14"
   val scalazVersion = "7.0.0"
-  val zkVersion = "6.3.2"
+  val zkVersion = "6.3.6"
   val amqpVersion = "3.0.4"
   val liftJsonVersion = "2.5"
   val typeSafeConfig = "0.3.0"
@@ -41,7 +41,7 @@ libraryDependencies ++= {
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "com.twitter" % "util-zk-common" % zkVersion,
+    "com.twitter" % "util-zk" % zkVersion,
     "com.stackmob" %% "scaliak" % "0.7.1",
     "com.rabbitmq" % "amqp-client" % amqpVersion,    
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
@@ -49,11 +49,14 @@ libraryDependencies ++= {
     "org.pegdown" % "pegdown" % "1.0.2" % "test",    
     "org.skife.com.typesafe.config" % "typesafe-config" % typeSafeConfig,
     "org.slf4j" % "slf4j-api" % "1.7.5",       
-    "org.apache.thrift" % "libthrift" % "0.5.0",
     "org.slf4j" % "slf4j-log4j12" % "1.7.5",
+    "org.apache.thrift" % "libthrift" % "0.5.0",
+    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar",
     "log4j" % "log4j" % "1.2.17",
     "commons-codec" % "commons-codec" % "1.8")
 }
+
+
 
 logBuffered := false
 
@@ -85,6 +88,7 @@ publishTo <<= (version) { version: String =>
     Some("releases" at nexus + "service/local/staging/deploy/maven2")
   }
 }
+
 
 publishMavenStyle := true
 

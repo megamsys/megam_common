@@ -17,13 +17,20 @@ package org.megam.common
 
 import java.net.InetSocketAddress
 import scala.collection.JavaConverters._
-import com.twitter.common.net.InetSocketAddressHelper
-import com.twitter.common.zookeeper.ZooKeeperClient
+/*import com.twitter.common.net.InetSocketAddressHelper
+
+import com.twitter.common.zookeeper._
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+
 import com.twitter.conversions.common.quantity._
 import com.twitter.conversions.common.zookeeper._
 import com.twitter.conversions.time._
-import com.twitter.common.zookeeper.{ ZooKeeperClient }
+* 
+*/
 import org.apache.zookeeper.CreateMode
+
+import org.megam.common.Zoo._
 /**
  * A fascade object to twitter's zookeeper client. We'll use this to add a path, update a path,
  * delete a path, and return the value of a path.
@@ -31,35 +38,23 @@ import org.apache.zookeeper.CreateMode
  * @author ram
  *
  */
-object Zoo {
-
-  /**
-   * Timeout value as loaded from the config file using ConfigFactory.
-   */
-  val timeout = 2.seconds
-
-  val path: ZooPath = "/machines"
+/*class Zoo(connectionTimeout: Amount[Integer, Time] = DefaultConnectionTimeout, uris: String, nodePath: String) {
 
   /**
    * Location of the ZK server(s), loaded from the config file using ConfigFactory.
    */
-  val addresses = new InetSocketAddress("localhost", 2181) :: Nil
+  val addresses = new InetSocketAddress(uris, 2181) :: Nil
 
-  lazy val zkClient = new ZooKeeperClient(timeout.toIntAmount, addresses.asJava)
-  
+  lazy val zk = new ZooKeeperClient(connectionTimeout, addresses.asJava)
 
-/*  Create a ZookeeperMap which comprises of the whole tree.
- *  
- *  ZooKeeperMap < String > zkMap = makeUninitializedMap(parentPath); 
+ lazy val zkMap = com.twitter.common.zookeeper.ZooKeeperMap.create(zk, nodepath, BYTE_ARRAY_VALUES)
 
-  
   /**
-   * This is gonna create a new node on ZooKeeper
+   * This is will create a new node on ZooKeeper
    */
-  def add(path: String, value: String, createMode: CreateMode) = {
-    ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);  
-   zkClient.get().create(nodePath, data.getBytes(), ACL, CreateMode.PERSISTENT);
-   }
+  def add(path: String, data: String, createMode: CreateMode) = {
+    zk.get.create(path, date.getBytes(), ACL, createMode)
+  }
 
   /**
    * This is gonna update the value of a node on ZooKeeper
@@ -79,9 +74,9 @@ object Zoo {
   /**
    * Callback
    */
-   
- def on(path: String)(runnable: NodeStatusChange => Unit) = {
-   zk watchNode (path, {
+
+  def on(path: String)(runnable: NodeStatusChange => Unit) = {
+    zk watchNode (path, {
       (data: Option[Array[Byte]]) =>
         data match {
           case Some(d) if d.isEmpty =>
@@ -97,8 +92,25 @@ object Zoo {
         }
     })
   }
-  *
-  */
+  
+  
+}
+
+*/
+
+object Zoo {
+
+  /**
+   * Timeout value as loaded from the config file using ConfigFactory.
+   */
+  //private[Zoo] val DefaultConnectionTimeout = 10.seconds.toIntAmount
+
+  private[Zoo] val DefaultParentPath: ZooPath = "/machines"
+
+  //ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
+
+ // def apply(uris: String, nodePath: String) = new Zoo(DefaultConnectionTimeout,uris, nodePath)
+
 }
 
 sealed trait NodeStatusChange

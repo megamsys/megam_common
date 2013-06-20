@@ -27,7 +27,7 @@ import org.apache.thrift.transport.{TTransport}
  * @author ram
  *
  */
-class UID(hostname: String, port: Int, agent: String, soTimeoutMS: Int = 20) {
+class UID(hostname: String, port: Int, agent: String, soTimeoutMS: Int = 5000) {
   
   private lazy val service: UniqueIDService = 
     USnowflakeClient.create(hostname, port,soTimeoutMS)
