@@ -59,11 +59,11 @@ class UIDSpecs extends Specification {
   protected def ensureUIDOk(h: UniqueID) = h.get._2 must beGreaterThan(0L)
 
   case class UIDActNoneService() {
-    def succeeds = execute(UID("localhost", 5670, "act").get, "non")(ensureUIDOk(_))
+    def succeeds = execute(UID("uid1.megam.co.in", 7609, "act").get, "non")(ensureUIDOk(_))
   }
 
   case class UIDActService() {
-    def succeeds = execute(UID("localhost", 5670, "act").get, "act")(ensureUIDOk(_))
+   def succeeds = execute(UID("uid1.megam.co.in", 7609, "act").get, "act")(ensureUIDOk(_))
   }
 
 }

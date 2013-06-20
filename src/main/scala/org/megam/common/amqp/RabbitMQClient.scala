@@ -53,14 +53,14 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
    *  (userid, hostname, post, vhost)
    */
   private lazy val urisToAddress: Array[Address] = {
-    val urisSplitter = """(http|ftp|amqp)\:\/\/([a-z]+)\@(.*)\:([0-9]+)\/([a-z]+)""".r
-
+    //val urisSplitter = """(http|ftp|amqp)\:\/\/([a-z]+)\@(.*)\:([0-9]+)\/([a-z]+)""".r
+    val urisSplitter = """(http|ftp|amqp)\:\/\/(.*)\:([0-9]+)\/([a-z]+)""".r
     val rabbitCrudeAddresses = uris.split(",").map(uri => uri match {
-      case urisSplitter(protocol, userid, hostname, port, vhost) =>
-        RawURI(userid, hostname, port, vhost)
+      case urisSplitter(protocol, hostname, port, vhost) =>
+        RawURI(hostname, port, vhost)
     })
     rabbitCrudeAddresses foreach RawURI.show
-    rabbitCrudeAddresses.map(rawUri => new Address(rawUri._2, (rawUri._3).toInt))
+    rabbitCrudeAddresses.map(rawUri => new Address(rawUri._1, (rawUri._2).toInt))
   }
 
   /**

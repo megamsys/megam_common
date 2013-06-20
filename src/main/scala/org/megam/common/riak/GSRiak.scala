@@ -33,11 +33,6 @@ case class GunnySack(key: String, value: String, contentType: String = RiakConst
   vClock: Option[VClock] = none, vTag: String = "",
   lastModified: java.util.Date = new java.util.Date(System.currentTimeMillis)) {
 
-  override def toString = {
-    // key + " " + value +"contentType:" + contentType + 
-    // binIndexes.map(b => )
-    ""
-  }
 }
 
 /*
@@ -68,13 +63,17 @@ class GSRiak(uri: String, bucketName: String) {
 
   //do a dummy ping. If an exception is thrown, then Riak connection doesn't exists. 
   val ping = client.ping
+  
   //When the client starts 
   val bucketsList = client.listBuckets.unsafePerformIO
-
+  
+  //List the all keys in bucket
+  val keysList = bucket.listKeys.unsafePerformIO()
   /*
    * store the specified key and their value to riak bucket
    */
   def store[K, V](gs: GunnySack): ValidationNel[Throwable, Option[GunnySack]] = {
+    //def store(gs: GunnySack): ValidationNel[Throwable, Option[GunnySack]] = {
     val stored = bucket.store(gs).unsafePerformIO()
     stored
   }
@@ -86,10 +85,11 @@ class GSRiak(uri: String, bucketName: String) {
   def fetch(key: String): ValidationNel[Throwable, Option[GunnySack]] = {
     val fetchResult: ValidationNel[Throwable, Option[GunnySack]] = bucket.fetch(key).unsafePerformIO()
     fetchResult
-  }
-
+  }   
+  
   def fetchIndexByValue(g: GunnySack): ValidationNel[Throwable, List[String]] = {
     val indexVal = bucket.fetchIndexByValue(g.key + "_bin", g.value).unsafePerformIO()
+    println(indexVal)
     indexVal.toValidationNel
   }
 
@@ -110,8 +110,8 @@ object GSRiak {
   implicit val GunnySackConverter: ScaliakConverter[GunnySack] = ScaliakConverter.newConverter[GunnySack](
     (o: ReadObject) => GunnySack(o.key, o.stringValue, o.contentType, o.links, o.metadata, o.binIndexes, o.intIndexes,
       o.vClock.some, o.vTag, o.lastModified).successNel,
-    (o: GunnySack) => WriteObject(o.key, o.value.getBytes, o.contentType, o.links, o.metadata, o.vClock, 
-        o.vTag, o.binIndexes,o.intIndexes, o.lastModified))
+    (o: GunnySack) => WriteObject(o.key, o.value.getBytes, o.contentType, o.links, o.metadata, o.vClock,
+      o.vTag, o.binIndexes, o.intIndexes, o.lastModified))
 
   def apply(uri: String, bucketName: String) = new GSRiak(uri, bucketName)
 

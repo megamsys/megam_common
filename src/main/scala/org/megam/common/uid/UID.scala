@@ -20,27 +20,26 @@ import scalaz.Validation._
 import scalaz.NonEmptyList._
 
 import Scalaz._
-import org.apache.thrift.transport.{TTransport}
-
+import org.apache.thrift.transport.{ TTransport }
 
 /**
  * @author ram
  *
  */
 class UID(hostname: String, port: Int, agent: String, soTimeoutMS: Int = 5000) {
-  
-  private lazy val service: UniqueIDService = 
-    USnowflakeClient.create(hostname, port,soTimeoutMS)
+
+  private lazy val service: UniqueIDService =
+    USnowflakeClient.create(hostname, port, soTimeoutMS)
 
   def get: ValidationNel[Throwable, UniqueID] = {
     (fromTryCatch {
       service._2.get_id(agent)
-    } leftMap { t: Throwable => 
-                   new Throwable(
-                """Unique ID Generation failure for 'agent:' '%s'
+    } leftMap { t: Throwable =>
+      new Throwable(
+        """Unique ID Generation failure for 'agent:' '%s'
             |
-            |Please verify your ID Generation server host name ,port. Refer the stacktrace for more information
-            |If this error persits, ask for help on the forums.""".format(agent).stripMargin + "\n ",t)      
+            |Please verify your ID Generation server host name ,port and timeout. Our servers may be busy, increase the timeout and try again.
+            |Refer the stacktrace for more information. If this error persits, ask for help on the forums.""".format(agent).stripMargin + "\n ", t)
     }).toValidationNel.flatMap { i: Long => Validation.success[Throwable, UniqueID](UniqueID(agent, i)).toValidationNel }
   }
 
