@@ -29,10 +29,11 @@ import org.megam.common.riak._
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import org.megam.common.Zoo
 
 class RiakStoreSpecs extends mutable.Specification {
 
-  private lazy val riak: GSRiak = GSRiak("http://riak1.megam.co.in:8098/riak/", "mybucket")
+  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "mybucket")
   val metadataKey = "Field"
   val metadataVal = "1002"
   val bindex = BinIndex.named("email")
@@ -42,7 +43,7 @@ class RiakStoreSpecs extends mutable.Specification {
     val t: ValidationNel[Throwable, Option[GunnySack]] = riak.store(new GunnySack("key13", "{\"id\":\"1\",\"email\":\"sandy@megamsandbox.com\",\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\",\"authority\":\"user\"}", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
     t match {
       case Success(t) =>
-        "Success of fetch value" >> {
+        "Success of fetch value" >> {         
           println("Value stored success")
         }
       case Failure(t) =>
@@ -50,6 +51,9 @@ class RiakStoreSpecs extends mutable.Specification {
           println("Value stored failed")
         }
     }
+    val keys = riak.fetch("key13")
+    println("++++++++++++++++"+keys)
+    //println("============="+new Zoo("localhost:2181", "/nodestest"))
   }
 
 }

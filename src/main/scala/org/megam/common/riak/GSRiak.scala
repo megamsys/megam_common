@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+ ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -66,6 +66,8 @@ class GSRiak(uri: String, bucketName: String) {
   
   //When the client starts 
   val bucketsList = client.listBuckets.unsafePerformIO
+  
+  val closeConnection = client.shutdown
   
   //List the all keys in bucket
   val keysList = bucket.listKeys.unsafePerformIO()

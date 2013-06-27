@@ -15,22 +15,31 @@
 */
 package org.megam.common
 
+import scalaz._
+import Scalaz._
+import scalaz.Validation._
 import java.net.InetSocketAddress
-import scala.collection.JavaConverters._
-/*import com.twitter.common.net.InetSocketAddressHelper
-
-import com.twitter.common.zookeeper._
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-
-import com.twitter.conversions.common.quantity._
-import com.twitter.conversions.common.zookeeper._
-import com.twitter.conversions.time._
-* 
-*/
+import org.apache.zookeeper._
 import org.apache.zookeeper.CreateMode
-
+import com.twitter.zk._
 import org.megam.common.Zoo._
+import com.twitter.util._
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.{ ScheduledThreadPoolExecutor }
+import com.twitter.conversions.time._
+import scala.collection.JavaConverters._
+import scala.collection.Set
+import com.twitter.logging.Logger
+import com.twitter.util.{ Duration, Future, Promise, TimeoutException, Timer, Return, Await }
+import com.twitter.concurrent.{ Broker, Offer, Serialized }
+import java.io.Serializable
+import java.util.concurrent.{ Future => JavaFuture, TimeUnit }
+import com.twitter.concurrent.Scheduler
+import org.apache.zookeeper.ZooDefs.Ids
+import org.apache.zookeeper.data.{ ACL, Stat }
+import scala.collection.{ Seq, Set }
+import scala.concurrent._
+import scalaz.effect.IO
 /**
  * A fascade object to twitter's zookeeper client. We'll use this to add a path, update a path,
  * delete a path, and return the value of a path.
@@ -38,81 +47,116 @@ import org.megam.common.Zoo._
  * @author ram
  *
  */
-/*class Zoo(connectionTimeout: Amount[Integer, Time] = DefaultConnectionTimeout, uris: String, nodePath: String) {
+class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: String, nodePath: String) {
+
+  def this(uris: String, nodePath: String) =
+    this(DefaultConnectionTimeout, DefaultSessionTimeout, uris, nodePath)
 
   /**
    * Location of the ZK server(s), loaded from the config file using ConfigFactory.
    */
-  val addresses = new InetSocketAddress(uris, 2181) :: Nil
 
-  lazy val zk = new ZooKeeperClient(connectionTimeout, addresses.asJava)
+  implicit val timer = new JavaTimer(true)
 
- lazy val zkMap = com.twitter.common.zookeeper.ZooKeeperMap.create(zk, nodepath, BYTE_ARRAY_VALUES)
+  private lazy val zkclient = ZkClient(uris, connectionTimeout, sessionTimeout)(timer)
 
-  /**
-   * This is will create a new node on ZooKeeper
-   */
-  def add(path: String, data: String, createMode: CreateMode) = {
-    zk.get.create(path, date.getBytes(), ACL, createMode)
+  private lazy val zknode = zkclient(nodePath)
+
+  def znode(childPath: String): ValidationNel[Throwable, ZNode] = {
+    val znode = zknode(childPath)
+    Success(znode)
   }
 
-  /**
-   * This is gonna update the value of a node on ZooKeeper
-   */
-  def set(path: String, value: String) = zk set (path, value.getBytes)
+  def create(node: ZNode, data: String): ValidationNel[Throwable, ZNode] = {
+    (fromTryCatch {
+      val parent = node.parentPath      
+      println("Path--->"+node.parentPath)
+      println("entry")
+      val znode = zkclient(parent)
+      Await.result(znode.create(data.getBytes, DefaultACL, DefaultMode, child = Some("machine4")))
+    } leftMap { t: Throwable =>
+      new Throwable(
+        """Node creation failure for :'%s'
+            |
+            |Because your path already exists.
+            |""".format(node.parentPath).stripMargin + "\n ", t)
+    }).toValidationNel.flatMap { i: ZNode => Validation.success[Throwable, ZNode](i).toValidationNel }
+  }
 
-  /**
-   * Deletes a node on ZooKeeper
-   */
-  def delete(path: String) = zk delete path
+  def setData(znode: ZNode, data: Array[Byte], version: Int): ValidationNel[Throwable, ZNode.Data] = {
+    (fromTryCatch {
+      Await.result(znode.setData(data, version))
+    } leftMap { t: Throwable =>
+      new Throwable(
+        """set node data is failure for :'%s'
+            |
+            |
+            |""".format(znode.path).stripMargin + "\n ", t)
+    }).toValidationNel.flatMap { i: ZNode.Data => Validation.success[Throwable, ZNode.Data](i).toValidationNel }
+  }
 
-  /**
-   * Gets the value of the node
-   */
-  def get(path: String) = zk get path
-
-  /**
-   * Callback
-   */
-
-  def on(path: String)(runnable: NodeStatusChange => Unit) = {
-    zk watchNode (path, {
-      (data: Option[Array[Byte]]) =>
-        data match {
-          case Some(d) if d.isEmpty =>
-            please log "Node [%s] changed to be empty".format(path)
-            runnable(NodeUpdated(None))
-          case Some(d) =>
-            val value = new String(d)
-            please log "Node [%s] updated: %s".format(path, value)
-            runnable(NodeUpdated(Option(value)))
-          case None =>
-            please log "Node [%s] deleted!".format(path)
-            runnable(NodeDeleted)
+  def getData(path: String, znode: ZNode) {
+    try {
+      val data = Await.result(znode.getData())
+      println("Node data - " + new String(data.bytes))
+    } catch {
+      case e: NullPointerException =>
+        println("====" + e)
+      case ke: KeeperException.NoNodeException =>
+        {
+          println("Node doesn't exists")
         }
-    })
+    }
   }
-  
-  
-}
 
-*/
+  def getChildren(znode: ZNode) = {
+    try {
+      val child = Await.result(znode.getChildren())
+      println("Children - " + child.children)
+    } catch {
+      case e: NullPointerException =>
+        println("====" + e)
+      case ke: KeeperException.NoNodeException =>
+        {
+          println("Node doesn't exists")
+        }
+    }
+
+  }
+
+  def exists(path: String) {
+    try {
+      val znode = zkclient(path)
+      val child = Await.result(znode.exists())
+      println("Path already exists")
+    } catch {
+      case e: NullPointerException =>
+        println("====" + e)
+      case ke: KeeperException =>
+        {
+          println("Node doesn't exists")
+        }
+    }
+  }
+}
 
 object Zoo {
 
   /**
    * Timeout value as loaded from the config file using ConfigFactory.
    */
-  //private[Zoo] val DefaultConnectionTimeout = 10.seconds.toIntAmount
+
+  private[Zoo] val DefaultConnectionTimeout: Option[Duration] = Some(Duration(100, TimeUnit.SECONDS))
+
+  private[Zoo] val DefaultSessionTimeout: Duration = Duration(1200, TimeUnit.SECONDS)
 
   private[Zoo] val DefaultParentPath: ZooPath = "/machines"
 
   //ZooKeeperUtils.ensurePath(zkClient, ACL, parentPath);
 
- // def apply(uris: String, nodePath: String) = new Zoo(DefaultConnectionTimeout,uris, nodePath)
+  //def apply(uris: String, nodePath: String) = new Zoo(DefaultConnectionTimeout,uris, nodePath)
 
 }
 
-sealed trait NodeStatusChange
-case object NodeDeleted extends NodeStatusChange
-case class NodeUpdated(maybeValue: Option[String]) extends NodeStatusChange
+
+

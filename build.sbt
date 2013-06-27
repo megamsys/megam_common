@@ -11,7 +11,7 @@ name := "megam_common"
 
 organization := "com.github.indykish"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 scalacOptions := Seq("-unchecked", "-deprecation")
 
@@ -41,7 +41,7 @@ libraryDependencies ++= {
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "com.twitter" % "util-zk" % zkVersion,
+    "com.twitter" % "util-zk_2.10" % zkVersion,
     "com.stackmob" %% "scaliak" % "0.7.1",
     "com.rabbitmq" % "amqp-client" % amqpVersion,    
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
@@ -53,7 +53,10 @@ libraryDependencies ++= {
     "org.apache.thrift" % "libthrift" % "0.5.0",
     "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar",
     "log4j" % "log4j" % "1.2.17",
-    "commons-codec" % "commons-codec" % "1.8")
+    "com.twitter" % "util-logging_2.10" % "6.3.6",
+    "com.twitter" % "util-core_2.10" % "6.3.6",
+    "commons-codec" % "commons-codec" % "1.8",
+    "com.twitter" % "util-zk-common_2.10" % "6.3.6")
 }
 
 
