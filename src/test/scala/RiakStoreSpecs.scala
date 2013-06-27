@@ -48,6 +48,7 @@ class RiakStoreSpecs extends mutable.Specification {
       case Failure(t) =>
         "Failure of fetch value" >> {
           println("Value stored failed")
+          t.head.printStackTrace
         }
     }
   }

@@ -11,7 +11,7 @@ name := "megam_common"
 
 organization := "com.github.indykish"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 scalacOptions := Seq("-unchecked", "-deprecation")
 
@@ -33,7 +33,7 @@ libraryDependencies ++= {
   val specs2Version = "1.14"
   val scalazVersion = "7.0.0"
   val zkVersion = "6.3.6"
-  val amqpVersion = "3.0.4"
+  val amqpVersion = "3.1.1"
   val liftJsonVersion = "2.5"
   val typeSafeConfig = "0.3.0"
   Seq(
@@ -41,8 +41,7 @@ libraryDependencies ++= {
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "com.twitter" % "util-zk" % zkVersion,
-    "com.stackmob" %% "scaliak" % "0.7.1",
+    "com.stackmob" % "scaliak_2.10" % "0.8.0",
     "com.rabbitmq" % "amqp-client" % amqpVersion,    
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",   

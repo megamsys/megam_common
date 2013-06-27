@@ -17,16 +17,69 @@ package org.megam.common
 
 import scalaz._
 import Scalaz._
-
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.cap.VClock
-import com.stackmob.scaliak.{ ScaliakLink }
+import scalaz.NonEmptyList._
 
 /**
  * @author ram
  *
  */
 package object riak {
-  
-  
+
+  val tailMsg = "Refer the stacktrace for more information. If this error persits, ask for help on the forums."
+
+  implicit class RichThrowable(thrownExp: Throwable) {
+    def fold[T](connError: GSConnectionError => T,
+      buckCreateError: BucketCreateError => T,
+      fetchBuckError: BucketFetchError => T,
+      storeError: BucketStoreError => T): T = thrownExp match {
+      case c @ GSConnectionError(_)      => connError(c)
+      case b @ BucketCreateError(_, _)   => buckCreateError(b)
+      case f @ BucketFetchError(_, _, _) => fetchBuckError(f)
+      case s @ BucketStoreError(_, _, _) => storeError(s)
+    }
+  }
+
+  case class GSConnectionError(uri: String)
+    extends Exception
+
+  case class BucketCreateError(uri: String, bucket: String)
+    extends Exception
+
+  case class BucketFetchError(uri: String, bucket: String, key: String)
+    extends Exception
+
+  case class BucketStoreError(uri: String, bucket: String, storeVal: GunnySack)
+    extends Exception
+
+  case class RiakError(errNel: NonEmptyList[Throwable]) extends Exception({
+    errNel.map { err: Throwable =>
+      err.fold(
+        //connection exception           
+        c => """Failed to connect to datasource Riak `uri:' '%s'
+            |
+            |Please verify your datasource (Riak host name ,port and the url).Ensure that Riak is running.
+            |%s""".format(c.uri, tailMsg).stripMargin,
+        //bucket exception
+        b => """Failed to created bucket in Riak `uri:' '%s' `bucket:' '%s'
+            |
+            |Please verify your datasource (Riak host name ,port and the url) and the bucketname.
+            |%s.""".format(b.uri, b.bucket, tailMsg).stripMargin,
+
+        f => """Failed to fetch from Riak `uri:' '%s' from `bucket:' '%s' `key:' '%s' 
+            |
+            |Please verify your datasource (Riak host name ,port and the url), bucketname and the 
+            |key name. Execute riak curl commands to see if the record exists. 
+            |eg : curl http://localhost:8098/riak/accounts/content1 
+            |          where `bucket:' 'accounts' `key:' 'content1' 
+            |%s.""".format(f.uri, f.bucket, f.key, tailMsg).stripMargin,
+
+        s => """Failed to store in Riak `uri:' '%s' `bucket:' '%s' `key:' '%s'
+            |
+            |Please verify your datasource (Riak host name ,port and the url), bucketname and the 
+            |key name. Execute riak curl commands to see if the record exists. 
+            |eg : curl -v -XPUT -d '{"id":"1","email":"sandy@megamsandbox.com", "api_key":"xxxxx","authority":"user"}' -H "Content-Type: application/json" http://localhost:8098/riak/accounts/content1         
+            |          where `bucket:' 'accounts' `key:' 'content1'             
+            |%s.""".format(s.uri, s.bucket, s.storeVal, tailMsg).stripMargin)
+    }.list.mkString("\n")
+  })
 }
