@@ -45,9 +45,9 @@ class ZooSpecs extends Specification {
 
     println("Setting up ZooKeeper Client")
 
-    lazy val zoo = new Zoo("localhost:2181", "/")
+    lazy val zoo = new Zoo("localhost:2181", "/machines4")
 
-    val path = "/"
+    val path = "nodes"
     val parent = "/"
     val name = "nodes"
 
@@ -143,17 +143,7 @@ class ZooSpecs extends Specification {
   
   case class ZooNode() extends TestContext {
     
-    def createSucceeds = {      
-      createExecute(zoo.create(zoo.znode(path) match {
-      case Success(zn) => zn
-      case Failure(errThrown) => {
-        println("*=----------------------------------------*\n")
-        errThrown.head.printStackTrace
-        println("*=----------------------------------------*\n")
-        null
-        }
-      }, "created")
-    )}
+    def createSucceeds = createExecute(zoo.create(zoo.znode(path) , "created"))
     //def addChildSucceeds = addChildExecute(zoo.znode(path))
    //def setDataSucceeds = setDataExecute(zoo.setData(znode, "child started".getBytes, 0))
   }

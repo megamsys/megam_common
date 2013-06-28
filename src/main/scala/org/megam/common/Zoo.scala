@@ -61,10 +61,12 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
   private lazy val zkclient = ZkClient(uris, connectionTimeout, sessionTimeout)(timer)
 
   private lazy val zknode = zkclient(nodePath)
+  
+  exists(nodePath)
 
-  def znode(childPath: String): ValidationNel[Throwable, ZNode] = {
+  def znode(childPath: String): ZNode = {
     val znode = zknode(childPath)
-    Success(znode)
+   znode
   }
 
   def create(node: ZNode, data: String): ValidationNel[Throwable, ZNode] = {
@@ -134,6 +136,7 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
         println("====" + e)
       case ke: KeeperException =>
         {
+          create(znode(path), "created")
           println("Node doesn't exists")
         }
     }
