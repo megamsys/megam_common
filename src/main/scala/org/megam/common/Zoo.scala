@@ -47,10 +47,10 @@ import scalaz.effect.IO
  * @author ram
  *
  */
-class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: String, nodePath: String) {
+class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: String, parentPath: String) {
 
-  def this(uris: String, nodePath: String) =
-    this(DefaultConnectionTimeout, DefaultSessionTimeout, uris, nodePath)
+  def this(uris: String, parentPath: String) =
+    this(DefaultConnectionTimeout, DefaultSessionTimeout, uris, parentPath)
 
   /**
    * Location of the ZK server(s), loaded from the config file using ConfigFactory.
@@ -58,33 +58,62 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
 
   implicit val timer = new JavaTimer(true)
 
+  /**
+   * create zkclient for some uris
+   */
   private lazy val zkclient = ZkClient(uris, connectionTimeout, sessionTimeout)(timer)
 
-  private lazy val zknode = zkclient(nodePath)
-  
-  exists(nodePath)
+  /**
+   * to verify our root path is already exists in zookeeper
+   * if path doesn't exists this function create the root path
+   *
+   */
+  exists(ZooRootPath)
 
+  /**
+   * create the znode for root path
+   *
+   */
+  private lazy val zrnode: ZNode = zkclient(ZooRootPath)
+
+  /**
+   * This will get the child name
+   * and return znode for that child path
+   *
+   */
   def znode(childPath: String): ZNode = {
-    val znode = zknode(childPath)
-   znode
+    val znode = zrnode(childPath)
+    znode
   }
 
-  def create(node: ZNode, data: String): ValidationNel[Throwable, ZNode] = {
+  /**
+   * create child path and check path already exists or not
+   *
+   */
+  val zknode: ZNode = znode(parentPath)
+  exists(zknode.path)
+
+  /**
+   * These function create a new child already existing parent path
+   * child already exists then this will return stack trace
+   */
+  def create(child: String, data: String): ValidationNel[Throwable, ZNode] = {
     (fromTryCatch {
-      val parent = node.parentPath
-      println("Path--->" + node.parentPath)
-      println("entry")
-      val znode = zkclient(parent)
-      Await.result(znode.create(data.getBytes, DefaultACL, DefaultMode, child = Some("machine4")))
+      Await.result(zknode.create(data.getBytes, DefaultACL, DefaultMode, child = Some(child)))
     } leftMap { t: Throwable =>
       new Throwable(
         """Node creation failure for :'%s'
             |
-            |Because your path already exists.
-            |""".format(node.parentPath).stripMargin + "\n ", t)
+            |Path creation failed for some reasons. Please see following full stack trace.
+            |""".format("/" + parentPath + "/" + child).stripMargin + "\n ", t)
     }).toValidationNel.flatMap { i: ZNode => Validation.success[Throwable, ZNode](i).toValidationNel }
   }
 
+  /**
+   * These function set the new data to particular node.
+   * But the node already have any data this will return error
+   *
+   */
   def setData(znode: ZNode, data: Array[Byte], version: Int): ValidationNel[Throwable, ZNode.Data] = {
     (fromTryCatch {
       Await.result(znode.setData(data, version))
@@ -92,54 +121,79 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
       new Throwable(
         """set node data is failure for :'%s'
             |
-            |
+            |Your path already have some data, so we couldn't set the data.
             |""".format(znode.path).stripMargin + "\n ", t)
     }).toValidationNel.flatMap { i: ZNode.Data => Validation.success[Throwable, ZNode.Data](i).toValidationNel }
   }
 
-  def getData(path: String, znode: ZNode) {
-    try {
-      val data = Await.result(znode.getData())
-      println("Node data - " + new String(data.bytes))
-    } catch {
-      case e: NullPointerException =>
-        println("====" + e)
-      case ke: KeeperException.NoNodeException =>
-        {
-          println("Node doesn't exists")
-        }
-    }
+  /**
+   * To get data from node
+   *
+   */
+  def getData(path: String, znode: ZNode): ValidationNel[Throwable, String] = {
+    (fromTryCatch {
+      Await.result(znode.getData())
+    } leftMap { t: Throwable =>
+      new Throwable(
+        """get node data is failure for :'%s'
+            |
+            |
+            |""".format(znode.path).stripMargin + "\n ", t)
+    }).toValidationNel.flatMap { i: ZNode.Data => Validation.success[Throwable, String](new String(i.bytes)).toValidationNel }
   }
 
-  def getChildren(znode: ZNode) = {
-    try {
-      val child = Await.result(znode.getChildren())
-      println("Children - " + child.children)
-    } catch {
-      case e: NullPointerException =>
-        println("====" + e)
-      case ke: KeeperException.NoNodeException =>
-        {
-          println("Node doesn't exists")
-        }
-    }
-
+  /**
+   * To get the childrens from parent path
+   *
+   */
+  def getChildren(znode1: ZNode): ValidationNel[Throwable, Seq[ZNode]] = {
+    (fromTryCatch {
+      Await.result(znode1.getChildren())
+    } leftMap { t: Throwable =>
+      new Throwable(
+        """get children from node process failure for :'%s'
+            |
+            |
+            |""".format(znode1.path).stripMargin + "\n ", t)
+    }).toValidationNel.flatMap { i: ZNode.Children => Validation.success[Throwable, Seq[ZNode]](i.children).toValidationNel }
   }
 
+  /**
+   * These function to verify the path already exists in zookeeper,
+   * the path already exists this will return msg,
+   * otherwise create the path
+   */
   def exists(path: String) {
     try {
       val znode = zkclient(path)
       val child = Await.result(znode.exists())
       println("Path already exists")
     } catch {
-      case e: NullPointerException =>
-        println("====" + e)
       case ke: KeeperException =>
         {
-          create(znode(path), "created")
+          val zknode1 = zkclient(path)
+          zknode1.create("started".getBytes, DefaultACL, DefaultMode)
           println("Node doesn't exists")
         }
     }
+  }
+
+  /**
+   * Delete the node from parent path
+   *
+   */
+  def delete(node: String, version: Int): ValidationNel[Throwable, ZNode] = {
+    (fromTryCatch {
+      val znode = zkclient(node)
+      Await.result(znode.delete())
+    } leftMap { t: Throwable =>
+      new Throwable(
+        """Node Deletion failure for :'%s'
+            |
+            |Path deletion failed for some reasons. Please see following full stack trace.
+            |""".format(node).stripMargin + "\n ", t)
+    }).toValidationNel.flatMap { i: ZNode => Validation.success[Throwable, ZNode](i).toValidationNel }
+
   }
 }
 

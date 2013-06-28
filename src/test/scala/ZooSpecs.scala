@@ -37,23 +37,25 @@ class ZooSpecs extends Specification {
   ZooKeeper Client creation and node path
   """ ^ end ^
       "The Zoo Client Should" ^
-      "Correctly do a node path check" ! ZooNode().createSucceeds ^
-      //"Add child path" ! ZooNode().addChildSucceeds ^
+      //"Correctly do a node path check" ! ZooNode().createSucceeds ^
+      //"Set the data to existing node" ! ZooNode().setDataSucceeds ^
+      //"Get the data from existing node" ! ZooNode().getDataSucceeds ^
+      // "Get the children name from existing node" ! ZooNode().getChildrenSucceeds ^
+         "Delete the existing node" ! ZooNode().deleteSucceeds ^
       end
 
   trait TestContext {
 
     println("Setting up ZooKeeper Client")
 
-    lazy val zoo = new Zoo("localhost:2181", "/machines4")
+    lazy val zoo = new Zoo("localhost:2181", "nodes")
 
-    val path = "nodes"
-    val parent = "/"
+    val path = "/machines/nodes/redis"
+    val parent = "/machines3/nodejs"
     val name = "nodes"
 
     //zoo.exists(path)   
-
-    val childPath = "nodes"
+    val child = "redis"
     /*val t: ValidationNel[Throwable, ZNode] = zoo.create(path, "created")
     t match {
       case Success(t1) => {
@@ -90,64 +92,93 @@ class ZooSpecs extends Specification {
       println("Executing ZooNode")
 
       val res: ZNode = t match {
-      case Success(zn) => zn
-      case Failure(errThrown) => {
-        println("*=----------------------------------------*\n")
-        errThrown.head.printStackTrace
-        println("*=----------------------------------------*\n")
-        null
+        case Success(zn) => zn
+        case Failure(errThrown) => {
+          println("*=----------------------------------------*\n")
+          errThrown.head.printStackTrace
+          println("*=----------------------------------------*\n")
+          null
+        }
       }
+      println("-->" + res)
+      res.path mustEqual expectedPath
     }
-      println("-->"+res)      
-      res.path mustEqual expectedPath    
-    }
- 
-    protected def addChildExecute[T](t: ValidationNel[Throwable, ZNode], expectedPath: String = "/machines4") = {
-      println("Executing ZooNode")
+
+    protected def deleteExecute[T](t: ValidationNel[Throwable, ZNode], expectedPath: String = path) = {
+      println("Deleting ZooNode")
 
       val res: ZNode = t match {
-      case Success(zn) => {
-        val s1 = zoo.create(zn, null)
-        println("+++++"+s1)
-        zn
+        case Success(zn) => zn
+        case Failure(errThrown) => {
+          println("*=----------------------------------------*\n")
+          errThrown.head.printStackTrace
+          println("*=----------------------------------------*\n")
+          null
+        }
       }
-      case Failure(errThrown) => {
-        println("*=----------------------------------------*\n")
-        errThrown.head.printStackTrace
-        println("*=----------------------------------------*\n")
-        null
-      }
+      println("-->" + res)
+      res.path mustEqual expectedPath
     }
-      println("-->"+res)      
-      res.path mustEqual expectedPath    
-    }
-  
-
-  /* protected def setDataExecute[T](t: ValidationNel[Throwable, ZNode.Data], expectedPath: String = path) = {
-      println("Executing ZooNode")
-
-      val res: ZNode = t match {
-      case Success(zn) => zn
-      case Failure(errThrown) => {
-        println("*=----------------------------------------*\n")
-        errThrown.head.printStackTrace
-        println("*=----------------------------------------*\n")
-        null
-      }
-    }
-      println("-->"+res)      
-      res.path mustEqual expectedPath    
-    }*/
-  }
-
-  
-  case class ZooNode() extends TestContext {
     
-    def createSucceeds = createExecute(zoo.create(zoo.znode(path) , "created"))
-    //def addChildSucceeds = addChildExecute(zoo.znode(path))
-   //def setDataSucceeds = setDataExecute(zoo.setData(znode, "child started".getBytes, 0))
+    protected def setDataExecute[T](t: ValidationNel[Throwable, ZNode.Data], expectedPath: String = path) = {
+      println("Executing ZooNode")
+
+      val res: ZNode = t match {
+        case Success(zn) => zn
+        case Failure(errThrown) => {
+          println("*=----------------------------------------*\n")
+          errThrown.head.printStackTrace
+          println("*=----------------------------------------*\n")
+          null
+        }
+      }
+      println("-->" + res)
+      res.path mustEqual expectedPath
+    }
+
+    protected def getDataExecute[T](t: ValidationNel[Throwable, String], expected: String = "child started") = {
+      println("Executing ZooNode")
+
+      val res: String = t match {
+        case Success(zn) => zn
+        case Failure(errThrown) => {
+          println("*=----------------------------------------*\n")
+          errThrown.head.printStackTrace
+          println("*=----------------------------------------*\n")
+          null
+        }
+      }
+      println("-->" + res)
+      res mustEqual expected
+    }
+
+    protected def getChildrenExecute[T](t: ValidationNel[Throwable, Seq[ZNode]], expected: Seq[ZNode] = Seq(zoo.znode(child))) = {
+      println("Executing ZooNode")
+
+      val res: Seq[ZNode] = t match {
+        case Success(zn) => zn
+        case Failure(errThrown) => {
+          println("*=----------------------------------------*\n")
+          errThrown.head.printStackTrace
+          println("*=----------------------------------------*\n")
+          null
+        }
+      }
+      println("-->" + res)
+      res mustEqual expected
+    }
+
   }
- 
+
+  case class ZooNode() extends TestContext {
+
+    def createSucceeds = createExecute(zoo.create(child, "child created"))
+    def setDataSucceeds = setDataExecute(zoo.setData(zoo.znode(child), "child started".getBytes, 0))
+    def getDataSucceeds = getDataExecute(zoo.getData((zoo.znode(child)).path, zoo.znode(child)))
+    def getChildrenSucceeds = getChildrenExecute(zoo.getChildren((zoo.zknode)))
+    def deleteSucceeds = deleteExecute(zoo.delete(path, 0))
+  }
+
 }
 
 
