@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+ ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -38,17 +38,16 @@ case class GunnySack(key: String, value: String, contentType: String = RiakConst
   binIndexes: Map[BinIndex, Set[String]] = Map(), intIndexes: Map[IntIndex, Set[Int]] = Map(),
   vClock: Option[VClock] = none, vTag: String = "",
   lastModified: java.util.Date = new java.util.Date(System.currentTimeMillis)) {
-  
+
   override def toString = {
-    List("GunnySack:", "key:"+key, "value:" +value,"contentType:"+contentType,
-    (for(x <-metadata) yield(x)).mkString(" ","Metadata:",""),
-    (for(x <-binIndexes) yield(x)).mkString(" ","BinIndexes:",""),
-    (for(x <-metadata) yield(x)).mkString(" ","IntIndexes:",""),
-    "vClock:"+vClock.getOrElse(""),
-    "vTag:"+vTag,
-    "lastModified:"+lastModified.toString
-    ).mkString("\n","[","]")
-  } 
+    List("---->GUNNYSACK:", "key:" + key, "value:" + value, "contentType:" + contentType,
+      (for (x <- metadata) yield (x)).mkString(" ", "Metadata:", ""),
+      (for (x <- binIndexes) yield (x)).mkString(" ", "BinIndexes:", ""),
+      (for (x <- metadata) yield (x)).mkString(" ", "IntIndexes:", ""),
+      "vClock:" + vClock.getOrElse(""),
+      "vTag:" + vTag,
+      "lastModified:" + lastModified.toString).mkString("\n[", "\n", "]\n\n")
+  }
 }
 
 /*
@@ -114,7 +113,31 @@ class GSRiak(uri: String, bucketName: String) {
     } yield { thatIO }).run.map(_.validation)
   }
 
-  lazy val bucket = bucketIO.unsafePerformIO
+  /*
+   * keysListIO - This is a description which when interpreted will result in a listsKeys operation of a bucket using a 
+   * key. All the keys in a bucket are retrieved. Use it with caution, and only when you know that quantity of your bucket.
+   * This return a Stream of strings.
+   * Merely calling this method doesn't list all the keys in a listKeys operation. It just results in 
+   * IO[x].
+   */
+  private def listKeysIO: IO[Validation[Throwable, Stream[String]]] = {
+    logger.debug("listKeysIO:" + bucketName)
+
+    bucketIO flatMap { mgBucket => //mgBucket is ValidationNel[Throwable, ScaliakBucket]
+      mgBucket match {
+        case Success(realMeat) => (realMeat.listKeys flatMap { x =>
+          x match {
+            case Success(res) => Validation.success[Throwable, Stream[String]](res).pure[IO]
+            case Failure(err) => Validation.failure[Throwable, Stream[String]](RiakError(nels(err))).pure[IO]
+          }
+        })
+        case Failure(nahNoBucket) => Validation.failure[Throwable, Stream[String]](RiakError(nels(BucketCreateError(uri, bucketName)))).pure[IO]
+      }
+    }
+  }
+  
+  //List the all keys in bucket
+  def keysList = listKeysIO.unsafePerformIO()
 
   /*
    * fetchIO - This is a description which when interpreted will result in a fetch operation of a bucket using a 

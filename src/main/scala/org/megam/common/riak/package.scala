@@ -18,6 +18,7 @@ package org.megam.common
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
+import java.io.{StringWriter, PrintWriter}
 
 /**
  * @author ram
@@ -31,11 +32,13 @@ package object riak {
     def fold[T](connError: GSConnectionError => T,
       buckCreateError: BucketCreateError => T,
       fetchBuckError: BucketFetchError => T,
-      storeError: BucketStoreError => T): T = thrownExp match {
+      storeError: BucketStoreError => T,
+      anyError: Throwable => T): T = thrownExp match {
       case c @ GSConnectionError(_)      => connError(c)
       case b @ BucketCreateError(_, _)   => buckCreateError(b)
       case f @ BucketFetchError(_, _, _) => fetchBuckError(f)
       case s @ BucketStoreError(_, _, _) => storeError(s)
+      case t @ _ => anyError(t)
     }
   }
 
@@ -79,7 +82,21 @@ package object riak {
             |key name. Execute riak curl commands to see if the record exists. 
             |eg : curl -v -XPUT -d '{"id":"1","email":"sandy@megamsandbox.com", "api_key":"xxxxx","authority":"user"}' -H "Content-Type: application/json" http://localhost:8098/riak/accounts/content1         
             |          where `bucket:' 'accounts' `key:' 'content1'             
-            |%s.""".format(s.uri, s.bucket, s.storeVal, tailMsg).stripMargin)
+            |%s.""".format(s.uri, s.bucket, s.storeVal, tailMsg).stripMargin,
+        t  => """Ooops ! zzzzz.. Quiet. I don't know what happended.
+            |                   
+            |To help you debug, please read the message and the stacktrace below. 
+            |=======================> Message <.!.> <=============================
+            |                                 ( ^ )
+            %s
+            |
+            |=======================> Stack trace <===============================
+            |%s
+            |=======================> Stack trace <===============================
+   |%s.""".format(t.getLocalizedMessage, {val u = new StringWriter; t.printStackTrace(new PrintWriter(u)); u.toString} , tailMsg).stripMargin);       
     }.list.mkString("\n")
-  })
+  }) 
+  
+
+  
 }

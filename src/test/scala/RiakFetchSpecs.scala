@@ -32,7 +32,7 @@ import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 
 class RiakFetchSpecs extends mutable.Specification {
 
-  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "mybucket")
+  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "predeftest6")
   val metadataKey = "Field"
   val metadataVal = "1002"
   val bindex = BinIndex.named("")
