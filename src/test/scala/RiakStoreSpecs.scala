@@ -49,11 +49,11 @@ class RiakStoreSpecs extends mutable.Specification {
       case Failure(t) =>
         "Failure of fetch value" >> {
           println("Value stored failed")
+          t.head.printStackTrace
         }
     }
     val keys = riak.fetch("key13")
-    println("++++++++++++++++"+keys)
-    //println("============="+new Zoo("localhost:2181", "/nodestest"))
+    println("++++++++++++++++\n"+keys)
   }
 
 }

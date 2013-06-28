@@ -71,8 +71,8 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
 
   def create(node: ZNode, data: String): ValidationNel[Throwable, ZNode] = {
     (fromTryCatch {
-      val parent = node.parentPath      
-      println("Path--->"+node.parentPath)
+      val parent = node.parentPath
+      println("Path--->" + node.parentPath)
       println("entry")
       val znode = zkclient(parent)
       Await.result(znode.create(data.getBytes, DefaultACL, DefaultMode, child = Some("machine4")))
@@ -160,6 +160,4 @@ object Zoo {
   //def apply(uris: String, nodePath: String) = new Zoo(DefaultConnectionTimeout,uris, nodePath)
 
 }
-
-
 
