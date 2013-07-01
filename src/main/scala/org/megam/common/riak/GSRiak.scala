@@ -137,7 +137,7 @@ class GSRiak(uri: String, bucketName: String) {
   }
   
   //List the all keys in bucket
-  def keysList = listKeysIO.unsafePerformIO()
+  def listKeys: Validation[Throwable, Stream[String]] = listKeysIO.unsafePerformIO()
 
   /*
    * fetchIO - This is a description which when interpreted will result in a fetch operation of a bucket using a 
