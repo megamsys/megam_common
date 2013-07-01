@@ -22,4 +22,6 @@ package object common {
   
   val DefaultMode: CreateMode = CreateMode.PERSISTENT
   
+  val ZooRootPath = "/machines"
+  
 }
