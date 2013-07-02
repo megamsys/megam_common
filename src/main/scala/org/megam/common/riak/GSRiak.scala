@@ -39,6 +39,8 @@ case class GunnySack(key: String, value: String, contentType: String = RiakConst
   vClock: Option[VClock] = none, vTag: String = "",
   lastModified: java.util.Date = new java.util.Date(System.currentTimeMillis)) {
 
+  def this() = this(new String(), new String()) 
+  
   override def toString = {
     List("---->GUNNYSACK:", "key:" + key, "value:" + value, "contentType:" + contentType,
       (for (x <- metadata) yield (x)).mkString(" ", "Metadata:", ""),
