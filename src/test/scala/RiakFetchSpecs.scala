@@ -46,7 +46,7 @@ class RiakFetchSpecs extends mutable.Specification {
       case Success(t) =>
         "Success of fetch value" >> {
 
-          println("Value fetch success" + t.toList)
+          println("Value fetch success111" + t.toList)
         }
       case Failure(t) =>
         "Failure of fetch value" >> {
