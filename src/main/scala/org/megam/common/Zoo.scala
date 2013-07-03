@@ -40,6 +40,8 @@ import org.apache.zookeeper.data.{ ACL, Stat }
 import scala.collection.{ Seq, Set }
 import scala.concurrent._
 import scalaz.effect.IO
+import org.slf4j.LoggerFactory
+import org.apache.zookeeper.WatchedEvent
 /**
  * A fascade object to twitter's zookeeper client. We'll use this to add a path, update a path,
  * delete a path, and return the value of a path.
@@ -51,6 +53,8 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
 
   def this(uris: String, parentPath: String) =
     this(DefaultConnectionTimeout, DefaultSessionTimeout, uris, parentPath)
+
+  private lazy val logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Location of the ZK server(s), loaded from the config file using ConfigFactory.
@@ -83,6 +87,7 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
    */
   def znode(childPath: String): ZNode = {
     val znode = zrnode(childPath)
+    println("--------------" + znode.path)
     znode
   }
 
@@ -132,6 +137,7 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
    */
   def getData(path: String, znode: ZNode): ValidationNel[Throwable, String] = {
     (fromTryCatch {
+
       Await.result(znode.getData())
     } leftMap { t: Throwable =>
       new Throwable(
@@ -195,6 +201,67 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
     }).toValidationNel.flatMap { i: ZNode => Validation.success[Throwable, ZNode](i).toValidationNel }
 
   }
+
+  def watchChildren[T](path: String): ValidationNel[Throwable, Future[ZNode.Watch[ZNode.Children]]] = {
+    (fromTryCatch {
+      val znode = zkclient(path)
+      Await.ready(znode.getChildren.watch())
+    } leftMap { t: Throwable =>
+      new Throwable(
+        """Watch children failure for : '%s'
+          |
+          |""".format(path).stripMargin + "\n", t)
+    }).toValidationNel.flatMap { i: Future[ZNode.Watch[ZNode.Children]] => Validation.success[Throwable, Future[ZNode.Watch[ZNode.Children]]](i).toValidationNel
+
+    }
+
+  }
+
+  def watchData[T](path: String): ValidationNel[Throwable, Future[ZNode.Watch[ZNode.Data]]] = {
+    (fromTryCatch {
+      val znode = zkclient(path)
+      Await.ready(znode.getData.watch())
+    } leftMap { t: Throwable =>
+      new Throwable(
+        """Watch Data failure for : '%s'
+          |
+          |""".format(path).stripMargin + "\n", t)
+    }).toValidationNel.flatMap { i: Future[ZNode.Watch[ZNode.Data]] => Validation.success[Throwable, Future[ZNode.Watch[ZNode.Data]]](i).toValidationNel
+
+    }
+  }
+
+  def watch[T](f: String => T, path: String) = f(path)
+
+  def monitorChildDelete(path: String) = {
+    val znode = zkclient(path)
+    def monit(n: Int) {
+      val results = 0 until n map { _ => ZNode.Exists(znode, new Stat) }
+      val update = znode.exists.monitor()
+      results foreach { result =>
+        update syncWait () get ()
+      }
+    }
+    monit(3)
+  }
+
+  def monitorChildren(path: String) = {
+    val znode = zkclient(path)
+    val t = getChildren((znode))
+    val res: Seq[String] = t match {
+      case Success(zn) => {
+        val str = zn.map(a => a.name)
+        str
+      }
+      case Failure(err) => null
+    }
+    val results = List(res, Seq("rr")) map { ZNode.Children(znode, new Stat, _) }
+    val update = znode.getChildren.monitor()
+    results foreach { result =>
+      update syncWait () get ()
+    }
+  }
+
 }
 
 object Zoo {

@@ -39,7 +39,7 @@ class PublishSpecs extends Specification {
 
   trait TestContext {
 
-    val uris = "amqp://localhost:5672/vhost,amqp://rabbitmq1.megam.co.in:5672/vhost"
+    val uris = "amqp://localhost:5672/vhost,amqp://rabbitmq1.megam.co.in:5672/vhost,amqp://ec2-54-251-68-164.ap-southeast-1.compute.amazonaws.com:5672/vhost"
     val exchange_name = "megam_exchange"
     val queue_name = "megam_queue"
     val routingKey = "megam_key"

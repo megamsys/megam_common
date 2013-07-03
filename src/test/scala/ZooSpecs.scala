@@ -41,7 +41,10 @@ class ZooSpecs extends Specification {
       //"Set the data to existing node" ! ZooNode().setDataSucceeds ^
       //"Get the data from existing node" ! ZooNode().getDataSucceeds ^
       // "Get the children name from existing node" ! ZooNode().getChildrenSucceeds ^
-         "Delete the existing node" ! ZooNode().deleteSucceeds ^
+      //"Delete the existing node" ! ZooNode().deleteSucceeds ^
+      //"Watch children from existing node" ! ZooNode().watchChildrenSucceeds ^
+      //"Watch Data from existing node" ! ZooNode().watchDataSucceeds ^
+      "Monitor data from existing node" ! ZooNode().monitorDataSucceeds ^
       end
 
   trait TestContext {
@@ -50,12 +53,12 @@ class ZooSpecs extends Specification {
 
     lazy val zoo = new Zoo("localhost:2181", "nodes")
 
-    val path = "/machines/nodes/redis"
-    val parent = "/machines3/nodejs"
-    val name = "nodes"
-
+    val path = "/machines/nodes/nodejs"
+    val parent = "/machines3/sample"
+    val name = "sample"
+    val path1 = "/machines/nodes"
     //zoo.exists(path)   
-    val child = "redis"
+    val child = "nodes/nodejs"
     /*val t: ValidationNel[Throwable, ZNode] = zoo.create(path, "created")
     t match {
       case Success(t1) => {
@@ -119,7 +122,7 @@ class ZooSpecs extends Specification {
       println("-->" + res)
       res.path mustEqual expectedPath
     }
-    
+
     protected def setDataExecute[T](t: ValidationNel[Throwable, ZNode.Data], expectedPath: String = path) = {
       println("Executing ZooNode")
 
@@ -136,9 +139,11 @@ class ZooSpecs extends Specification {
       res.path mustEqual expectedPath
     }
 
-    protected def getDataExecute[T](t: ValidationNel[Throwable, String], expected: String = "child started") = {
+    protected def getDataExecute[T](t: ValidationNel[Throwable, String], expected: String = "started") = {
       println("Executing ZooNode")
-
+      //val x = zoo.watchChildren(path1)
+      //println("=="+x)
+      zoo.monitorChildren(path1)
       val res: String = t match {
         case Success(zn) => zn
         case Failure(errThrown) => {
@@ -168,6 +173,86 @@ class ZooSpecs extends Specification {
       res mustEqual expected
     }
 
+    protected def watchChildrenExecute[T](t: ValidationNel[Throwable, Future[ZNode.Watch[ZNode.Children]]], expected: String = path) = {
+      println("Executing ZooNode")
+
+      val res = t match {
+        case Success(zn) => zn.onSuccess {
+          case ZNode.Watch(Return(z), u) => { 
+            z.path mustEqual expected 
+            println("Node path: %s".format(z))
+            u onSuccess {
+              //case NodeEvent.ChildrenChanged(name) => logger.debug("Node Name: %s".format(name))
+              case e => {
+                println("Event: %s".format(e))
+                val rr = zoo.setData(zoo.znode(child), "child started".getBytes, 0)
+                println(rr)               
+              }
+            }
+          }
+          case _ => println("unexpected return value")
+        }
+        case Failure(errThrown) => {
+          println("*=----------------------------------------*\n")
+          errThrown.head.printStackTrace
+          println("*=----------------------------------------*\n")
+          null
+        }
+      }
+      val path2 = "/machines/nodes/riak"
+      println("-->" + res)
+      path2 mustEqual expected
+    }
+    
+    protected def watchDataExecute[T](t: ValidationNel[Throwable, Future[ZNode.Watch[ZNode.Data]]], expected: String = path) = {
+      println("Executing ZooNode")
+
+      val res = t match {
+        case Success(zn) => zn.onSuccess {
+          case ZNode.Watch(Return(z), u) => {           
+            z.path mustEqual expected 
+            println("Node path: %s".format(z))
+            u onSuccess {
+              //case NodeEvent.ChildrenChanged(name) => logger.debug("Node Name: %s".format(name))
+              case e => {
+                println("Event: %s".format(e))                
+                val rr = zoo.setData(zoo.znode(child), "child started".getBytes, 0)
+                println(rr)               
+              }
+            }
+          }
+          case _ => println("unexpected return value")
+        }
+        case Failure(errThrown) => {
+          println("*=----------------------------------------*\n")
+          errThrown.head.printStackTrace
+          println("*=----------------------------------------*\n")
+          null
+        }
+      }
+     val path2 = "/machines/nodes/nodejs"
+      println("-->" + res)
+      path2 mustEqual expected
+    }
+    
+     protected def monitorChildDeleteExecute[T](t: ValidationNel[Throwable, String], expected: String = "started") = {
+      println("Executing ZooNode")
+      //val x = zoo.watchChildren(path1)
+      //println("=="+x)
+      zoo.monitorChildDelete(path)
+      val res: String = t match {
+        case Success(zn) => zn
+        case Failure(errThrown) => {
+          println("*=----------------------------------------*\n")
+          errThrown.head.printStackTrace
+          println("*=----------------------------------------*\n")
+          null
+        }
+      }
+      println("-->" + res)
+      res mustEqual expected
+    }
+
   }
 
   case class ZooNode() extends TestContext {
@@ -177,6 +262,9 @@ class ZooSpecs extends Specification {
     def getDataSucceeds = getDataExecute(zoo.getData((zoo.znode(child)).path, zoo.znode(child)))
     def getChildrenSucceeds = getChildrenExecute(zoo.getChildren((zoo.zknode)))
     def deleteSucceeds = deleteExecute(zoo.delete(path, 0))
+    def watchChildrenSucceeds = watchChildrenExecute(zoo.watch[ValidationNel[Throwable, Future[ZNode.Watch[ZNode.Children]]]](zoo.watchChildren, path1))
+    def watchDataSucceeds = watchDataExecute(zoo.watch[ValidationNel[Throwable, Future[ZNode.Watch[ZNode.Data]]]](zoo.watchData, path1))
+    def monitorDataSucceeds = monitorChildDeleteExecute(zoo.getData((zoo.znode(child)).path, zoo.znode(child)))
   }
 
 }
