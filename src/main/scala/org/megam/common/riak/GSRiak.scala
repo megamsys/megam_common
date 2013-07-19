@@ -204,6 +204,7 @@ class GSRiak(uri: String, bucketName: String) {
     bucketIO flatMap { mgBucket => //mgBucket is ValidationNel[Throwable, ScaliakBucket]
       mgBucket match {
         case Success(realMeat) => (realMeat.store(gs) flatMap { x =>
+          logger.debug("storeIO:success >"+gs)
           x match {
             case Success(res) => Validation.success[Throwable, Option[GunnySack]](res).pure[IO]
             case Failure(err) => Validation.failure[Throwable, Option[GunnySack]](RiakError(err)).pure[IO]
