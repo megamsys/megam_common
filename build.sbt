@@ -29,9 +29,9 @@ resolvers += "Twitter Repo" at "http://maven.twttr.com"
        
 
 libraryDependencies ++= {
-  val scalazVersion = "7.0.2"
+  val scalazVersion = "7.0.3"
   val liftJsonVersion = "2.5"
-  val zkVersion = "6.3.6"
+  val zkVersion = "6.3.8"
   val amqpVersion = "3.1.1"
   val scalaCheckVersion = "1.10.1"
   val specs2Version = "1.14"  
