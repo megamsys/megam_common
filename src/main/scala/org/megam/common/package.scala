@@ -11,6 +11,7 @@ import org.apache.zookeeper.CreateMode
 import org.apache.zookeeper.data.ACL
 import org.apache.zookeeper.ZooDefs.Ids.OPEN_ACL_UNSAFE
 import scala.collection.JavaConverters._
+import com.twitter.util.Stopwatch
 
 package object common {
 
@@ -24,5 +25,9 @@ package object common {
   val DefaultMode: CreateMode = CreateMode.EPHEMERAL_SEQUENTIAL
   
   val ZooRootPath = "/machines"
+  
+  val  TwitStopwatch = com.twitter.util.Stopwatch 
+  
+  
   
 }
