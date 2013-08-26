@@ -20,8 +20,8 @@ package object common {
 
   val DefaultACL: Seq[ACL] = OPEN_ACL_UNSAFE.asScala  
   
-  //val DefaultMode: CreateMode = CreateMode.PERSISTENT
-  val DefaultMode: CreateMode = CreateMode.EPHEMERAL_SEQUENTIAL
+  val DefaultMode: CreateMode = CreateMode.PERSISTENT
+  //val DefaultMode: CreateMode = CreateMode.EPHEMERAL_SEQUENTIAL
   
   val ZooRootPath = "/machines"
   

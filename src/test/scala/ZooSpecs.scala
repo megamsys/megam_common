@@ -39,12 +39,12 @@ class ZooSpecs extends Specification {
       "The Zoo Client Should" ^
       //"Correctly do a node path check" ! ZooNode().createSucceeds ^
       //"Set the data to existing node" ! ZooNode().setDataSucceeds ^
-      //"Get the data from existing node" ! ZooNode().getDataSucceeds ^
+      "Get the data from existing node" ! ZooNode().getDataSucceeds ^
       // "Get the children name from existing node" ! ZooNode().getChildrenSucceeds ^
       //"Delete the existing node" ! ZooNode().deleteSucceeds ^
       //"Watch children from existing node" ! ZooNode().watchChildrenSucceeds ^
       //"Watch Data from existing node" ! ZooNode().watchDataSucceeds ^
-      "Monitor data from existing node" ! ZooNode().monitorDataSucceeds ^
+      //"Monitor data from existing node" ! ZooNode().monitorDataSucceeds ^
       end
 
   trait TestContext {
