@@ -18,6 +18,8 @@
  *
  * 
  */
+package org.megam.common
+
 import net.liftweb.json.scalaz.JsonScalaz._
 
 package object jsonscalaz {

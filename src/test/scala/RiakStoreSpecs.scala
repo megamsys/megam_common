@@ -31,29 +31,36 @@ import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import org.megam.common.Zoo
 
-class RiakStoreSpecs extends mutable.Specification {
+class RiakStoreSpecs extends Specification {
 
-  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "mybucket")
-  val metadataKey = "Field"
-  val metadataVal = "1002"
-  val bindex = BinIndex.named("email")
-  val bvalue = Set("sandy@megamsandbox.com")
+  def is =
+    "RiakStoreSpecs".title ^ end ^
+      """
+  Riak  client which stores Account in Riak
+    """ ^ end ^
+      "The Riak fetch spec Should" ^
+      "Correctly print fetch result for account " ! AccountStore.succeeds ^
+      end
 
-  "Riak fetch test" in {
-    val t: ValidationNel[Throwable, Option[GunnySack]] = riak.store(new GunnySack("key13", "{\"id\":\"1\",\"email\":\"sandy@megamsandbox.com\",\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\",\"authority\":\"user\"}", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-    t match {
-      case Success(t) =>
-        "Success of fetch value" >> {         
-          println("Value stored success")
-        }
-      case Failure(t) =>
-        "Failure of fetch value" >> {
-          println("Value stored failed")
-          t.head.printStackTrace
-        }
+  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "predeftest6")
+
+  case object AccountStore {
+
+    val metadataKey = "Field"
+    val metadataVal = "1002"
+    val bindex = BinIndex.named("email")
+    val bvalue = Set("sandy@megamsandbox.com")
+
+    def succeeds = {
+      val t: ValidationNel[Throwable, Option[GunnySack]] = riak.store(new GunnySack("key13", "{\"id\":\"1\",\"email\":\"sandy@megamsandbox.com\",\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\",\"authority\":\"user\"}", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+      val keys = riak.fetch("nodejs")
+      val res = t
+      println("-->" + res)
+      val expectedRes = 0
+      //this comparison is wrong. it will always fail.
+      res mustEqual expectedRes
+
     }
-    val keys = riak.fetch("key13")
-    println("++++++++++++++++\n"+keys)
   }
 
 }

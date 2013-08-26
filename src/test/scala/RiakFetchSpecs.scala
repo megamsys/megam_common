@@ -30,42 +30,34 @@ import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 
-class RiakFetchSpecs extends mutable.Specification {
+class RiakFetchSpecs extends Specification {
+
+  def is =
+    "RiakFetchSpecs".title ^ end ^
+      """
+  Riak Fetch client which interfaces with Riak datasource
+    """ ^ end ^
+      "The Riak fetch spec Should" ^
+      "Correctly print fetch result for account " ! AccountFetch.succeeds ^
+      end
 
   private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "predeftest6")
-  val metadataKey = "Field"
-  val metadataVal = "1002"
-  val bindex = BinIndex.named("")
-  val bvalue = Set("")
 
-  "Riak fetch test" in {
-    val t: ValidationNel[Throwable, List[String]] = riak.fetchIndexByValue(new GunnySack("email", "sandy@megamsandbox.com", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-    val keys = riak.fetch("nodejs")
+  case object AccountFetch {
 
-    keys match {
-      case Success(t) =>
-        "Success of fetch value" >> {
+    val metadataKey = "Field"
+    val metadataVal = "1002"
+    val bindex = BinIndex.named("")
+    val bvalue = Set("")
 
-          println("Value fetch success111" + t.toList)
-        }
-      case Failure(t) =>
-        "Failure of fetch value" >> {
-          println("Value fetch failure")
-          t.head.printStackTrace
+    def succeeds = {
+      val t: ValidationNel[Throwable, List[String]] = riak.fetchIndexByValue(new GunnySack("email", "sandy@megamsandbox.com", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+      val keys = riak.fetch("nodejs")
+      val res = t
+      println("-->" + res)
+      val expectedRes = 0
+      res mustEqual expectedRes
 
-        }
-    }
-    t match {
-      case Success(t) =>
-        "Success of fetch value" >> {
-
-          println("Value fetch success" + t)
-        }
-      case Failure(t) =>
-        "Failure of fetch value" >> {
-          println("Value fetch failure")
-          t.head.printStackTrace
-        }
     }
   }
 

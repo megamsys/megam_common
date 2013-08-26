@@ -103,7 +103,7 @@ class GSRiak(uri: String, bucketName: String) {
    * IO[x].
    */
   private def bucketIO: IO[Validation[Throwable, ScaliakBucket]] = {
-    logger.debug("bucketIO:" + bucketName)
+    logger.debug("\\_/-->bucketIO:" + bucketName)
 
     (for {
       pingres <- eitherT[IO, Throwable, Option[String]] { // disjuction Throwable \/ Option with a Functor IO.   
@@ -123,7 +123,7 @@ class GSRiak(uri: String, bucketName: String) {
    * IO[x].
    */
   private def listKeysIO: IO[Validation[Throwable, Stream[String]]] = {
-    logger.debug("listKeysIO:" + bucketName)
+    logger.debug("\\_/-->listKeysIO:" + bucketName)
 
     bucketIO flatMap { mgBucket => //mgBucket is ValidationNel[Throwable, ScaliakBucket]
       mgBucket match {
@@ -148,7 +148,7 @@ class GSRiak(uri: String, bucketName: String) {
    * IO[x].
    */
   private def fetchIO(key: String): IO[Validation[Throwable, Option[GunnySack]]] = {
-    logger.debug("fetchIO:" + key)
+    logger.debug("\\_/-->fetchIO:" + key)
 
     bucketIO flatMap { mgBucket => //mgBucket is ValidationNel[Throwable, ScaliakBucket]
       mgBucket match {
@@ -173,7 +173,7 @@ class GSRiak(uri: String, bucketName: String) {
    * IO[x].
    */
   private def fetchIndexIO(gs: GunnySack): IO[Validation[Throwable, List[String]]] = {
-    logger.debug("fetchIndexIO:" + gs.toString)
+    logger.debug("\\_/-->fetchIndexIO:" + gs.toString)
 
     bucketIO flatMap { mgBucket => //mgBucket is ValidationNel[Throwable, ScaliakBucket]
       mgBucket match {
@@ -199,12 +199,12 @@ class GSRiak(uri: String, bucketName: String) {
    * IO[x].
    */
   private def storeIO[K, V](gs: GunnySack): IO[Validation[Throwable, Option[GunnySack]]] = {
-    logger.debug("storeIO:" + gs.toString)
+    logger.debug("\\_/-->storeIO:" + gs.toString)
 
     bucketIO flatMap { mgBucket => //mgBucket is ValidationNel[Throwable, ScaliakBucket]
       mgBucket match {
         case Success(realMeat) => (realMeat.store(gs) flatMap { x =>
-          logger.debug("storeIO:success >"+gs)
+          logger.debug("storeIO:success >"+x)
           x match {
             case Success(res) => Validation.success[Throwable, Option[GunnySack]](res).pure[IO]
             case Failure(err) => Validation.failure[Throwable, Option[GunnySack]](RiakError(err)).pure[IO]

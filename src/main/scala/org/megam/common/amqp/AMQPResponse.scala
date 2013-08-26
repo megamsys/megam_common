@@ -20,7 +20,7 @@ import scalaz.effect.IO
 import scalaz.EitherT._
 import Scalaz._
 import scalaz.NonEmptyList._
-import jsonscalaz._
+import org.megam.common.jsonscalaz._
 import java.nio.charset.Charset
 import java.util.Date
 import net.liftweb.json._
