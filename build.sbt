@@ -30,11 +30,11 @@ resolvers += "Twitter Repo" at "http://maven.twttr.com"
 
 libraryDependencies ++= {
   val scalazVersion = "7.0.3"
-  val liftJsonVersion = "2.5"
+  val liftJsonVersion = "2.5.1"
   val zkVersion = "6.3.8"
-  val amqpVersion = "3.1.1"
+  val amqpVersion = "3.1.4"
   val scalaCheckVersion = "1.10.1"
-  val specs2Version = "1.14"  
+  val specs2Version = "2.1.1"  
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "org.scalaz" %% "scalaz-effect" % scalazVersion,

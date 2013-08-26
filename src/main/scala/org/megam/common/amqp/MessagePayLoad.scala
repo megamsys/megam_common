@@ -23,7 +23,7 @@ import scalaz.NonEmptyList._
 import scalaz.concurrent._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import jsonscalaz._
+import org.megam.common.jsonscalaz._
 /**
  * @author rajthilak
  *

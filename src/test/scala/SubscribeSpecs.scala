@@ -22,7 +22,7 @@ import org.specs2.matcher.MatchResult
 import scalaz._
 import scalaz.Validation._
 import Scalaz._
-import jsonscalaz._
+import org.megam.common.jsonscalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 /**
