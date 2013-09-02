@@ -15,8 +15,6 @@ import com.twitter.util.Stopwatch
 
 package object common {
 
-  type IOValidation[Fail, Success] = IO[Validation[Fail, Success]]
-
   type ZooPath = String
 
   val DefaultACL: Seq[ACL] = OPEN_ACL_UNSAFE.asScala  
@@ -26,8 +24,7 @@ package object common {
   
   val ZooRootPath = "/machines"
   
-  val  TwitStopwatch = com.twitter.util.Stopwatch 
-  
+  val  TwitStopwatch = com.twitter.util.Stopwatch   
   
   
 }

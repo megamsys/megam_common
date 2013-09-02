@@ -20,12 +20,10 @@ import scalaz.effect.IO
 import scalaz.NonEmptyList._
 import Scalaz._
 import java.nio.charset.{ Charset }
+import scala.concurrent.{ExecutionContext, Future}
 import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz.toJSON
-import scala.collection.breakOut
-import net.liftweb.json.scalaz.Base
-import net.liftweb.json.scalaz.JsonScalaz.JSONR
-import net.liftweb.json.scalaz.JsonScalaz.JSONW
+import net.liftweb.json.scalaz._
+import net.liftweb.json.scalaz.JsonScalaz._
 /**
  * @author ram
  *
@@ -33,8 +31,8 @@ import net.liftweb.json.scalaz.JsonScalaz.JSONW
 package object amqp {
   
   val UTF8Charset = Charset.forName("UTF-8")
-
-  type IOValidation[Fail, Success] = IO[Validation[Fail, Success]]
+  
+  type FutureValidation[Fail, Success] = Future[Validation[Fail, Success]]
 
   type Message = (String, String) 
   type MessageList = NonEmptyList[Message]

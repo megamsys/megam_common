@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common.amqp
+package org.megam.common.amqp.response
 
 /**
  * @author ram
@@ -23,7 +23,6 @@ package org.megam.common.amqp
 import scalaz._
 import Scalaz._
 import org.megam.common.enumeration._
-import language.implicitConversions
 
 sealed abstract class AMQPResponseCode(val code: Int, override val stringVal: String) extends Enumeration
 

@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common.amqp
+package org.megam.common.amqp.serialization
 import scalaz._
 import scalaz.effect.IO
 import scalaz.NonEmptyList._
@@ -24,6 +24,7 @@ import net.liftweb.json.scalaz.JsonScalaz.JSONR
 import net.liftweb.json.scalaz.JsonScalaz.JSONW
 import java.lang.NoSuchFieldError
 import org.megam.common.enumeration._
+import org.megam.common.amqp._
 import net.liftweb.json.scalaz.JsonScalaz._
 
 /**
@@ -58,14 +59,14 @@ object MessageJSONSerialization extends SerializationBase[Messages] {
   }
 
   implicit override val writer = new JSONW[Messages] {
-    
+
     override def write(h: Messages): JValue = {
       val listv = h match {
-      case Some(x) =>
-        println(x.toList)
-        x.toList
-    }
-    val messageValue = listv.map(_._2).mkString     
+        case Some(x) =>
+          x.toList
+        case None => List[Message]()
+      }
+      val messageValue = listv.map(_._2).mkString
       JString(messageValue)
     }
   }

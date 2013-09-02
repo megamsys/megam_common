@@ -13,6 +13,22 @@ organization := "com.github.indykish"
 
 scalaVersion := "2.10.2"
 
+scalacOptions := Seq(
+	"-unchecked", 
+	"-deprecation",
+	"-feature",
+ 	"-optimise",
+ 	"-explaintypes",
+  	"-Xcheckinit",
+  	"-Xlint",
+  	"-Xverify",  	
+  	"-Yinline-warnings",
+  	"-Ywarn-all",
+  	"-Yclosure-elim",
+  	"-language:postfixOps",
+  	"-language:implicitConversions",
+  	"-Ydead-code")
+
 scalacOptions := Seq("-unchecked", "-deprecation")
 
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots"
@@ -27,7 +43,6 @@ resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/public"
       
 resolvers += "Twitter Repo" at "http://maven.twttr.com"   
        
-
 libraryDependencies ++= {
   val scalazVersion = "7.0.3"
   val liftJsonVersion = "2.5.1"
@@ -38,11 +53,9 @@ libraryDependencies ++= {
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
-    "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
     "com.stackmob" % "scaliak_2.10" % "0.8.0",
     "com.twitter" % "util-zk_2.10" % zkVersion,
-    "com.twitter" % "util-logging_2.10" % zkVersion,
     "com.twitter" % "util-core_2.10" % zkVersion,
     "com.twitter" % "util-zk-common_2.10" % zkVersion,
     "com.rabbitmq" % "amqp-client" % amqpVersion,    
@@ -54,8 +67,6 @@ libraryDependencies ++= {
     "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar",
     "commons-codec" % "commons-codec" % "1.8")
 }
-
-
 
 logBuffered := false
 
