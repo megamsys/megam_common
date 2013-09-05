@@ -29,7 +29,6 @@ import java.util.concurrent.{ ScheduledThreadPoolExecutor }
 import com.twitter.conversions.time._
 import scala.collection.JavaConverters._
 import scala.collection.Set
-import com.twitter.logging.Logger
 import com.twitter.util.{ Duration, Future, Promise, TimeoutException, Timer, Return, Await }
 import com.twitter.concurrent.{ Broker, Offer, Serialized }
 import java.io.Serializable
@@ -54,7 +53,6 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
   def this(uris: String, parentPath: String) =
     this(DefaultConnectionTimeout, DefaultSessionTimeout, uris, parentPath)
 
-  private lazy val logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Location of the ZK server(s), loaded from the config file using ConfigFactory.
