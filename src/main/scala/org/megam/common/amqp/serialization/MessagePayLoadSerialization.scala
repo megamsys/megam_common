@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common.amqp
+package org.megam.common.amqp.serialization
 
 import scalaz._
 import scalaz.effect.IO
@@ -23,6 +23,8 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import net.liftweb.json.scalaz.JsonScalaz.JSONR
 import net.liftweb.json.scalaz.JsonScalaz.JSONW
+import org.megam.common.amqp._
+
 /**
  * @author rajthilak
  *
@@ -30,7 +32,7 @@ import net.liftweb.json.scalaz.JsonScalaz.JSONW
 
 object MessagePayLoadSerialization extends SerializationBase[MessagePayLoad] {
   protected val MessageKey = "message"
-  import org.megam.common.amqp.MessageJSONSerialization.{ writer => MessageWriter, reader => MessageReader }
+  import org.megam.common.amqp.serialization.MessageJSONSerialization.{ writer => MessageWriter, reader => MessageReader }
 
   override implicit val writer = new JSONW[MessagePayLoad] {
     override def write(h: MessagePayLoad): JValue = {      

@@ -16,35 +16,39 @@
 package org.megam.common.amqp
 
 import scalaz._
-import Scalaz._
-import scalaz.NonEmptyList._
+import scalaz.Validation._
 import scalaz.effect.IO
-import scalaz.concurrent._
-import java.util.concurrent.{ ThreadFactory, Executors }
+import scalaz.EitherT._
+import scalaz.NonEmptyList._
+import Scalaz._
 import RabbitMQClient._
 import java.util.concurrent.atomic.AtomicInteger
 import com.rabbitmq.client._
+import scala.concurrent.{ ExecutionContext, Future }
+import java.util.concurrent.{ ThreadFactory, Executors }
 import scala.collection._
 import org.megam.common.amqp._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
+import org.megam.common.amqp.request._
+import org.megam.common.amqp.response.{ AMQPResponse, AMQPResponseCode }
 /**
  * @author ram
  *
- * Scalazified version of the RabbitMQ Java client. This follows the insipiration from stackmob's newman (ApacheHttpClient) fascade.
- * Uses the IO monad of scalaz and delays the execution until the unsafePerformIO is called.
+ * Scalazified version of the RabbitMQ Java client. This take inspiration from stackmob's newman (ApacheHttpClient) fascade.
+ * Uses the IO monad of scalaz, Future of scala to delays the execution until the callee decides.
  * Every invocation of the RabbitMQClient results in creating a connection. There is no connection pooling performed but rather
  * performed by the default impl. of ConnectionFactory. (This is something to-do, and watch for)
  * Two AMQP activities are supported by this client.
- * publish   : this uses the scalaz.concurrent feature to execute each of the publish operation in its own thread.
- * subscribe : this uses the scalaz.concurrent feature to execute each of the subscribe operation in its own thread.
+ * publish   : this uses the scala.concurrent feature to execute each of the publish operation in its own thread.
+ * subscribe : this uses the scala.concurrent feature to execute each of the subscribe operation in its own thread.
  */
 
 class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: String,
-  strategy: Strategy, uris: String, exchangeName: String, queueName: String) extends AMQPClient {
+  uris: String, exchangeName: String, queueName: String)(implicit val requestContext: ExecutionContext = AMQPExecutionContext) extends AMQPClient {
 
   def this(uris: String, exchange: String, queue: String) =
-    this(DefaultConnectionTimeout, DefaultChannelMax, DefaultExchangeType, Strategy.Executor(amqpThreadPool), uris, exchange, queue)
+    this(DefaultConnectionTimeout, DefaultChannelMax, DefaultExchangeType, uris, exchange, queue)
 
   /**
    * convert uris to an array of RabbitMQ's Address objects
@@ -52,51 +56,108 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
    * Regex that splits an uri from amqp://<userid>@hostname:port/vhost to a tuple
    *  (userid, hostname, post, vhost)
    */
-  private lazy val urisToAddress: Array[Address] = {
-    //val urisSplitter = """(http|ftp|amqp)\:\/\/([a-z]+)\@(.*)\:([0-9]+)\/([a-z]+)""".r
-    val urisSplitter = """(http|ftp|amqp)\:\/\/(.*)\:([0-9]+)\/([a-z]+)""".r
-    val rabbitCrudeAddresses = uris.split(",").map(uri => uri match {
-      case urisSplitter(protocol, hostname, port, vhost) =>
-        RawURI(hostname, port, vhost)
-    })
-    rabbitCrudeAddresses foreach RawURI.show
-    rabbitCrudeAddresses.map(rawUri => new Address(rawUri._1, (rawUri._2).toInt))
+  private lazy val urisToAddress: ValidationNel[Throwable, Array[Address]] = {
+    (Validation.fromTryCatch {
+      val urisSplitter = """(http|ftp|amqp)\:\/\/(.*)\:([0-9]+)\/([a-z]+)""".r
+      uris.split(",").map(uri => uri match {
+        case urisSplitter(protocol, hostname, port, vhost) =>
+          RawURI(hostname, port, vhost)
+      })
+    } leftMap { t: Throwable => t }).toValidationNel.flatMap { rawURIArray: Array[RawURI] =>
+      (rawURIArray.map { rawUri => new Address(rawUri._1, (rawUri._2).toInt)
+      }).successNel[Throwable]
+    }
+
   }
 
   /**
    * Connect to the rabbitmq system using the connection factory.
+   * only on success, we proceed further.
    */
-  private lazy val connManager: Connection = {
-    val factory: ConnectionFactory = new ConnectionFactory()
-    val addrArr: Array[Address] = urisToAddress
-    println("Connecting to " + addrArr.mkString("{", " :: ", "}"))
-    val cm = factory.newConnection(addrArr)
-    println("Connected to " + addrArr.mkString("{", " ", "}"))
-    cm
+  private lazy val connectionIO: ValidationNel[Throwable, Connection] = {
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, Connection]] {
+      ((for {
+        addrArr <- urisToAddress leftMap { t: NonEmptyList[Throwable] => t }
+      } yield {
+        (Validation.fromTryCatch {
+          val factory: ConnectionFactory = new ConnectionFactory()
+          println("Connecting to " + addrArr.mkString("{", " :: ", "}"))
+          val a = factory.newConnection(addrArr)
+          println("Connectedd to " + addrArr.mkString("{", " :: ", "}"))
+          a
+        } leftMap { t: Throwable => t }).toValidationNel flatMap { new_conn: Connection => new_conn.successNel[Throwable] }
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new java.lang.Error("connection not established for [%s]".format(uris)).failureNel[Connection])
   }
 
   /**
-   * This function wraps an function (t => T) into  concurrent scalaz IO using a strategy.
-   * The strategy is a threadpooled executors.
-   * This mean any IO monad will be threadpooled when executed.
+   * Connect to the rabbitmq system using the connection factory.
+   * only on success, we proceed further.
    */
-  private def wrapIOPromise[T](t: => T): IO[Promise[T]] = IO(Promise(t)(strategy))
+  private lazy val channelIO: ValidationNel[Throwable, Channel] = {
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, Channel]] {
+      ((for {
+        connection <- connectionIO leftMap { t: NonEmptyList[Throwable] => t }
+      } yield {
+        (Validation.fromTryCatch {
+          println("Creating Channel for connection: " + connection)
+          connection.createChannel
+        } leftMap { t: Throwable => t }).toValidationNel flatMap { new_channel: Channel => new_channel.successNel[Throwable] }
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new java.lang.Error("channel for [%s,%s] not created".format(exchangeName, queueName)).failureNel[Channel])
+  }
 
-  protected def liftPublishOp(messages: Messages, routingKey: RoutingKey): IO[Promise[AMQPResponse]] = wrapIOPromise {    
+  def mkPublishChannel(routing: RoutingKey): ValidationNel[Throwable, Channel] = {
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, Channel]] {
+      ((for {
+        channel <- channelIO leftMap { t: NonEmptyList[Throwable] => t }
+      } yield {
+        (Validation.fromTryCatch {
+          println("mkPublishChannel: exchangeDeclare start.")
+          channel.exchangeDeclare(exchangeName, exchangeType, true)
+        } leftMap { t: Throwable => t }).toValidationNel flatMap { exchgDeclOK: AMQP.Exchange.DeclareOk =>
+          (Validation.fromTryCatch {
+            // Declare a queue named as "queueName", durable : true, exclusive: false (ie. not restricted to this connection),
+            //autodelete: false (ie. let the queue remain), and no other arguments.
+            println("mkPublishChannel: exchangeDeclared successfully.")
+            channel.queueDeclare(queueName, true, false, false, null)
+          } leftMap { t: Throwable => t }).toValidationNel flatMap { queueDeclOK: AMQP.Queue.DeclareOk =>
+            (Validation.fromTryCatch {
+              println("mkPublishChannel: queueDeclared successfully.")
+              channel.queueBind(queueName, exchangeName, routing)
+            } leftMap { t: Throwable => t }).toValidationNel flatMap { queueBindOK: AMQP.Queue.BindOk =>
+              channel.successNel[Throwable]
+            }
+          }
+        }
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    println("mkPublishChannel :" + res)
+    res.getOrElse(new java.lang.Error("publish channel for [%s,%s] not created".format(exchangeName, queueName)).failureNel[Channel])
+  }
+
+  private def mkSubscribeChannel(routing: RoutingKey) = {
+    channelIO flatMap { channel: Channel =>
+      (Validation.fromTryCatch {
+        channel.queueBind(queueName, exchangeName, routing)
+      } leftMap { t: Throwable => t }).toValidationNel flatMap { queueBindOK: AMQP.Queue.BindOk =>
+        channel.successNel[Throwable]
+      }
+    }
+  }
+
+  protected def executePublish(messages: Messages, routingKey: RoutingKey): Future[ValidationNel[Throwable, AMQPResponse]] = Future {
     val messageJson = MessagePayLoad(messages).toJson(false)
-    val pubChannel = ChannelQueue(routingKey).forreq(Some(AMQPRequestType.PUB))   
-
-    println("Hurray publishing :" + messageJson)
-    /**
-     * What is the null ?
-     *
-     */
-    pubChannel.basicPublish(exchangeName, routingKey, null, messageJson.getBytes())
-
-    val body = RawBody(messageJson) // Just return the json back, this will logged saying the message was delivered.
-    val responseCode = AMQPResponseCode.Ok
-    val responseBody = body
-    AMQPResponse(responseCode, responseBody)
+    mkPublishChannel(routingKey) flatMap { channel: Channel =>
+      (Validation.fromTryCatch {
+        channel.basicPublish(exchangeName, routingKey, null, messageJson.getBytes())
+      } leftMap { t: Throwable => t }).toValidationNel flatMap { published: Unit =>
+        val responseBody = RawBody("Message [%s] publised to [%s,%s] ---> successfully".format(messageJson, exchangeName, queueName))
+        AMQPResponse(AMQPResponseCode.Ok, responseBody).successNel[Throwable]
+      }
+    }
   }
 
   /**
@@ -105,65 +166,34 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
    *  A DefaultConsumer, which takes a fn (F[A] = > Validation[Failure, Success]
    *  This also needs the channel.
    */
-  protected def liftSubscribeOp(f: AMQPResponse => ValidationNel[Error, String], routingKey: RoutingKey): IO[Promise[AMQPResponse]] = wrapIOPromise {
-    // use the consumer
-    val subChannel = ChannelQueue(routingKey).forreq(None)
-    val consumer = new RabbitMQConsumer(subChannel, f)
-
-    subChannel.basicConsume(queueName, true, consumer)
-
-    //val body = 
-    val responseCode = AMQPResponseCode.Ok
-    val responseBody = RawBody("Message Subcribe was successfully")
-    AMQPResponse(responseCode, responseBody)
+  protected def executeSubscribe(f: AMQPResponse => ValidationNel[Throwable, Option[String]], routingKey: RoutingKey): Future[ValidationNel[Throwable, AMQPResponse]] = Future {
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, AMQPResponse]] {
+      ((for {
+        channel <- mkSubscribeChannel(routingKey) leftMap { t: NonEmptyList[Throwable] => t }
+      } yield {
+        val consumer = new RabbitMQConsumer(channel, f)
+        (Validation.fromTryCatch {
+          channel.basicConsume(queueName, true, consumer)
+        } leftMap { t: Throwable => t }).toValidationNel flatMap { consumerTag: String =>
+          val responseBody = RawBody("Consumer [%s] subscribed to [%s,%s] ---> received messages".format(consumerTag, exchangeName, queueName))
+          AMQPResponse(AMQPResponseCode.Ok, responseBody).successNel[Throwable]
+        }
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new java.lang.Error("Subscribing consumer  to [%s,%s] ---> failed".format(exchangeName, queueName)).failureNel[AMQPResponse])
 
   }
 
-  override def publish(m1: Messages, key: RoutingKey): PublishRequest = new PublishRequest {
-    override val messages = m1
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftPublishOp(m1, key)
+  override def publish(m1: Messages, key: RoutingKey): PublishRequest = PublishRequest(m1, key) {
+    executePublish(m1, key)
   }
 
   /**
    * The subscribe will take a fn, that will get invoked when a message is received from
    * a queue.
    */
-  override def subscribe(f: AMQPResponse => ValidationNel[Error, String], key: RoutingKey): SubscribeRequest = new SubscribeRequest {
-    override val messages = None
-    override def prepareAsync: IO[Promise[AMQPResponse]] = liftSubscribeOp(f, key)
-
-  }
-
-  case class ChannelQueue(routing: RoutingKey) {
-
-    def channel: Channel = connManager.createChannel()
-
-    /**
-     * Declare a queue named as "queueName", durable : true,
-     * exclusive: false (ie. not restricted to this connection),
-     * autodelete: false (ie. let the queue remain), and no other arguments.
-     */
-    val queue: ValidationNel[Error, Option[String]] = {
-      val que = Some(channel.queueDeclare(queueName, true, false, false, null).getQueue())
-      que match {
-        case Some(name) => que.successNel
-        case _          => UncategorizedError("Queue creation", "Queue %s creation failure".format(queueName), List()).failNel
-
-      }
-    }
-
-    /**
-     * prepares the channel for the AMQP request.
-     */
-    def forreq(reqType: Option[AMQPRequestType]): Channel = {
-      reqType match {
-        case Some(reqType) => { channel.exchangeDeclare(exchangeName, exchangeType, true); queue }
-        case None          => channel
-      }
-      channel.queueBind(queueName, exchangeName, routing)
-      channel
-    }
-
+  override def subscribe(f: AMQPResponse => ValidationNel[Throwable, Option[String]], key: RoutingKey): SubscribeRequest = SubscribeRequest(f, key) {
+    executeSubscribe(f, key)
   }
 
 }
@@ -181,6 +211,9 @@ object RabbitMQClient {
       new Thread(r, "megam_amqp-" + threadNumber.getAndIncrement)
     }
   })
+
+  lazy val AMQPExecutionContext = ExecutionContext.fromExecutorService(amqpThreadPool)
+
 }
 
 

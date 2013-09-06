@@ -13,10 +13,9 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common.amqp
+package org.megam.common.amqp.response
 
 import scalaz._
-import scalaz.effect.IO
 import scalaz.EitherT._
 import Scalaz._
 import scalaz.NonEmptyList._
@@ -27,6 +26,8 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.convert.Wrappers.JConcurrentMapWrapper
+import org.megam.common.amqp._
+import org.megam.common.amqp.serialization.AMQPResponseSerialization
 
 /**
  * @author ram

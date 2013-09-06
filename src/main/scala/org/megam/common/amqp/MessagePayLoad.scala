@@ -16,21 +16,19 @@
 package org.megam.common.amqp
 
 import scalaz._
-import org.megam.common.amqp._
 import scalaz.Validation._
 import Scalaz._
 import scalaz.NonEmptyList._
-import scalaz.concurrent._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import org.megam.common.jsonscalaz._
+import org.megam.common.amqp._
+import org.megam.common.amqp.serialization.MessagePayLoadSerialization
 /**
  * @author rajthilak
  *
  */
-case class MessagePayLoad(messages: Messages) {
-
-    
+case class MessagePayLoad(messages: Messages) {    
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON   

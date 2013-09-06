@@ -13,18 +13,18 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common.amqp
+package org.megam.common.amqp.serialization
 
 import scalaz._
-import scalaz.effect.IO
 import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import net.liftweb.json.scalaz.JsonScalaz.JSONR
-import net.liftweb.json.scalaz.JsonScalaz.JSONW
 import org.megam.common.enumeration._
+import org.megam.common.amqp.response.{AMQPResponse, AMQPResponseCode}
 import java.util.Date
+import org.megam.common.amqp._
+
 /**
  * @author rajthilak
  *
@@ -37,8 +37,8 @@ object AMQPResponseSerialization extends SerializationBase[AMQPResponse] {
 
   override implicit val writer = new JSONW[AMQPResponse] {
 
-    import org.megam.common.amqp.MessageJSONSerialization.{ writer => MessagesWriter }
-    import org.megam.common.amqp.AMQPResponseCodeSerialization.{ writer => ResponseCodeWriter }
+    import org.megam.common.amqp.serialization.MessageJSONSerialization.{ writer => MessagesWriter }
+    import org.megam.common.amqp.serialization.AMQPResponseCodeSerialization.{ writer => ResponseCodeWriter }
 
     override def write(h: AMQPResponse): JValue = {
       JObject(
@@ -51,8 +51,8 @@ object AMQPResponseSerialization extends SerializationBase[AMQPResponse] {
 
   override implicit val reader = new JSONR[AMQPResponse] {
 
-    import org.megam.common.amqp.MessageJSONSerialization.{ reader => MessagesReader }
-    import org.megam.common.amqp.AMQPResponseCodeSerialization.{ reader => ResponseCodeReader }
+    import org.megam.common.amqp.serialization.MessageJSONSerialization.{ reader => MessagesReader }
+    import org.megam.common.amqp.serialization.AMQPResponseCodeSerialization.{ reader => ResponseCodeReader }
 
     override def read(json: JValue): Result[AMQPResponse] = {
       val codeField = field[AMQPResponseCode](CodeKey)(json)(ResponseCodeReader)

@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common.amqp
+package org.megam.common.amqp.serialization
 
 
 import scalaz._
@@ -26,6 +26,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import net.liftweb.json.scalaz.JsonScalaz.JSONR
 import net.liftweb.json.scalaz.JsonScalaz.JSONW
 import org.megam.common.enumeration._
+import org.megam.common.amqp.response.AMQPResponseCode
 
 /**
  * @author rajthilak

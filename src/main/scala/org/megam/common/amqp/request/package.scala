@@ -15,19 +15,24 @@
 */
 package org.megam.common.amqp
 
+import scalaz._
+import scalaz.Validation._
+import scala.concurrent.duration._
+import scala.concurrent._
+import org.megam.common.amqp.request._
+import org.megam.common.amqp.request.AMQPRequest
+import org.megam.common.amqp.response.AMQPResponse
+
 /**
  * @author ram
  *
  */
-import org.megam.common.amqp._
-import scalaz._
-import Scalaz._
-import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
-import org.megam.common.amqp.request.{PublishRequest, SubscribeRequest}
-import org.megam.common.amqp.response.AMQPResponse
+package object request {
 
-trait AMQPClient {
-  def subscribe(f: AMQPResponse => ValidationNel[Throwable, Option[String]], key: RoutingKey): SubscribeRequest
-  def publish(messages: Messages, key: RoutingKey): PublishRequest
+  implicit class RichAMQPRequest(req: AMQPRequest) {
+    def block(duration: Duration = 500.milliseconds): ValidationNel[Throwable,AMQPResponse] = {
+      Await.result(req.apply, duration)
+    }
+  }
+  
 }

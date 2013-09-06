@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -13,13 +13,21 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common.amqp
-import net.liftweb.json.scalaz.JsonScalaz._
+package org.megam.common.amqp.request
+
+import org.megam.common.enumeration._
+import scalaz._
+import Scalaz._
+
 /**
- * @author rajthilak
+ * @author ram
  *
  */
-trait SerializationBase[T] {
-  def writer: JSONW[T]
-  def reader: JSONR[T]
+sealed abstract class AMQPRequestType(override val stringVal: String) extends Enumeration
+
+object AMQPRequestType {
+  object PUB extends AMQPRequestType("PUB")
+  object SUB extends AMQPRequestType("SUB")
+
+  implicit val AMQPRequestTypeToReader = upperEnumReader(PUB, SUB)
 }
