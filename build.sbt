@@ -46,26 +46,22 @@ resolvers += "Twitter Repo" at "http://maven.twttr.com"
 libraryDependencies ++= {
   val scalazVersion = "7.0.3"
   val liftJsonVersion = "2.5.1"
-  val zkVersion = "6.3.8"
+  val zkVersion = "6.4.0"
   val amqpVersion = "3.1.4"
   val scalaCheckVersion = "1.10.1"
   val specs2Version = "2.1.1"  
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
-    "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
     "com.stackmob" % "scaliak_2.10" % "0.8.0",
     "com.twitter" % "util-zk_2.10" % zkVersion,
-    "com.twitter" % "util-core_2.10" % zkVersion,
     "com.twitter" % "util-zk-common_2.10" % zkVersion,
     "com.rabbitmq" % "amqp-client" % amqpVersion,    
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",   
-    "org.pegdown" % "pegdown" % "1.3.0" % "test", 
-    "org.slf4j" % "slf4j-api" % "1.7.5",
     "org.apache.thrift" % "libthrift" % "0.5.0",
-    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar",
-    "commons-codec" % "commons-codec" % "1.8")
+    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.1/jars/snowflake.jar"
+    )
 }
 
 logBuffered := false
