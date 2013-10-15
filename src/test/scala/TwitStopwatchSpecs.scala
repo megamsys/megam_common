@@ -25,7 +25,7 @@ import org.specs2.mutable._
 import org.specs2.Specification
 import org.megam.common._
 import com.twitter.zk._
-import com.twitter.util.{ Duration, Future, Promise, TimeoutException, Timer, Return, Await }
+import com.twitter.util.{ Time, Duration, Future, Promise, TimeoutException, Timer, Return, Await }
 import org.apache.zookeeper.data.{ ACL, Stat }
 import org.apache.zookeeper.KeeperException
 
@@ -43,8 +43,11 @@ class TwitStopwatchSpecs extends Specification {
   case object TwitWatch {
 
     def succeeds = {
+     
+      println("Starting "+ Time.now) //comes with UTC offset 0
+
       val elapsed = TwitStopwatch.start
-      Thread.sleep( 5000)
+      Thread.sleep(5000)
       val res = elapsed()
       println("-->" + res)
       val expectedRes = 0

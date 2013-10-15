@@ -3,9 +3,9 @@ resolvers += Resolver.url("scalasbt", new URL("http://scalasbt.artifactoryonline
 
 resolvers += Resolver.url("Typesafe Snapshots", url("http://repo.typesafe.com/typesafe/snapshots/"))
 
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.0")
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.7")
+addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8")
 
-addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.2.0")
+addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.3.2")
 
