@@ -84,8 +84,7 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
    *
    */
   def znode(childPath: String): ZNode = {
-    val znode = zrnode(childPath)
-    logger.info("Child path:" + znode.path)
+    val znode = zrnode(childPath)   
     znode
   }
 
@@ -170,14 +169,12 @@ class Zoo(connectionTimeout: Option[Duration], sessionTimeout: Duration, uris: S
   def exists(path: String) {
     try {
       val znode = zkclient(path)
-      val child = Await.result(znode.exists())
-      logger.info("Path already exists")      
+      val child = Await.result(znode.exists())         
     } catch {
       case ke: KeeperException =>
         {
           val zknode1 = zkclient(path)
-          zknode1.create("started".getBytes, DefaultACL, DefaultMode)
-          logger.info("Node doesn't exists")
+          zknode1.create("started".getBytes, DefaultACL, DefaultMode)          
         }
     }
   }

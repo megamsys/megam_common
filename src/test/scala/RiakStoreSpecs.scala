@@ -42,7 +42,7 @@ class RiakStoreSpecs extends Specification {
       "Correctly print fetch result for account " ! AccountStore.succeeds ^
       end
 
-  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "predeftest6")
+  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "samplenodes")
 
   case object AccountStore {
 

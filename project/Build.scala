@@ -20,6 +20,9 @@ import sbtrelease._
 import ReleasePlugin._
 import ReleaseKeys._
 import sbt._
+import Keys._
+import Utilities._
+import com.typesafe.sbt.SbtPgp.PgpKeys._
 
 object MegCommonReleaseSteps {
 
@@ -32,6 +35,12 @@ object MegCommonReleaseSteps {
     st
   }
 
+  lazy val publishSignedAction: ReleaseStep = { st: State =>
+    val extracted = st.extract
+    val ref = extracted.get(thisProjectRef)
+    extracted.runAggregated(publishSigned in Global in ref, st)
+  }
+  
   private def getReleasedVersion(st: State): (String, String) = {
     st.get(versions).getOrElse(sys.error("No versions are set."))
   }

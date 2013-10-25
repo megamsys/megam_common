@@ -37,7 +37,7 @@ trait ClientTests { this: Specification =>
     private val exchange_name = "megam_exchange"
     private val queue_name = "megam_queue"
     private val routingKey = "megam_key"
-    private val message1 = Messages("id" -> "sample")
+    private val message1 = Messages("id" -> "RIP392631536052076545")
 
     private def executeP(client: AMQPClient, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok,
       duration: Duration = duration) = {
@@ -85,7 +85,7 @@ trait ClientTests { this: Specification =>
     }
 
     def pub = {
-      lazy val good_uris = "amqp://rabbitmq1.megam.co.in:5672/vhost"
+      lazy val good_uris = "amqp://localhost:5672/vhost,amqp://rabbitmq1.megam.co.in:5672/vhost"
       lazy val goodClient = new RabbitMQClient(good_uris, exchange_name, queue_name)
       executeP(goodClient)
     }

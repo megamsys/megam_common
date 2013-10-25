@@ -80,7 +80,7 @@ releaseProcess := Seq[ReleaseStep](
   commitReleaseVersion,
   setReadmeReleaseVersion,
   tagRelease,
-  publishArtifacts,
+  publishArtifacts.copy(action = publishSignedAction),
   setNextVersion,
   commitNextVersion,
   pushChanges
@@ -98,7 +98,7 @@ publishTo <<= (version) { version: String =>
 
 publishMavenStyle := true
 
-publishArtifact in Test := true
+publishArtifact in Test := false
 
 testOptions in Test += Tests.Argument("html", "console")
 

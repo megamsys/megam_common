@@ -14,6 +14,7 @@
 ** limitations under the License.
 */
 //package test
+
 import org.specs2._
 import scalaz._
 import Scalaz._
@@ -35,12 +36,12 @@ class AMQPSpecs extends Specification with ClientTests {
   def is =
     "AMQPSpecs".title ^ end ^
       "RabbitMQClient is an implementation of AMQPClient that connects to a RabbitMQ server" ^ end ^
-      "PUB with faulty url should work" ! ClientTests.apply.pubBADURL ^ end ^
-      "PUB with MQ down    should work" ! ClientTests.apply.pubCONNDOWN ^ end ^
+      //"PUB with faulty url should work" ! ClientTests.apply.pubBADURL ^ end ^
+      //"PUB with MQ down    should work" ! ClientTests.apply.pubCONNDOWN ^ end ^
       "PUB should work" ! ClientTests.apply.pub ^ end ^
-      "SUB with faulty url should work" ! ClientTests.apply.subBADURL ^ end ^
-      "SUB with MQ down    should work" ! ClientTests.apply.subCONNDOWN ^ end ^
-      "SUB should work" ! ClientTests.apply.sub ^ end ^
+      //"SUB with faulty url should work" ! ClientTests.apply.subBADURL ^ end ^
+      //"SUB with MQ down    should work" ! ClientTests.apply.subCONNDOWN ^ end ^
+      //"SUB should work" ! ClientTests.apply.sub ^ end ^
       end
 }
 

@@ -37,9 +37,9 @@ class ZooSpecs extends Specification {
   ZooKeeper Client creation and node path
   """ ^ end ^
       "The Zoo Client Should" ^
-      //"Correctly do a node path check" ! ZooNode().createSucceeds ^
+      "Correctly do a node path check" ! ZooNode().createSucceeds ^
       //"Set the data to existing node" ! ZooNode().setDataSucceeds ^
-      "Get the data from existing node" ! ZooNode().getDataSucceeds ^
+      //"Get the data from existing node" ! ZooNode().getDataSucceeds ^
       // "Get the children name from existing node" ! ZooNode().getChildrenSucceeds ^
       //"Delete the existing node" ! ZooNode().deleteSucceeds ^
       //"Watch children from existing node" ! ZooNode().watchChildrenSucceeds ^
@@ -58,7 +58,7 @@ class ZooSpecs extends Specification {
     val name = "sample"
     val path1 = "/machines/nodes"
     //zoo.exists(path)   
-    val child = "nodes/nodejs"
+    val child = "nodejs"
     /*val t: ValidationNel[Throwable, ZNode] = zoo.create(path, "created")
     t match {
       case Success(t1) => {

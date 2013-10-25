@@ -30,10 +30,10 @@ import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 
-class RiakFetchSpecs extends Specification {
+class RiakFetchSpec extends Specification {
 
   def is =
-    "RiakFetchSpecs".title ^ end ^
+    "RiakFetchSpec".title ^ end ^
       """
   Riak Fetch client which interfaces with Riak datasource
     """ ^ end ^
@@ -41,18 +41,18 @@ class RiakFetchSpecs extends Specification {
       "Correctly print fetch result for account " ! AccountFetch.succeeds ^
       end
 
-  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "predeftest6")
+  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "nodes")
 
   case object AccountFetch {
 
     val metadataKey = "Field"
     val metadataVal = "1002"
-    val bindex = BinIndex.named("")
+    val bindex = BinIndex.named("accountId")
     val bvalue = Set("")
 
     def succeeds = {
       val t: ValidationNel[Throwable, List[String]] = riak.fetchIndexByValue(new GunnySack("email", "sandy@megamsandbox.com", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-      val keys = riak.fetch("nodejs")
+      val keys = riak.fetch("sandy@megamsandbox.com")
       val res = t
       println("-->" + res)
       val expectedRes = 0
