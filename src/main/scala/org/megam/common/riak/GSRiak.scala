@@ -26,6 +26,8 @@ import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.cap.VClock
 import org.slf4j.LoggerFactory
 import org.megam.common._
+import org.megam.common.riak.GSErrors._
+
 
 /**
  * @author ram

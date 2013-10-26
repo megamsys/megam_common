@@ -13,7 +13,8 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common.enumeration
+package org.megam.common
+package enumeration
 
 import scalaz._
 import scalaz.Validation._
