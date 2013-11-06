@@ -47,7 +47,7 @@ libraryDependencies ++= {
   val zkVersion = "6.7.0"
   val amqpVersion = "3.2.0"
   val scalaCheckVersion = "1.10.1"
-  val specs2Version = "2.1.1"  
+  val specs2Version = "2.3.3"  
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
