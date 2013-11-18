@@ -27,7 +27,8 @@ import org.apache.thrift.transport.{ TTransport }
  *
  */
 class UID(hostname: String, port: Int, agent: String, soTimeoutMS: Int = 5000) {
-
+ 
+  //this needs the uid server to be running prior to play
   private lazy val service: UniqueIDService =
     USnowflakeClient.create(hostname, port, soTimeoutMS)
 
