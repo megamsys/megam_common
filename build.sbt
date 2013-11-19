@@ -62,8 +62,6 @@ libraryDependencies ++= {
     )
 }
 
-//conflictManager := ConflictManager.strict
-
 logBuffered := false
 
 ScalastylePlugin.Settings
@@ -86,13 +84,7 @@ releaseProcess := Seq[ReleaseStep](
   pushChanges
 )
 
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (version.value.trim.endsWith("SNAPSHOT"))
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
+publishTo in ThisBuild            <<= isSnapshot(if (_) Some(Opts.resolver.sonatypeSnapshots) else Some(Opts.resolver.sonatypeStaging))
 
 publishMavenStyle := true
 
