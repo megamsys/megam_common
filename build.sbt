@@ -42,12 +42,12 @@ resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/public"
 resolvers += "Twitter Repo" at "http://maven.twttr.com"   
        
 libraryDependencies ++= {
-  val scalazVersion = "7.0.4"
+  val scalazVersion = "7.0.5"
   val liftJsonVersion = "2.5.1"
   val zkVersion = "6.8.1"
   val amqpVersion = "3.2.1"
-  val scalaCheckVersion = "1.10.1"
-  val specs2Version = "2.3.3"  
+  val scalaCheckVersion = "1.11.1"
+  val specs2Version = "2.3.4"  
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
