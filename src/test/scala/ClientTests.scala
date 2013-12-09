@@ -37,7 +37,8 @@ trait ClientTests { this: Specification =>
     private val exchange_name = "megam_cloudrecipe_exchange"
     private val queue_name = "megam_cloudrecipe_queue"
     private val routingKey = "megam_key"
-    private val message1 = Messages("id" -> "RIP392631536052076545")
+    //private val message1 = Messages("id" -> "RIP392631536052076545")
+      private val message1 = Messages("vault_location" -> "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/chef")
 
     private def executeP(client: AMQPClient, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok,
       duration: Duration = duration) = {
