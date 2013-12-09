@@ -46,7 +46,6 @@ libraryDependencies ++= {
   val liftJsonVersion = "2.5.1"
   val zkVersion = "6.8.1"
   val amqpVersion = "3.2.1"
-  val scalaCheckVersion = "1.11.1"
   val specs2Version = "2.3.4"  
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
@@ -55,10 +54,9 @@ libraryDependencies ++= {
     "com.twitter" % "util-zk_2.10" % zkVersion,
     "com.twitter" % "util-zk-common_2.10" % zkVersion,
     "com.rabbitmq" % "amqp-client" % amqpVersion,    
-    "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",   
     "org.apache.thrift" % "libthrift" % "0.5.0",
-    "com.amazonaws" % "aws-java-sdk" % "1.6.4",
+    "com.amazonaws" % "aws-java-sdk" % "1.6.8",
     "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.1/jars/snowflake.jar"
     )
 }
