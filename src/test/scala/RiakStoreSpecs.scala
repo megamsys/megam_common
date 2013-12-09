@@ -52,7 +52,7 @@ class RiakStoreSpecs extends Specification {
     val bvalue = Set("sandy@megamsandbox.com")
 
     def succeeds = {
-      val t: ValidationNel[Throwable, Option[GunnySack]] = riak.store(new GunnySack("key13", "{\"id\":\"1\",\"email\":\"sandy@megamsandbox.com\",\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\",\"authority\":\"user\"}", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+      val t: ValidationNel[Throwable, Option[GunnySack]] = riak.store(new GunnySack("key14", "{\"id\":\"1\",\"email\":\"sandy@megamsandbox.com\",\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\",\"authority\":\"user\"}", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
       val keys = riak.fetch("nodejs")
       val res = t
       println("-->" + res)

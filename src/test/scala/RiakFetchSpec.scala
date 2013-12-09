@@ -41,13 +41,13 @@ class RiakFetchSpec extends Specification {
       "Correctly print fetch result for account " ! AccountFetch.succeeds ^
       end
 
-  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "nodes")
+  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "samplenodes")
 
   case object AccountFetch {
 
     val metadataKey = "Field"
     val metadataVal = "1002"
-    val bindex = BinIndex.named("accountId")
+    val bindex = BinIndex.named("email")
     val bvalue = Set("")
 
     def succeeds = {

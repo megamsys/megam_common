@@ -38,27 +38,27 @@ class ZooSpecs extends Specification {
   """ ^ end ^
       "The Zoo Client Should" ^
       "Correctly do a node path check" ! ZooNode().createSucceeds ^
-      //"Set the data to existing node" ! ZooNode().setDataSucceeds ^
-      //"Get the data from existing node" ! ZooNode().getDataSucceeds ^
-      // "Get the children name from existing node" ! ZooNode().getChildrenSucceeds ^
-      //"Delete the existing node" ! ZooNode().deleteSucceeds ^
-      //"Watch children from existing node" ! ZooNode().watchChildrenSucceeds ^
-      //"Watch Data from existing node" ! ZooNode().watchDataSucceeds ^
-      //"Monitor data from existing node" ! ZooNode().monitorDataSucceeds ^
+      "Set the data to existing node" ! ZooNode().setDataSucceeds ^
+      "Get the data from existing node" ! ZooNode().getDataSucceeds ^
+       "Get the children name from existing node" ! ZooNode().getChildrenSucceeds ^
+      "Delete the existing node" ! ZooNode().deleteSucceeds ^
+      "Watch children from existing node" ! ZooNode().watchChildrenSucceeds ^
+      "Watch Data from existing node" ! ZooNode().watchDataSucceeds ^
+      "Monitor data from existing node" ! ZooNode().monitorDataSucceeds ^
       end
 
   trait TestContext {
 
     println("Setting up ZooKeeper Client")
 
-    lazy val zoo = new Zoo("localhost:2181", "nodes")
+    lazy val zoo = new Zoo("localhost:2181", "testing")
 
-    val path = "/machines/nodes/nodejs"
+    val path = "/machines/testing/redis"
     val parent = "/machines3/sample"
     val name = "sample"
-    val path1 = "/machines/nodes"
+    val path1 = "/machines/testing"
     //zoo.exists(path)   
-    val child = "nodejs"
+    val child = "testing/redis"
     /*val t: ValidationNel[Throwable, ZNode] = zoo.create(path, "created")
     t match {
       case Success(t1) => {

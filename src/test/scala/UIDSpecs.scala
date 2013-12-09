@@ -39,7 +39,7 @@ class UIDSpecs extends Specification {
   """ ^ end ^
       "The UID Client Should" ^
       "Correctly return a Unique ID for agent act" ! UIDActNoneService().succeeds ^
-      "Correctly return a Unique ID for agent nod" ! UIDActService().succeeds ^
+      //"Correctly return a Unique ID for agent nod" ! UIDActService().succeeds ^
       end
 
   def execute[T](t: ValidationNel[Throwable, UniqueID], expectedPrefix: String)(fn: UniqueID => MatchResult[T]) = {
@@ -63,7 +63,8 @@ class UIDSpecs extends Specification {
   }
 
   case class UIDActService() {
-   def succeeds = execute(UID("uid1.megam.co.in", 7609, "act").get, "act")(ensureUIDOk(_))
+   //def succeeds = execute(UID("uid1.megam.co.in", 7609, "act").get, "act")(ensureUIDOk(_))
+    def succeeds = execute(UID("localhost", 7609, "act").get, "act")(ensureUIDOk(_))
   }
 
 }

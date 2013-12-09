@@ -34,8 +34,8 @@ trait ClientTests { this: Specification =>
 
   class ClientTests {
 
-    private val exchange_name = "megam_exchange"
-    private val queue_name = "megam_queue"
+    private val exchange_name = "megam_cloudrecipe_exchange"
+    private val queue_name = "megam_cloudrecipe_queue"
     private val routingKey = "megam_key"
     private val message1 = Messages("id" -> "RIP392631536052076545")
 

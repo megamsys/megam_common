@@ -58,6 +58,7 @@ libraryDependencies ++= {
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",   
     "org.apache.thrift" % "libthrift" % "0.5.0",
+    "com.amazonaws" % "aws-java-sdk" % "1.6.4",
     "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.1/jars/snowflake.jar"
     )
 }
