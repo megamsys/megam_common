@@ -19,7 +19,8 @@ import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
 import java.io.{StringWriter, PrintWriter}
-
+import org.megam.common._
+import org.megam.common.s3._
 
 /**
  * @author rajthilak
@@ -28,7 +29,7 @@ import java.io.{StringWriter, PrintWriter}
 object S3Errors {
   val tailMsg = "Refer the stacktrace for more information. If this error persits, ask for help on the forums."
 
-  case class S3ConnectionError(ak: String, sk: String)
+  case class S3ConnectionError(credent: Credentials)
     extends Exception  
 
   case class DownloadError(vl: String)
@@ -44,7 +45,7 @@ object S3Errors {
         c => """Failed to connect to S3 bucket `access key:' '%s' `secret key:' '%s'
             |
             |Please verify your s3 credentials (accessKey, and secretKey).
-            |%s""".format(c.accessKey, c.secretKey, tailMsg).stripMargin,  
+            |%s""".format(c.credent._1, c.credent._2, tailMsg).stripMargin,  
         f => """Failed to download from S3 `vault location:' '%s'  
             |
             |Please verify your S3 source (accessKey, secretKey, and vault location), bucketname and the 

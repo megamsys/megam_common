@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common.s3
+package org.megam.common
 
 import org.megam.common.s3.S3Errors._
 /**
@@ -22,16 +22,6 @@ import org.megam.common.s3.S3Errors._
  */
 package object s3 {
 
-  implicit class RichThrowable(thrownExp: Throwable) {
-    def fold[T](connError: S3ConnectionError => T,
-      downError: DownloadError => T,
-      listError: ListingError => T,
-      anyError: Throwable => T): T = thrownExp match {
-      case c @ S3ConnectionError(_, _) => connError(c)
-      case f @ DownloadError(_)        => downError(f)
-      case l @ ListingError(_, _)      => listError(l)
-      case t @ _                       => anyError(t)
-    }
-  }
+  type Credentials = Tuple2[String, String]
 
 }

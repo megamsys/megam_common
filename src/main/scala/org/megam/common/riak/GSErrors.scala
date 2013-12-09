@@ -19,6 +19,7 @@ import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
 import java.io.{StringWriter, PrintWriter}
+import org.megam.common._
 
 
 /**

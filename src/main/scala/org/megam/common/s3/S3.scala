@@ -23,25 +23,23 @@ import scalaz.NonEmptyList._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.{ AmazonS3, AmazonS3Client }
+import com.amazonaws.services.s3.model._
 import org.slf4j.LoggerFactory
 import java.io.File
+import org.megam.common._
+import org.megam.common.s3._
 import org.megam.common.s3.S3Errors._
 
-class S3(accessKey: String, secretKey: String, region: String) {
+class S3(credent: Credentials, region: String) {
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
-  private lazy val credentials = new BasicAWSCredentials(accessKey, secretKey)
+  private lazy val credentials = new BasicAWSCredentials(credent._1, credent._2)
 
   val connection: Validation[Throwable, AmazonS3Client] = (Validation.fromTryCatch {
     new AmazonS3Client(credentials)
-  } leftMap { t: Throwable => S3ConnectionError(accessKey, secretKey) })
+  } leftMap { t: Throwable => S3ConnectionError(credent) })
 
   def objectListing(bucketName: String, vl: String): Validation[Throwable, ObjectListing] = {
     val res = (for {
@@ -49,7 +47,7 @@ class S3(accessKey: String, secretKey: String, region: String) {
     } yield {
       conn.setEndpoint(region)
       conn.listObjects(new ListObjectsRequest().withBucketName(bucketName).withPrefix(vl))
-    }) leftMap { t: Throwable => S3Error(nels(ListingError(accessKey, secretKey)))}
+    }) leftMap { t: Throwable => S3Error(nels(ListingError(bucketName, vl))) }
     //res.getOrElse(Validation.failure[Throwable, ObjectListing](S3Error(nels(ListingError(accessKey, secretKey)))))
     res
   }
@@ -63,16 +61,16 @@ class S3(accessKey: String, secretKey: String, region: String) {
         if (objectSummary.getSize() > 0) {
           conn.getObject(new GetObjectRequest(bucketName,
             objectSummary.getKey()), new File(
-            new java.io.File( "." ).getCanonicalPath + bucketName + "/" + objectSummary.getKey()))
+            new java.io.File(".").getCanonicalPath + bucketName + "/" + objectSummary.getKey()))
         })
     }) leftMap { t: Throwable => S3Error(nels(DownloadError(vl))) }
-   // res.getOrElse(Validation.failure[Throwable, scala.collection.mutable.Buffer[Any]](S3Error(nels(DownloadError(vl)))))
+    // res.getOrElse(Validation.failure[Throwable, scala.collection.mutable.Buffer[Any]](S3Error(nels(DownloadError(vl)))))
     res
   }
 
 }
 
 object S3 {
-  def apply(accessKey: String, secretKey: String, region: String) = new S3(accessKey, secretKey, region)
+  def apply(credent: Credentials, region: String) = new S3(credent, region)
 }
 
