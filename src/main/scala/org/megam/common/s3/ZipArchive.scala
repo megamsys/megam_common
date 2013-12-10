@@ -1,3 +1,5 @@
+package org.megam.common.s3
+
 import java.util.zip.ZipFile
 import java.io.FileInputStream
 import java.io.FileOutputStream
