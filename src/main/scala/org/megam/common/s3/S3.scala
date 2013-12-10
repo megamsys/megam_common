@@ -61,7 +61,7 @@ class S3(credent: Credentials, region: String) {
         if (objectSummary.getSize() > 0) {
           conn.getObject(new GetObjectRequest(bucketName,
             objectSummary.getKey()), new File(
-            new java.io.File(".").getCanonicalPath +"/" + bucketName + "/" + objectSummary.getKey()))
+            new java.io.File(".").getCanonicalPath + "/" + bucketName + "/" + objectSummary.getKey()))
         })
     }) leftMap { t: Throwable => S3Error(nels(DownloadError(vl))) }
     // res.getOrElse(Validation.failure[Throwable, scala.collection.mutable.Buffer[Any]](S3Error(nels(DownloadError(vl)))))

@@ -29,17 +29,20 @@ scalacOptions := Seq(
   	"-language:implicitConversions",
   	"-Ydead-code")
 
+resolvers += "Twitter Repo" at "http://maven.twttr.com"
+
+resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases"
+
+resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/public"
+
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots"
 
 resolvers  +=  "Sonatype OSS Snapshots"  at  "https://oss.sonatype.org/content/repositories/snapshots"
 
 resolvers  += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
 
-resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases"
+resolvers += "JBoss" at "https://repository.jboss.org/nexus/content/groups/public"
 
-resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/public"
-      
-resolvers += "Twitter Repo" at "http://maven.twttr.com"   
        
 libraryDependencies ++= {
   val scalazVersion = "7.0.5"
@@ -48,12 +51,12 @@ libraryDependencies ++= {
   val amqpVersion = "3.2.1"
   val specs2Version = "2.3.4"  
   Seq(
+  "com.twitter" %% "util-zk-common" % zkVersion,
+    "com.twitter" %% "util-zk" % zkVersion,
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "com.stackmob" % "scaliak_2.10" % "0.9.0",
-    "com.twitter" % "util-zk_2.10" % zkVersion,
-    "com.twitter" % "util-zk-common_2.10" % zkVersion,
-    "com.rabbitmq" % "amqp-client" % amqpVersion,    
+    "com.stackmob" %% "scaliak" % "0.9.0",    
+    "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2" % specs2Version % "test",   
     "org.apache.thrift" % "libthrift" % "0.5.0",
     "com.amazonaws" % "aws-java-sdk" % "1.6.8",
