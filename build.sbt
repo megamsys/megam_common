@@ -47,7 +47,7 @@ resolvers += "JBoss" at "https://repository.jboss.org/nexus/content/groups/publi
 libraryDependencies ++= {
   val scalazVersion = "7.0.5"
   val liftJsonVersion = "2.5.1"
-  val zkVersion = "6.8.1"
+  val zkVersion = "6.10.0"
   val amqpVersion = "3.2.1"
   val specs2Version = "2.3.4"  
   Seq(
