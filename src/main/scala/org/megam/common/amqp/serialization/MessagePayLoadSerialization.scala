@@ -27,30 +27,66 @@ import org.megam.common.amqp._
 
 /**
  * @author rajthilak
- *
  */
 
 object MessagePayLoadSerialization extends SerializationBase[MessagePayLoad] {
-  protected val MessageKey = "message"
   import org.megam.common.amqp.serialization.MessageJSONSerialization.{ writer => MessageWriter, reader => MessageReader }
 
-  override implicit val writer = new JSONW[MessagePayLoad] {
-    override def write(h: MessagePayLoad): JValue = {      
-      JObject(          
-        JField(MessageKey, toJSON(h.messages)(MessageWriter)) :: Nil)
+  implicit override val writer = new JSONW[MessagePayLoad] {
+    override def write(h: MessagePayLoad): JValue = {
+      val messagesList: List[JObject] = h.messages.map {
+        messageList: MessageList =>
+          (messageList.list.map { message: Message =>
+            JObject(JField(message._1, JString(message._2)) :: Nil)
+          }).toList
+      } | List[JObject]()
+
+      JArray(messagesList)
     }
   }
 
-  override implicit val reader = new JSONR[MessagePayLoad] {
+  implicit override val reader = new JSONR[MessagePayLoad] {
     override def read(json: JValue): Result[MessagePayLoad] = {
-      val msgs1 = field[Messages](MessageKey)(json)(MessageReader)
-      msgs1.flatMap { reqType: Messages =>
-        val res: ValidationNel[Error, MessagePayLoad] = reqType match {
-          case Some(x) => MessagePayLoad(x.some).successNel
-          case _       => UncategorizedError("request type", "unsupported request type", List()).failNel
+      json match {
+        case JArray(jObjectList) => {
+          val list = jObjectList.flatMap {
+            jValue: JValue =>
+              jValue match {
+                case JObject(jFieldList) => jFieldList match {
+                  case JField(msgName, JString(msgVal)) :: Nil => List(msgName -> msgVal)
+                  //TODO: error here
+                  case _                                       => List[(String, String)]()
+                }
+                //TODO: error here
+                case _ => List[(String, String)]()
+              }
+          }
+          val messages: Messages = Messages(list)
+          MessagePayLoad(messages).successNel[Error]
         }
-        res
+        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[MessagePayLoad]
       }
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
