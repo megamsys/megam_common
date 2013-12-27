@@ -34,14 +34,19 @@ object MessagePayLoadSerialization extends SerializationBase[MessagePayLoad] {
 
   implicit override val writer = new JSONW[MessagePayLoad] {
     override def write(h: MessagePayLoad): JValue = {
-      val messagesList: List[JObject] = h.messages.map {
+      val messagesList: List[List[JField]] = h.messages.map {
         messageList: MessageList =>
           (messageList.list.map { message: Message =>
-            JObject(JField(message._1, JString(message._2)) :: Nil)
-          }).toList
-      } | List[JObject]()
+            // message._2 match {
+            // case List(x) =>
+            //  JObject(JField(message._1, JArray(message._2)) :: Nil)
+            // case _  =>
+            JField(message._1, JString(message._2)) 
+            // }            
+          }).toList :: Nil
+      } | List[List[JField]]()
 
-      JArray(messagesList)
+      JObject(messagesList.flatten)
     }
   }
 

@@ -39,13 +39,13 @@ class S3Specs extends Specification {
       "Correctly download the file " ! Download.succeeds ^
       end
 
-  private lazy val s3: S3 = new S3(Tuple2("AKIAIX6YNFLZJDUMS3JA", "VQD76LG8YfPJkgB8kH4dEyisJw2vkzDFwhBeDhv4"), "s3-ap-southeast-1.amazonaws.com")
+  private lazy val s3: S3 = new S3(Tuple2("AKIAIX6YNFLZJDUMS3JA", "VQD76LG8YfPJkgB8kH4dEyisJw2vkzDFwhBeDhv4"))
 
   case object Download {    
 
     def succeeds = {     
-      val res = s3.download("cloudrecipes", "sandy@megamsandbox.com/chef/chef-repo.zip")
-      (new ZipArchive).unZip("cloudrecipes/sandy@megamsandbox.com/chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/chef/")
+      val res = s3.download("cloudrecipes", "sandy@megamsandbox.com/default_chef/chef-repo.zip")
+      (new ZipArchive).unZip("cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/default_chef/")
       println("-->" + res)
       val expectedRes = 0
       res mustEqual expectedRes

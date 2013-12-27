@@ -31,7 +31,7 @@ import org.megam.common._
 import org.megam.common.s3._
 import org.megam.common.s3.S3Errors._
 
-class S3(credent: Credentials, region: String) {
+class S3(credent: Credentials) {
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
@@ -45,7 +45,7 @@ class S3(credent: Credentials, region: String) {
     val res = (for {
       conn <- connection
     } yield {
-      conn.setEndpoint(region)
+      //conn.setEndpoint(region)
       conn.listObjects(new ListObjectsRequest().withBucketName(bucketName).withPrefix(vl))
     }) leftMap { t: Throwable => S3Error(nels(ListingError(bucketName, vl))) }
     //res.getOrElse(Validation.failure[Throwable, ObjectListing](S3Error(nels(ListingError(accessKey, secretKey)))))
@@ -71,6 +71,6 @@ class S3(credent: Credentials, region: String) {
 }
 
 object S3 {
-  def apply(credent: Credentials, region: String) = new S3(credent, region)
+  def apply(credent: Credentials) = new S3(credent)
 }
 
