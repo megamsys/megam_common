@@ -67,7 +67,7 @@ object GSErrors {
             |
             |Please verify your datasource (Riak host name ,port and the url), bucketname and the 
             |key name. Execute riak curl commands to see if the record exists. 
-            |eg : curl -v -XPUT -d '{"id":"1","email":"sandy@megamsandbox.com", "api_key":"xxxxx","authority":"user"}' -H "Content-Type: application/json" http://localhost:8098/riak/accounts/content1         
+            |eg : curl -v -XPUT -d '{"id":"1","email":"myname@mydomain.com", "api_key":"xxxxx","authority":"user"}' -H "Content-Type: application/json" http://localhost:8098/riak/accounts/content1         
             |          where `bucket:' 'accounts' `key:' 'content1'             
             |%s.""".format(s.uri, s.bucket, s.storeVal, tailMsg).stripMargin,
         t => """Ooops ! zzzzz.. Quiet. I don't know what happended.
