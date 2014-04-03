@@ -11,7 +11,7 @@ name := "megam_common"
 
 organization := "com.github.indykish"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
 scalacOptions := Seq(
 	"-target:jvm-1.7",
