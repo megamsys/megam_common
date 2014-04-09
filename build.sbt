@@ -47,9 +47,9 @@ resolvers += "JBoss" at "https://repository.jboss.org/nexus/content/groups/publi
 libraryDependencies ++= {
   val scalazVersion = "7.0.6"
   val liftJsonVersion = "2.5.1"
-  val zkVersion = "6.13.0"
-  val amqpVersion = "3.2.4"
-  val specs2Version = "2.3.7"  
+  val zkVersion = "6.13.2"
+  val amqpVersion = "3.3.0"
+  val specs2Version = "2.3.10"  
   Seq(
   "com.twitter" %% "util-zk-common" % zkVersion,
     "com.twitter" %% "util-zk" % zkVersion,
@@ -59,7 +59,7 @@ libraryDependencies ++= {
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2" % specs2Version % "test",   
     "org.apache.thrift" % "libthrift" % "0.5.0",
-    "com.amazonaws" % "aws-java-sdk" % "1.7.3",
+    "com.amazonaws" % "aws-java-sdk" % "1.7.5",
     "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.1/jars/snowflake.jar"
     )
 }
