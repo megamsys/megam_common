@@ -21,13 +21,15 @@ scalacOptions := Seq(
   	"-Xcheckinit",
   	"-Xlint",
   	"-Xverify",
- // 	"-Yconst-opt",  	available in scala 2.11
+//  	"-Yconst-opt",  	
   	"-Yinline",
   	"-Ywarn-all",
   	"-Yclosure-elim",
   	"-language:postfixOps",
   	"-language:implicitConversions",
   	"-Ydead-code")
+
+incOptions := incOptions.value.withNameHashing(true)
 
 resolvers += "Twitter Repo" at "http://maven.twttr.com"
 
@@ -47,9 +49,9 @@ resolvers += "JBoss" at "https://repository.jboss.org/nexus/content/groups/publi
 libraryDependencies ++= {
   val scalazVersion = "7.0.6"
   val liftJsonVersion = "2.5.1"
-  val zkVersion = "6.13.2"
-  val amqpVersion = "3.3.0"
-  val specs2Version = "2.3.10"  
+  val zkVersion = "6.16.0"
+  val amqpVersion = "3.3.1"
+  val specs2Version = "2.3.11"  
   Seq(
   "com.twitter" %% "util-zk-common" % zkVersion,
     "com.twitter" %% "util-zk" % zkVersion,
@@ -59,7 +61,7 @@ libraryDependencies ++= {
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2" % specs2Version % "test",   
     "org.apache.thrift" % "libthrift" % "0.5.0",
-    "com.amazonaws" % "aws-java-sdk" % "1.7.5",
+    "com.amazonaws" % "aws-java-sdk" % "1.7.7",
     "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.1/jars/snowflake.jar"
     )
 }
