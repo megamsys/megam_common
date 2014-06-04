@@ -21,7 +21,7 @@ scalacOptions := Seq(
   	"-Xcheckinit",
   	"-Xlint",
   	"-Xverify",
-//  	"-Yconst-opt",  	
+//  	"-Yconst-opt",
   	"-Yinline",
   	"-Ywarn-all",
   	"-Yclosure-elim",
@@ -39,34 +39,36 @@ resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/public"
 
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots"
 
-resolvers  +=  "Sonatype OSS Snapshots"  at  "https://oss.sonatype.org/content/repositories/snapshots"
+resolvers  +=  "Sonatype Snapshots"  at  "https://oss.sonatype.org/content/repositories/snapshots"
 
 resolvers  += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
 
 resolvers += "JBoss" at "https://repository.jboss.org/nexus/content/groups/public"
 
-       
+
 libraryDependencies ++= {
   val scalazVersion = "7.0.6"
   val liftJsonVersion = "2.5.1"
   val zkVersion = "6.16.0"
   val amqpVersion = "3.3.1"
-  val specs2Version = "2.3.11"  
+  val specs2Version = "2.3.12"
   Seq(
   "com.twitter" %% "util-zk-common" % zkVersion,
     "com.twitter" %% "util-zk" % zkVersion,
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "com.stackmob" %% "scaliak" % "0.9.0",    
+    "com.stackmob" %% "scaliak" % "0.9.0",
     "com.rabbitmq" % "amqp-client" % amqpVersion,
-    "org.specs2" %% "specs2" % specs2Version % "test",   
+    "org.specs2" %% "specs2" % specs2Version % "test",
     "org.apache.thrift" % "libthrift" % "0.5.0",
-    "com.amazonaws" % "aws-java-sdk" % "1.7.7",
+    "com.amazonaws" % "aws-java-sdk" % "1.7.12",
     "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.1/jars/snowflake.jar"
     )
 }
 
 logBuffered := false
+
+// isSnapshot := true
 
 ScalastylePlugin.Settings
 
@@ -106,19 +108,19 @@ pomExtra := (
     </license>
   </licenses>
   <scm>
-    <url>git@github.com:indykish/megam_common.git</url>
-    <connection>scm:git:git@github.com:indykish/megam_common.git</connection>
+    <url>git@github.com:megamsys/megam_common.git</url>
+    <connection>scm:git:git@github.com:megamsys/megam_common.git</connection>
   </scm>
   <developers>
     <developer>
       <id>indykish</id>
       <name>Kishorekumar Neelamegam</name>
-      <url>http://www.megam.co</url>
+      <url>http://www.gomegam.com</url>
     </developer>
     <developer>
       <id>rajthilakmca</id>
       <name>Raj Thilak</name>
-      <url>http://www.megam.co</url>
-    </developer>    
+      <url>http://www.gomegam.com</url>
+    </developer>
   </developers>
 )
