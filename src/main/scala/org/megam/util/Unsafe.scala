@@ -13,31 +13,19 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common
-
-import scalaz._
-import Scalaz._
-
-import org.apache.thrift.transport.{TTransport}
-import org.megam.service.snowflake.gen.Snowflake
+package org.megam.util
 
 /**
  * @author ram
  *
  */
-package object uid {
-  
-  type UniqueIDService = (TTransport, Snowflake.Client) 
-  
-  type UniqueID = Option[(String, Long)]
-  
-  object UniqueID {
-    
-    def apply(genID: Long):UniqueID = UniqueID("BIR", genID)
-    
-    def apply(prefix: String, genID: Long):UniqueID = (prefix.toUpperCase, genID).some
-    
-    def empty = None
+
+object Unsafe {
+  private lazy val instance: sun.misc.Unsafe = {
+    val fld = classOf[sun.misc.Unsafe].getDeclaredField("theUnsafe")
+    fld.setAccessible(true)
+    fld.get(null).asInstanceOf[sun.misc.Unsafe]
   }
 
+  def apply(): sun.misc.Unsafe = instance
 }

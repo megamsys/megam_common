@@ -24,10 +24,11 @@ import Scalaz._
 import org.specs2.mutable._
 import org.specs2.Specification
 import org.megam.common._
-import com.twitter.zk._
-import com.twitter.util.{ Duration, Future, Promise, TimeoutException, Timer, Return, Await }
-import org.apache.zookeeper.data.{ ACL, Stat }
+/*import org.apache.zookeeper.data.{ ACL, Stat }
 import org.apache.zookeeper.KeeperException
+import com.twitter.zk._
+import org.megam.util.{ Duration, Future, Promise, TimeoutException, Timer, Return, Await }
+*/
 
 class ZooSpecs extends Specification {
 
@@ -37,7 +38,7 @@ class ZooSpecs extends Specification {
   ZooKeeper Client creation and node path
   """ ^ end ^
       "The Zoo Client Should" ^
-      "Correctly do a node path check" ! ZooNode().createSucceeds ^
+ /*     "Correctly do a node path check" ! ZooNode().createSucceeds ^
       "Set the data to existing node" ! ZooNode().setDataSucceeds ^
       "Get the data from existing node" ! ZooNode().getDataSucceeds ^
        "Get the children name from existing node" ! ZooNode().getChildrenSucceeds ^
@@ -45,9 +46,9 @@ class ZooSpecs extends Specification {
       "Watch children from existing node" ! ZooNode().watchChildrenSucceeds ^
       "Watch Data from existing node" ! ZooNode().watchDataSucceeds ^
       "Monitor data from existing node" ! ZooNode().monitorDataSucceeds ^
-      end
+   */   end
 
-  trait TestContext {
+/*  trait TestContext {
 
     println("Setting up ZooKeeper Client")
 
@@ -266,10 +267,5 @@ class ZooSpecs extends Specification {
     def watchDataSucceeds = watchDataExecute(zoo.watch[ValidationNel[Throwable, Future[ZNode.Watch[ZNode.Data]]]](zoo.watchData, path1))
     def monitorDataSucceeds = monitorChildDeleteExecute(zoo.getData((zoo.znode(child)).path, zoo.znode(child)))
   }
-
+*/
 }
-
-
-
-
-

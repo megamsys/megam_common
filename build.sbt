@@ -6,6 +6,7 @@ import ReleaseStateTransformations._
 import ReleasePlugin._
 import ReleaseKeys._
 import sbt._
+import com.github.bigtoast.sbtthrift.ThriftPlugin
 
 name := "megam_common"
 
@@ -45,24 +46,27 @@ resolvers  += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.o
 
 resolvers += "JBoss" at "https://repository.jboss.org/nexus/content/groups/public"
 
-
 libraryDependencies ++= {
   val scalazVersion = "7.0.6"
   val liftJsonVersion = "2.5.1"
-  val zkVersion = "6.16.0"
-  val amqpVersion = "3.3.1"
-  val specs2Version = "2.3.12"
+//  val zkVersion = "6.18.0"
+  val amqpVersion = "3.3.4"
+  val specs2Version = "2.3.13"
   Seq(
-  "com.twitter" %% "util-zk-common" % zkVersion,
-    "com.twitter" %% "util-zk" % zkVersion,
+//  "com.twitter" %% "util-zk-common" % zkVersion,
+//  "com.twitter" %% "util-zk" % zkVersion,
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
     "com.stackmob" %% "scaliak" % "0.9.0",
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2" % specs2Version % "test",
-    "org.apache.thrift" % "libthrift" % "0.5.0",
-    "com.amazonaws" % "aws-java-sdk" % "1.7.12",
-    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.1/jars/snowflake.jar"
+    "org.apache.thrift" % "libthrift" % "0.9.1" excludeAll (
+      ExclusionRule("commons-logging", "commons-logging"),
+      ExclusionRule("org.slf4j","slf4j-simple"),
+      ExclusionRule("org.slf4j","slf4j-nop"),
+      ExclusionRule("org.slf4j", "slf4j-jdk14")),
+    "org.apache.commons" % "commons-lang3" % "3.3.2",      
+    "com.amazonaws" % "aws-java-sdk" % "1.8.4"
     )
 }
 
@@ -89,6 +93,8 @@ releaseProcess := Seq[ReleaseStep](
   commitNextVersion,
   pushChanges
 )
+
+seq(ThriftPlugin.thriftSettings: _*)
 
 publishTo in ThisBuild            <<= isSnapshot(if (_) Some(Opts.resolver.sonatypeSnapshots) else Some(Opts.resolver.sonatypeStaging))
 

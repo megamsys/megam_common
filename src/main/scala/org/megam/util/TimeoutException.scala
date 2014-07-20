@@ -13,31 +13,14 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common
-
-import scalaz._
-import Scalaz._
-
-import org.apache.thrift.transport.{TTransport}
-import org.megam.service.snowflake.gen.Snowflake
+package org.megam.util
 
 /**
  * @author ram
  *
  */
-package object uid {
-  
-  type UniqueIDService = (TTransport, Snowflake.Client) 
-  
-  type UniqueID = Option[(String, Long)]
-  
-  object UniqueID {
-    
-    def apply(genID: Long):UniqueID = UniqueID("BIR", genID)
-    
-    def apply(prefix: String, genID: Long):UniqueID = (prefix.toUpperCase, genID).some
-    
-    def empty = None
-  }
+import java.util.concurrent.{TimeoutException => JUCTimeoutException}
 
-}
+// Now that this is inherits from the usual TimeoutException, we can move to
+// j.u.c.TimeoutException during our next API break.
+class TimeoutException(message: String) extends JUCTimeoutException(message)

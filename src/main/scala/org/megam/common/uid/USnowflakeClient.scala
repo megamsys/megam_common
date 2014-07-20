@@ -15,7 +15,7 @@
 */
 package org.megam.common.uid
 
-import com.twitter.service.snowflake.gen.Snowflake
+import org.megam.service.snowflake.gen.Snowflake
 
 /**
  * @author ram

@@ -23,12 +23,8 @@ import scalaz._
 import Scalaz._
 import org.specs2.mutable._
 import org.specs2.Specification
-import org.megam.common._
-import com.twitter.zk._
-import com.twitter.util.{ Time, Duration, Future, Promise, TimeoutException, Timer, Return, Await }
-import org.apache.zookeeper.data.{ ACL, Stat }
-import org.apache.zookeeper.KeeperException
-
+import org.megam.util._
+import org.megam.util.{ Time, Duration }
 class TwitStopwatchSpecs extends Specification {
 
   def is =

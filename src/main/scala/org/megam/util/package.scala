@@ -13,31 +13,15 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common
-
-import scalaz._
-import Scalaz._
-
-import org.apache.thrift.transport.{TTransport}
-import org.megam.service.snowflake.gen.Snowflake
+package org.megam
 
 /**
  * @author ram
  *
  */
-package object uid {
+package object util {
   
-  type UniqueIDService = (TTransport, Snowflake.Client) 
-  
-  type UniqueID = Option[(String, Long)]
-  
-  object UniqueID {
-    
-    def apply(genID: Long):UniqueID = UniqueID("BIR", genID)
-    
-    def apply(prefix: String, genID: Long):UniqueID = (prefix.toUpperCase, genID).some
-    
-    def empty = None
-  }
+    val TwitStopwatch = org.megam.util.Stopwatch
+
 
 }
