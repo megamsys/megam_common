@@ -5,13 +5,16 @@ import scalaz._
 import scalaz.effect.IO
 import scalaz.NonEmptyList._
 import Scalaz._
-import org.apache.zookeeper.ZooDefs.Ids
+
+import scala.collection.JavaConverters._
+import org.megam.util.Stopwatch
+
+/*import org.apache.zookeeper.ZooDefs.Ids
 import org.apache.zookeeper._
 import org.apache.zookeeper.CreateMode
 import org.apache.zookeeper.data.ACL
 import org.apache.zookeeper.ZooDefs.Ids.OPEN_ACL_UNSAFE
-import scala.collection.JavaConverters._
-import com.twitter.util.Stopwatch
+*/
 import org.megam.common.riak.GSErrors._
 import org.megam.common.s3.S3Errors._
 
@@ -41,7 +44,11 @@ package object common {
     }
   }
 
-  type ZooPath = String
+  
+   /*Lets park the zookeeper for now, as twitters api is too downlevel and play fails to compile
+   
+   type ZooPath = String
+    
 
   val DefaultACL: Seq[ACL] = OPEN_ACL_UNSAFE.asScala
 
@@ -49,7 +56,7 @@ package object common {
   //val DefaultMode: CreateMode = CreateMode.EPHEMERAL_SEQUENTIAL
 
   val ZooRootPath = "/machines"
+	*/   
 
-  val TwitStopwatch = com.twitter.util.Stopwatch
 
 }

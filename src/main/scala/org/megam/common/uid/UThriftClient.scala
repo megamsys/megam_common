@@ -19,7 +19,7 @@ package org.megam.common.uid
 import org.apache.thrift.TException
 import org.apache.thrift.protocol.{TBinaryProtocol, TProtocol}
 import org.apache.thrift.transport.{TFramedTransport, TSocket, TTransport, TTransportException}
-import com.twitter.service.snowflake.gen.Snowflake
+import org.megam.service.snowflake.gen.Snowflake
 import scala.reflect.Manifest
 import org.slf4j.LoggerFactory
 

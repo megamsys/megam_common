@@ -13,31 +13,25 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package org.megam.common
+namespace java org.megam.service.snowflake.gen
 
-import scalaz._
-import Scalaz._
+exception InvalidSystemClock {
+  1: string message,
+}
 
-import org.apache.thrift.transport.{TTransport}
-import org.megam.service.snowflake.gen.Snowflake
+exception InvalidUserAgentError {
+  1: string message,
+}
 
-/**
- * @author ram
- *
- */
-package object uid {
-  
-  type UniqueIDService = (TTransport, Snowflake.Client) 
-  
-  type UniqueID = Option[(String, Long)]
-  
-  object UniqueID {
-    
-    def apply(genID: Long):UniqueID = UniqueID("BIR", genID)
-    
-    def apply(prefix: String, genID: Long):UniqueID = (prefix.toUpperCase, genID).some
-    
-    def empty = None
-  }
+service Snowflake {
+  i64 get_worker_id()
+  i64 get_timestamp()
+  i64 get_id(1:string useragent)
+  i64 get_datacenter_id()
+}
 
+struct AuditLogEntry {
+  1: i64 id,
+  2: string useragent,
+  3: i64 tag
 }

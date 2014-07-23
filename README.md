@@ -1,27 +1,40 @@
 megam_common
 ==========
 
-Megam common libraries for scala, Java. 
+Megam common libraries for scala, Java.
 
 * `AMQP` : AMQP client
-* `Zoo`  : Zookeeper client
 * `Riak` : Riak scaffolding mediator to the [scaliak driver by stackmob](https://github.com/stackmob/scaliak)
 * `UID`  : A Unique identity generating service client for scala which connects to twitters [snowflake](https://github.com/twitter/snowflake)
 
 
 ### Requirements
 
-> 
-[RabbitMQ 3.0.4 +](http://www.rabbitmq.com)
+>
+[RabbitMQ 3.3.4 +](http://www.rabbitmq.com)
 [OpenJDK 7.0](http://openjdk.java.net/install/index.html)
-[Riak 1.3.1 +](http://basho.com)
-[Snowflake server](http://github.com/twitter/snowflake) 
-
-* Snowflake Ubuntu DEB Bundle(13.04) is available here 
+[Riak 2.0.beta +](http://basho.com)
+[Python Snowflake server](http://github.com/megamsys/pysnowflake)
 
 
+#### Tested on Ubuntu 14.04
 
-#### Tested on Ubuntu 13.04, AWS - EC2
+## Building
+
+* You'll need `thrift 0.9.1 compiler`
+* Make changes in the `java build.properties to use slf4j 1.7.7, httpclient 4.3.2, httpcore 4.3.4`
+
+```
+sbt
+
+thrift:generate-java
+
+clean
+
+compile
+
+```
+
 
 ## Usage
 
@@ -31,7 +44,7 @@ We'll see the usage in `akka`, `play` or `standalone programs in Scala`
 * Play framework
 * Any other standalone (`extends App` in Scala)
 
-At the minimum you need a configuration file with the following. 
+At the minimum you need a configuration file with the following.
 
 ### Akka
 
@@ -41,21 +54,21 @@ At the minimum you need a configuration file with the following.
 
 
 
-app { 
-	
-	amqp { 
-		uris = ["amqp://megam:team4megam@rabbitmq1.megam.co.in:5200/megam","amqp://megam:team4megam@rabbitmq2.megam.co.in:5200/megam"], 
-		exchange = "megam_exchange",		
+app {
+
+	amqp {
+		uris = ["amqp://megam:team4megam@rabbitmq1.megam.co.in:5200/megam","amqp://megam:team4megam@rabbitmq2.megam.co.in:5200/megam"],
+		exchange = "megam_exchange",
 		queue = "megam_conf"
-	} 
+	}
 	zoo {
-	
+
 	}
 }
 
 ```
 
-### Play Framework 
+### Play Framework
 
 // The global settings file loaded as an extension.
 
@@ -63,15 +76,15 @@ app {
 
 
 
-app { 
-	
-	amqp { 
-		uris = ["amqp://megam:team4megam@rabbitmq1.megam.co.in:5200/megam","amqp://megam:team4megam@rabbitmq2.megam.co.in:5200/megam"], 
-		exchange = "megam_exchange",		
+app {
+
+	amqp {
+		uris = ["amqp://megam:team4megam@rabbitmq1.megam.co.in:5200/megam","amqp://megam:team4megam@rabbitmq2.megam.co.in:5200/megam"],
+		exchange = "megam_exchange",
 		queue = "megam_conf"
-	} 
+	}
 	zoo {
-	
+
 	}
 }
 
@@ -93,8 +106,12 @@ Before your run it,
 	<dependency>
 	<groupId>com.github.indykish</groupId>
 	<artifactId>megam_common</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.5.1</version>
 	</dependency>
+```
+
+```
+	libraryDependencies += "com.github.indykish" % "megam_common_2.10" % "0.5.1"
 ```
 ### Akka
 
@@ -113,7 +130,7 @@ Before your run it,
 
 
 ```
-   
+
 
 
 We are glad to help if you have questions, or request for new features..
@@ -123,9 +140,8 @@ We are glad to help if you have questions, or request for new features..
 #### TO - DO
 
 * Logging/Better Failure handling
-* Testing in progress
 
-	
+
 # License
 
 
@@ -147,4 +163,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
- 
