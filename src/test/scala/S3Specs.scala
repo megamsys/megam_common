@@ -44,8 +44,8 @@ class S3Specs extends Specification {
   case object Download {    
 
     def succeeds = {     
-      val res = s3.download("cloudrecipes", "sandy@megamsandbox.com/default_chef/chef-repo.zip")
-      (new ZipArchive).unZip("cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/default_chef/")
+      val res = s3.download("cloudrecipes", "megam@mypaas.io/default_chef/chef-repo.zip")
+      (new ZipArchive).unZip("cloudrecipes/megam@mypaas.io/default_chef/chef-repo.zip", "cloudrecipes/megam@mypaas.io/default_chef/")
       println("-->" + res)
       val expectedRes = 0
       res mustEqual expectedRes

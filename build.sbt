@@ -53,23 +53,23 @@ resolvers  += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.o
 resolvers += "JBoss" at "https://repository.jboss.org/nexus/content/groups/public"
 
 libraryDependencies ++= {
-  val scalazVersion = "7.1.0"
-  val liftJsonVersion = "2.6-RC1"
+  val scalazVersion = "7.0.6"
+  val liftJsonVersion = "3.0-M"
   val amqpVersion = "3.3.5"
-  val specs2Version = "2.4"
+  val specs2Version = "2.4.1"
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion % "test",
-    "net.liftweb" %% "lift-json-scalaz7" % "2.6-RC1",
+    "net.liftweb" %% "lift-json-scalaz7" % "3.0-M1",
     "com.basho.riak" % "riak-client" % "2.0.0.RC1",
     "org.apache.commons" % "commons-pool2" % "2.2",
     "org.slf4j" % "slf4j-api" % "1.7.7",
     //"com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT",
     "com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
     "com.rabbitmq" % "amqp-client" % amqpVersion,
-    "org.specs2" %% "specs2" % specs2Version % "test",
+    "org.specs2" %% "specs2" % "2.4.1-scalaz-7.0.6" % "test",    
     "org.apache.thrift" % "libthrift" % "0.9.1" excludeAll (
       ExclusionRule("commons-logging", "commons-logging"),
       ExclusionRule("org.slf4j","slf4j-simple"),
