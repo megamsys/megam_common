@@ -14,11 +14,13 @@
 ** limitations under the License.
 */
 package org.megam.common.s3
+
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.s3.AmazonS3Client
@@ -37,7 +39,7 @@ class S3(credent: Credentials) {
 
   private lazy val credentials = new BasicAWSCredentials(credent._1, credent._2)
 
-  val connection: Validation[Throwable, AmazonS3Client] = (Validation.fromTryCatch {
+  val connection: Validation[Throwable, AmazonS3Client] = (Validation.fromTryCatchThrowable[AmazonS3Client,Throwable] {
     new AmazonS3Client(credentials)
   } leftMap { t: Throwable => S3ConnectionError(credent) })
 

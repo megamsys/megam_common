@@ -73,7 +73,7 @@ trait ClientTests { this: Specification =>
       val result = h.toJson(true) // the response is parsed back
       val res: ValidationNel[Throwable, Option[String]] = result match {
         case respJSON => respJSON.some.successNel
-        case _        => new  java.lang.Error("Error occurred in the subscribed response. Unsupported response type").failNel
+        case _        => new  java.lang.Error("Error occurred in the subscribed response. Unsupported response type").failureNel
       }
       res
     }

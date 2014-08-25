@@ -16,9 +16,9 @@
 package org.megam.common.amqp.serialization
 
 import scalaz._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.NonEmptyList._
-import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import net.liftweb.json.scalaz.JsonScalaz.JSONR
@@ -69,7 +69,7 @@ object MessagePayLoadSerialization extends SerializationBase[MessagePayLoad] {
           val messages: Messages = Messages(list)
           MessagePayLoad(messages).successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[MessagePayLoad]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[MessagePayLoad]
       }
     }
   }

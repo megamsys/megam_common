@@ -14,21 +14,27 @@ organization := "com.github.indykish"
 
 scalaVersion := "2.10.4"
 
+crossScalaVersions := Seq("2.10.4", "2.11.2")
+
 scalacOptions := Seq(
-	"-target:jvm-1.7",
-	"-deprecation",
-	"-feature",
- 	"-optimise",
-  	"-Xcheckinit",
-  	"-Xlint",
-  	"-Xverify",
-//  	"-Yconst-opt",
-  	"-Yinline",
-  	"-Ywarn-all",
-  	"-Yclosure-elim",
-  	"-language:postfixOps",
-  	"-language:implicitConversions",
-  	"-Ydead-code")
+  "-target:jvm-1.7",
+  "-deprecation",
+  "-feature",
+  "-optimise",
+  "-Xcheckinit",
+  "-Xlint",
+  "-Xverify",
+  "-Yinline",
+  "-Yclosure-elim",
+  //"-Yconst-opt", 
+  //"-Ybackend:GenBCode",
+  //"closurify:delegating",
+  "-language:implicitConversions",
+  "-language:higherKinds",
+  "-language:reflectiveCalls",
+  "-language:postfixOps",
+  "-language:implicitConversions",
+  "-Ydead-code")
 
 incOptions := incOptions.value.withNameHashing(true)
 
@@ -47,17 +53,21 @@ resolvers  += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.o
 resolvers += "JBoss" at "https://repository.jboss.org/nexus/content/groups/public"
 
 libraryDependencies ++= {
-  val scalazVersion = "7.0.6"
-  val liftJsonVersion = "2.5.1"
-//  val zkVersion = "6.18.0"
-  val amqpVersion = "3.3.4"
-  val specs2Version = "2.3.13"
+  val scalazVersion = "7.1.0"
+  val liftJsonVersion = "2.6-RC1"
+  val amqpVersion = "3.3.5"
+  val specs2Version = "2.4"
   Seq(
-//  "com.twitter" %% "util-zk-common" % zkVersion,
-//  "com.twitter" %% "util-zk" % zkVersion,
     "org.scalaz" %% "scalaz-core" % scalazVersion,
-    "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "com.stackmob" %% "scaliak" % "0.9.0",
+    "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
+    "org.scalaz" %% "scalaz-effect" % scalazVersion,
+    "org.scalaz" %% "scalaz-concurrent" % scalazVersion % "test",
+    "net.liftweb" %% "lift-json-scalaz7" % "2.6-RC1",
+    "com.basho.riak" % "riak-client" % "2.0.0.RC1",
+    "org.apache.commons" % "commons-pool2" % "2.2",
+    "org.slf4j" % "slf4j-api" % "1.7.7",
+    //"com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT",
+    "com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2" % specs2Version % "test",
     "org.apache.thrift" % "libthrift" % "0.9.1" excludeAll (
@@ -66,7 +76,7 @@ libraryDependencies ++= {
       ExclusionRule("org.slf4j","slf4j-nop"),
       ExclusionRule("org.slf4j", "slf4j-jdk14")),
     "org.apache.commons" % "commons-lang3" % "3.3.2",      
-    "com.amazonaws" % "aws-java-sdk" % "1.8.4"
+    "com.amazonaws" % "aws-java-sdk" % "1.8.9.1"
     )
 }
 
