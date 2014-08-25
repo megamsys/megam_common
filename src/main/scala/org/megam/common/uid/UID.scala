@@ -18,7 +18,7 @@ package org.megam.common.uid
 import scalaz._
 import Scalaz._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 
 
@@ -34,7 +34,7 @@ class UID(hostname: String, port: Int, agent: String, soTimeoutMS: Int = 5000) {
   private def service: UniqueIDService = USnowflakeClient.create(hostname, port, soTimeoutMS)
 
   def get: ValidationNel[Throwable, UniqueID] = {
-    (Validation.fromTryCatchThrowable[Long, Throwable] {
+    (Validation.fromTryCatch[Long] {
       service._2.get_id(agent)
     } leftMap { t: Throwable =>
       new Throwable(

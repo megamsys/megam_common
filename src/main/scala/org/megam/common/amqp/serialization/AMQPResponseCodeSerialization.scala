@@ -40,7 +40,7 @@ object AMQPResponseCodeSerialization extends SerializationBase[AMQPResponseCode]
   override implicit val reader = new JSONR[AMQPResponseCode] {
     override def read(json: JValue): Result[AMQPResponseCode] = {
       json match {
-        case JInt(code) => fromTryCatchThrowable[Option[AMQPResponseCode],Throwable](AMQPResponseCode.fromInt(code.toInt)).fold(
+        case JInt(code) => fromTryCatch[Option[AMQPResponseCode]](AMQPResponseCode.fromInt(code.toInt)).fold(
           succ = {
             o: Option[AMQPResponseCode] =>
               o.map {

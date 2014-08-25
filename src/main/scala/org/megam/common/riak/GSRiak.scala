@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes._
@@ -75,7 +75,7 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
    * The error is caught, and propagated to the composable chain.
    * With the new riak 2.0 driver, We now return a monad for an result of execution Try[T]
    */
-  lazy val ping = (Validation.fromTryCatchThrowable[scala.util.Try[Void], Throwable] {
+  lazy val ping = (Validation.fromTryCatch[scala.util.Try[Void]] {
     client.runOnClient(_.ping)
   } leftMap { t: Throwable =>
     GSConnectionError(uri)
