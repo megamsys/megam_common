@@ -15,7 +15,6 @@
 */
 package org.megam.common.enumeration
 
-
 /**
  * This is a fully type safe enumeration framework. It takes more setup & code than the built-in Scala Enumeration class,
  * but it will pay off in 2 major ways:
@@ -87,7 +86,7 @@ trait EnumReader[T] {
   //same as read, except throws
   def withName(s: String): T = read(s) match {
     case Some(v) => v
-    case None => throw new EnumerationException(s)
+    case None    => throw new EnumerationException(s)
   }
 }
 
@@ -110,3 +109,5 @@ trait EnumReader[T] {
 trait EnumUnapply[T <: Enumeration] {
   def unapply(s: String)(implicit reader: EnumReader[T]): Option[T] = reader.read(s)
 }
+
+class EnumerationException(s: String) extends Exception("Unknown enumeration value " + s)

@@ -25,7 +25,6 @@ import Scalaz._
  */
 package object enumeration extends EnumerationImplicits {
 
-  class EnumerationException(s: String) extends Exception("Unknown enumeration value " + s)
 
   /**
    * shortcut to create an EnumReader

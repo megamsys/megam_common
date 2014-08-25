@@ -27,8 +27,8 @@ import org.megam.common.amqp._
 import org.specs2.matcher.MatchResult
 import org.megam.common.riak._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.Zoo
 
 class RiakStoreSpecs extends Specification {
@@ -48,7 +48,7 @@ class RiakStoreSpecs extends Specification {
 
     val metadataKey = "Field"
     val metadataVal = "1002"
-    val bindex = BinIndex.named("email")
+    val bindex = "email"
     val bvalue = Set("sandy@megamsandbox.com")
 
     def succeeds = {

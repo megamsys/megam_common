@@ -36,7 +36,7 @@ package object concurrent {
 
   implicit class RichFuture[T](fut: Future[T]) {
     def toEither(dur: Duration = duration): Either[Throwable, T] = {
-      Validation.fromTryCatch(block(dur)).toEither
+      Validation.fromTryCatchThrowable[T, Throwable](block(dur)).toEither
     }
 
     def block(dur: Duration = duration): T = {
