@@ -181,9 +181,9 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
   private def fetchIndexIO(gs: GunnySack): IO[Validation[Throwable, List[String]]] = {
     logger.debug("\\_/-->fetchIndexIO:" + gs.toString)
 
-    bucketIO flatMap { mgBucket => //mgBucket is ValidationNel[Throwable, ScaliakBucket]
+    bucketIO flatMap { mgBucket => 
       mgBucket match {
-        case Success(realMeat) => (realMeat.fetchIndexByValue(gs.key + "_bin", gs.value) flatMap { x =>
+        case Success(realMeat) => (realMeat.fetchIndexByValue(gs.key, gs.value) flatMap { x =>
           x.toValidationNel match {
             case Success(res) => Validation.success[Throwable, List[String]](res).pure[IO]
             case Failure(err) => Validation.failure[Throwable, List[String]](RiakError(err)).pure[IO]
@@ -194,7 +194,6 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
     }
   }
 
-  // oldcode val indexVal = bucket.fetchIndexByValue(g.key + "_bin", g.value).unsafePerformIO()
   def fetchIndexByValue(gs: GunnySack) = fetchIndexIO(gs).unsafePerformIO.toValidationNel
 
   /*
