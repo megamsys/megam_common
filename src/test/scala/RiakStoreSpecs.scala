@@ -55,12 +55,7 @@ class RiakStoreSpecs extends Specification {
 
     def succeeds = {
       val t: ValidationNel[Throwable, Option[GunnySack]] = riak.store(new GunnySack("key14", "{\"id\":\"1\",\"email\":\"megam@mypaas.io\",\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\",\"authority\":\"user\"}", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-      val keys = riak.fetch("nodejs")
-      val res = t
-      println("-->" + res)
-      val expectedRes = 0
-      //this comparison is wrong. it will always fail.
-      res mustEqual expectedRes
+      t.toOption must beSome
 
     }
   }

@@ -183,7 +183,7 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
 
     bucketIO flatMap { mgBucket => 
       mgBucket match {
-        case Success(realMeat) => (realMeat.fetchIndexByValue(gs.key, gs.value) flatMap { x =>
+        case Success(realMeat) => (realMeat.fetchIndexByValue(index = gs.key, value = gs.value) flatMap { x =>
           x.toValidationNel match {
             case Success(res) => Validation.success[Throwable, List[String]](res).pure[IO]
             case Failure(err) => Validation.failure[Throwable, List[String]](RiakError(err)).pure[IO]
