@@ -54,11 +54,9 @@ class RiakFetchSpec extends Specification {
 
     def succeeds = {
       val t: ValidationNel[Throwable, List[String]] = riak.fetchIndexByValue(new GunnySack("email", "megam@mypaas.io", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-      val keys = riak.fetch("megam@mypaas.io")
-      val res = t
-      println("-->" + res)
-      val expectedRes = 0
-      res mustEqual expectedRes
+      println("-->" + t)
+      t.toOption must beSome.which { _.contains("key14")}
+
 
     }
   }
