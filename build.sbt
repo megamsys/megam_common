@@ -26,7 +26,7 @@ scalacOptions := Seq(
   "-Xverify",
   "-Yinline",
   "-Yclosure-elim",
-  //"-Yconst-opt", 
+  //"-Yconst-opt",
   //"-Ybackend:GenBCode",
   //"closurify:delegating",
   "-language:implicitConversions",
@@ -63,19 +63,18 @@ libraryDependencies ++= {
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion % "test",
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "com.basho.riak" % "riak-client" % "2.0.0.RC1",
+    "com.basho.riak" % "riak-client" % "2.0.0",
     "org.apache.commons" % "commons-pool2" % "2.2",
     "org.slf4j" % "slf4j-api" % "1.7.7",
-    //"com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT",
-    "com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
     "com.rabbitmq" % "amqp-client" % amqpVersion,
-    "org.specs2" %% "specs2" % specs2Version % "test",    
+    "org.specs2" %% "specs2" % specs2Version % "test",
+    "com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
     "org.apache.thrift" % "libthrift" % "0.9.1" excludeAll (
       ExclusionRule("commons-logging", "commons-logging"),
       ExclusionRule("org.slf4j","slf4j-simple"),
       ExclusionRule("org.slf4j","slf4j-nop"),
       ExclusionRule("org.slf4j", "slf4j-jdk14")),
-    "org.apache.commons" % "commons-lang3" % "3.3.2",      
+    "org.apache.commons" % "commons-lang3" % "3.3.2",
     "com.amazonaws" % "aws-java-sdk" % "1.8.9.1"
     )
 }
