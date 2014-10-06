@@ -66,9 +66,9 @@ libraryDependencies ++= {
     "com.basho.riak" % "riak-client" % "2.0.0",
     "org.apache.commons" % "commons-pool2" % "2.2",
     "org.slf4j" % "slf4j-api" % "1.7.7",
+    "com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2" % specs2Version % "test",
-    "com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
     "org.apache.thrift" % "libthrift" % "0.9.1" excludeAll (
       ExclusionRule("commons-logging", "commons-logging"),
       ExclusionRule("org.slf4j","slf4j-simple"),
