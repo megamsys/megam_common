@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry excluding="project/|src/main/scala/org/megam/common/|src/main/resources/|src/main/|src/|src/main/java/|src/main/java/|src/main/scala/|src/main/scala/|target/|src/test/|src/test/|src/test/scala/|src/main/java/" kind="src" path=""/>
-	<classpathentry kind="src" path="src/test/scala"/>
-	<classpathentry kind="src" path="src/main/scala"/>
-	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
