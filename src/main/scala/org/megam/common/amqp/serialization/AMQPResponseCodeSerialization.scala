@@ -40,19 +40,19 @@ object AMQPResponseCodeSerialization extends SerializationBase[AMQPResponseCode]
   override implicit val reader = new JSONR[AMQPResponseCode] {
     override def read(json: JValue): Result[AMQPResponseCode] = {
       json match {
-        case JInt(code) => fromTryCatch(AMQPResponseCode.fromInt(code.toInt)).fold(
+        case JInt(code) => fromTryCatch[Option[AMQPResponseCode]](AMQPResponseCode.fromInt(code.toInt)).fold(
           succ = {
             o: Option[AMQPResponseCode] =>
               o.map {
                 c: AMQPResponseCode => c.successNel[Error]
               } | {
-                UncategorizedError("response code", "Unknown Http Response Code %d".format(code), List()).failNel[AMQPResponseCode]
+                UncategorizedError("response code", "Unknown Http Response Code %d".format(code), List()).failureNel[AMQPResponseCode]
               }
           },
           fail = { t: Throwable =>
-            UncategorizedError("response code", t.getMessage, List()).failNel[AMQPResponseCode]
+            UncategorizedError("response code", t.getMessage, List()).failureNel[AMQPResponseCode]
           })
-        case j => UnexpectedJSONError(j, classOf[JInt]).failNel[AMQPResponseCode]
+        case j => UnexpectedJSONError(j, classOf[JInt]).failureNel[AMQPResponseCode]
       }
     }
   }

@@ -15,9 +15,9 @@
 */
 package org.megam.common.amqp.serialization
 import scalaz._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.NonEmptyList._
-import Scalaz._
 import java.nio.charset.{ Charset }
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz.JSONR
@@ -53,7 +53,7 @@ object MessageJSONSerialization extends SerializationBase[Messages] {
           val messages: Messages = Messages(list)
           messages.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[Messages]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[Messages]
       }
     }
   }

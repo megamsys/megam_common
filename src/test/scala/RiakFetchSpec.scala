@@ -27,8 +27,8 @@ import org.megam.common.amqp._
 import org.specs2.matcher.MatchResult
 import org.megam.common.riak._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 
 class RiakFetchSpec extends Specification {
 
@@ -41,22 +41,22 @@ class RiakFetchSpec extends Specification {
       "Correctly print fetch result for account " ! AccountFetch.succeeds ^
       end
 
-  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "samplenodes")
+  private lazy val ScaliakTestPool = Scaliak.clientPool(List("localhost"))
+
+  private lazy val riak: GSRiak = new GSRiak("localhost", "samplenodes")(ScaliakTestPool)
 
   case object AccountFetch {
 
     val metadataKey = "Field"
     val metadataVal = "1002"
-    val bindex = BinIndex.named("email")
+    val bindex = "email"
     val bvalue = Set("")
 
     def succeeds = {
-      val t: ValidationNel[Throwable, List[String]] = riak.fetchIndexByValue(new GunnySack("email", "sandy@megamsandbox.com", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-      val keys = riak.fetch("sandy@megamsandbox.com")
-      val res = t
-      println("-->" + res)
-      val expectedRes = 0
-      res mustEqual expectedRes
+      val t: ValidationNel[Throwable, List[String]] = riak.fetchIndexByValue(new GunnySack("email", "megam@mypaas.io", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+      println("-->" + t)
+      t.toOption must beSome.which { _.contains("key14")}
+
 
     }
   }

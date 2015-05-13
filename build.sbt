@@ -16,6 +16,8 @@ bintrayOrganization := Some("megamsys")
 
 bintrayRepository := "scala"
 
+crossScalaVersions := Seq("2.10.4", "2.11.2")
+
 scalacOptions := Seq(
 	"-target:jvm-1.8",
 	"-deprecation",
@@ -33,11 +35,10 @@ scalacOptions := Seq(
 
 incOptions := incOptions.value.withNameHashing(true)
 
-resolvers ++= Seq(Resolver.sonatypeRepo("releases"), Resolver.sonatypeRepo("snapshots"),
-Resolver.bintrayRepo("scalaz", "releases")
+resolvers ++= Seq(Resolver.sonatypeRepo("releases"), Resolver.sonatypeRepo("snapshots"),Resolver.bintrayRepo("scalaz", "releases")
 )
 
- 							{
+ 	{
   val scalazVersion = "7.1.2"
   val liftJsonVersion = "3.0-M5-1"
   val amqpVersion = "3.5.1"
@@ -45,10 +46,18 @@ Resolver.bintrayRepo("scalaz", "releases")
 
 libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
+    "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
+    "org.scalaz" %% "scalaz-effect" % scalazVersion,
+    "org.scalaz" %% "scalaz-concurrent" % scalazVersion % "test",
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
     "io.megam" %% "scaliak" % "0.13",
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2-core" % specs2Version % "test",
-    "org.apache.commons" % "commons-lang3" % "3.3.2"
-	)
+    "org.apache.commons" % "commons-lang3" % "3.3.2",
+    "org.apache.thrift" % "libthrift" % "0.9.1" excludeAll (
+      ExclusionRule("commons-logging", "commons-logging"),
+      ExclusionRule("org.slf4j","slf4j-simple"),
+      ExclusionRule("org.slf4j","slf4j-nop"),
+      ExclusionRule("org.slf4j", "slf4j-jdk14"))
+    )
 }

@@ -42,8 +42,8 @@ trait ClientTests { this: Specification =>
     private val queue_name = "megam_bannister1.megam.co_queue"
     private val routingKey = "megam_key"
     //private val message1 = Messages("id" -> "RIP392631536052076545")
-    //private val message1 = Messages("vault_loc" -> "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/chef/chef-repo.zip", "repo_path" -> "https://github.com/rajthilakmca/chef-repo.git")                       
-    //private val message1 = Messages("message" -> "{\"vault_loc\":\"https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip\", \"repo_path\":\"https://github.com/rajthilakmca/chef-repo.git\"}")
+    //private val message1 = Messages("vault_loc" -> "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/chef/chef-repo.zip", "repo_path" -> "https://github.com/rajthilakmca/chef-repo.git")                       
+    //private val message1 = Messages("message" -> "{\"vault_loc\":\"https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/default_chef/chef-repo.zip\", \"repo_path\":\"https://github.com/rajthilakmca/chef-repo.git\"}")
     private val message1 = Messages("message" ->  "{\"Id\":\"APR416511659171905536\"},{\"Action\":\"nstop\"},{\"Args\":\"Nah\"}")
     private def executeP(client: AMQPClient, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok,
       duration: Duration = duration) = {
@@ -73,7 +73,7 @@ trait ClientTests { this: Specification =>
       val result = h.toJson(true) // the response is parsed back
       val res: ValidationNel[Throwable, Option[String]] = result match {
         case respJSON => respJSON.some.successNel
-        case _        => new  java.lang.Error("Error occurred in the subscribed response. Unsupported response type").failNel
+        case _        => new  java.lang.Error("Error occurred in the subscribed response. Unsupported response type").failureNel
       }
       res
     }

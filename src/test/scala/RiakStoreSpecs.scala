@@ -27,8 +27,8 @@ import org.megam.common.amqp._
 import org.specs2.matcher.MatchResult
 import org.megam.common.riak._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.Zoo
 
 class RiakStoreSpecs extends Specification {
@@ -42,23 +42,20 @@ class RiakStoreSpecs extends Specification {
       "Correctly print fetch result for account " ! AccountStore.succeeds ^
       end
 
-  private lazy val riak: GSRiak = GSRiak("http://localhost:8098/riak/", "samplenodes")
+  private lazy val ScaliakTestPool = Scaliak.clientPool(List("localhost"))
+
+  private lazy val riak: GSRiak = new GSRiak("localhost", "samplenodes")(ScaliakTestPool)
 
   case object AccountStore {
 
     val metadataKey = "Field"
     val metadataVal = "1002"
-    val bindex = BinIndex.named("email")
-    val bvalue = Set("sandy@megamsandbox.com")
+    val bindex = "email"
+    val bvalue = Set("megam@mypaas.io")
 
     def succeeds = {
-      val t: ValidationNel[Throwable, Option[GunnySack]] = riak.store(new GunnySack("key14", "{\"id\":\"1\",\"email\":\"sandy@megamsandbox.com\",\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\",\"authority\":\"user\"}", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-      val keys = riak.fetch("nodejs")
-      val res = t
-      println("-->" + res)
-      val expectedRes = 0
-      //this comparison is wrong. it will always fail.
-      res mustEqual expectedRes
+      val t: ValidationNel[Throwable, Option[GunnySack]] = riak.store(new GunnySack("key14", "{\"id\":\"1\",\"email\":\"megam@mypaas.io\",\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\",\"authority\":\"user\"}", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+      t.toOption must beSome
 
     }
   }

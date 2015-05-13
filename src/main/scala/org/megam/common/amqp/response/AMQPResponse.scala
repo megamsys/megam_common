@@ -16,8 +16,11 @@
 package org.megam.common.amqp.response
 
 import scalaz._
-import scalaz.EitherT._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import org.megam.common.jsonscalaz._
 import java.nio.charset.Charset
@@ -68,7 +71,7 @@ object AMQPResponse {
     fromJSON(jValue)(AMQPResponseSerialization.reader)
   }
 
-  def fromJson(json: String): Result[AMQPResponse] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[AMQPResponse] = (Validation.fromTryCatch[JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
