@@ -1,4 +1,4 @@
-/* 
+/*
  ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes._
@@ -55,11 +55,11 @@ case class GunnySack(key: String, value: String, contentType: String = RiakConst
 }
 
 /*
- * Any class that wants RiakOperations shall use the companion object and create one. 
- * eg: GSRiak("localhost", "firstbucket") 
+ * Any class that wants RiakOperations shall use the companion object and create one.
+ * eg: GSRiak("localhost", "firstbucket")
  * The invoker shall provide a "bucketName". The uri will be pulled from the configuration
- * TO-DO: Change code to use types   [T](obj: T): IO[Validation[Throwable, Option[T]]] as opposed to 
- *                                                IO[Validation[Throwable, Option[GunnySack]] 
+ * TO-DO: Change code to use types   [T](obj: T): IO[Validation[Throwable, Option[T]]] as opposed to
+ *                                                IO[Validation[Throwable, Option[GunnySack]]
  **/
 class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
 
@@ -75,7 +75,7 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
    * The error is caught, and propagated to the composable chain.
    * With the new riak 2.0 driver, We now return a monad for an result of execution Try[T]
    */
-  lazy val ping = (Validation.fromTryCatch[scala.util.Try[Void]] {
+  lazy val ping = (Validation.fromTryCatchThrowable[scala.util.Try[Void],Throwable] {
     client.runOnClient(_.ping)
   } leftMap { t: Throwable =>
     GSConnectionError(uri)
@@ -87,7 +87,7 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
   }
 
   /*
-   * mkBucket creates a bucket when the ping returns a results stored in the Option[String]. 
+   * mkBucket creates a bucket when the ping returns a results stored in the Option[String].
    * If there is an error, a BucketCreationError is returned back.
    */
   private def mkBucket(res1: Option[String]): IO[Validation[Throwable, ScaliakBucket]] = res1 match {
@@ -104,16 +104,16 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
   }
 
   /*
-   * bucketIO - This is a description of statements which when interpreted will result in a retrieving a bucket obejct using the 
+   * bucketIO - This is a description of statements which when interpreted will result in a retrieving a bucket obejct using the
    * bucketname. The "bucketName: String, value: ScaliakBucket are the input and output.
-   * Merely calling this method doesn't return back a ScaliakBucket object. It just results in 
+   * Merely calling this method doesn't return back a ScaliakBucket object. It just results in
    * IO[x].
    */
   private def bucketIO: IO[Validation[Throwable, ScaliakBucket]] = {
     logger.debug("\\_/-->bucketIO:" + bucketName)
 
     (for {
-      pingres <- eitherT[IO, Throwable, Option[String]] { // disjuction Throwable \/ Option with a Functor IO.   
+      pingres <- eitherT[IO, Throwable, Option[String]] { // disjuction Throwable \/ Option with a Functor IO.
         (ping.disjunction).pure[IO]
       }
       thatIO <- eitherT[IO, Throwable, ScaliakBucket] {
@@ -122,11 +122,11 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
     } yield { thatIO }).run.map(_.validation)
   }
 
-  /* 
-   * keysListIO - This is a description which when interpreted will result in a listsKeys operation of a bucket using a 
+  /*
+   * keysListIO - This is a description which when interpreted will result in a listsKeys operation of a bucket using a
    * key. All the keys in a bucket are retrieved. Use it with caution, and only when you know that quantity of your bucket.
    * This return a Stream of strings.
-   * Merely calling this method doesn't list all the keys in a listKeys operation. It just results in 
+   * Merely calling this method doesn't list all the keys in a listKeys operation. It just results in
    * IO[x].
    **/
   private def listKeysIO: IO[Validation[Throwable, Stream[String]]] = {
@@ -149,9 +149,9 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
   def listKeys: Validation[Throwable, Stream[String]] = listKeysIO.unsafePerformIO()
 
   /*
-   * fetchIO - This is a description which when interpreted will result in a fetch operation of a bucket using a 
+   * fetchIO - This is a description which when interpreted will result in a fetch operation of a bucket using a
    * key. The "key : String, value: Option[GunnySack] are the input and output.
-   * Merely calling this method doesn't fetch results in a fetch operation. It just results in 
+   * Merely calling this method doesn't fetch results in a fetch operation. It just results in
    * IO[x].
    */
   private def fetchIO(key: String): IO[Validation[Throwable, Option[GunnySack]]] = {
@@ -173,15 +173,15 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
   def fetch(key: String) = fetchIO(key).unsafePerformIO.toValidationNel
 
   /*
-   * fetchIndexIO - This is a description which when interpreted will result in a fetchIndexByValue operation of a bucket using a 
+   * fetchIndexIO - This is a description which when interpreted will result in a fetchIndexByValue operation of a bucket using a
    * key. The "key : GunnySack, value: List[String] are the input and output.
-   * Merely calling this method doesn't fetchIndex results in a fetchIndexByValue operation. It just results in 
+   * Merely calling this method doesn't fetchIndex results in a fetchIndexByValue operation. It just results in
    * IO[x].
    */
   private def fetchIndexIO(gs: GunnySack): IO[Validation[Throwable, List[String]]] = {
     logger.debug("\\_/-->fetchIndexIO:" + gs.toString)
 
-    bucketIO flatMap { mgBucket => 
+    bucketIO flatMap { mgBucket =>
       mgBucket match {
         case Success(realMeat) => (realMeat.fetchIndexByValue(index = gs.key, value = gs.value) flatMap { x =>
           x.toValidationNel match {
@@ -197,10 +197,10 @@ class GSRiak(uri: String, bucketName: String)(client: ScaliakClientPool) {
   def fetchIndexByValue(gs: GunnySack) = fetchIndexIO(gs).unsafePerformIO.toValidationNel
 
   /*
-   * storeIO - This is a description which when interpreted will result in a store operation of a bucket using a 
+   * storeIO - This is a description which when interpreted will result in a store operation of a bucket using a
    * key/value. The "key:/value:" are inside the GunnySack. The value currently is a json representation as deemed fit and provided
    * by the callee, in this case the play model.
-   * Merely calling this method doesn't store results in a store operation. It just results in 
+   * Merely calling this method doesn't store results in a store operation. It just results in
    * IO[x].
    */
   private def storeIO[K, V](gs: GunnySack): IO[Validation[Throwable, Option[GunnySack]]] = {
@@ -232,7 +232,7 @@ object GSRiak {
     (o: GunnySack) => WriteObject(o.key, o.value.getBytes, o.contentType, o.links, o.metadata, o.vClock,
       o.vTag, o.binIndexes, o.intIndexes, o.lastModified))
 
-  def apply(uri: String, bucketName: String)(s: ScaliakClientPool) = new GSRiak(uri, bucketName)(_) 
+  def apply(uri: String, bucketName: String)(s: ScaliakClientPool) = new GSRiak(uri, bucketName)(_)
 
 }
 
@@ -243,7 +243,7 @@ object GSRiak {
 object GSRiakPoolMaker extends GSRiakPoolMakers {
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
-  /*I hope the DefaultRiakPool remains a singleton, thats the reason for this 
+  /*I hope the DefaultRiakPool remains a singleton, thats the reason for this
    * crappy trait/objects poolmaker hungama*/
   implicit lazy val DefaultRiakPool = DefaultManMadeRiakPool
   logger.debug("\\_/-->GSRiak: implicit client pool " + DefaultRiakPool)

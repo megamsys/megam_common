@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,7 +42,7 @@ trait ClientTests { this: Specification =>
     private val queue_name = "megam_bannister1.megam.co_queue"
     private val routingKey = "megam_key"
     //private val message1 = Messages("id" -> "RIP392631536052076545")
-    //private val message1 = Messages("vault_loc" -> "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/chef/chef-repo.zip", "repo_path" -> "https://github.com/rajthilakmca/chef-repo.git")                       
+    //private val message1 = Messages("vault_loc" -> "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/chef/chef-repo.zip", "repo_path" -> "https://github.com/rajthilakmca/chef-repo.git")
     //private val message1 = Messages("message" -> "{\"vault_loc\":\"https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/default_chef/chef-repo.zip\", \"repo_path\":\"https://github.com/rajthilakmca/chef-repo.git\"}")
     private val message1 = Messages("message" ->  "{\"Id\":\"APR416511659171905536\"},{\"Action\":\"nstop\"},{\"Args\":\"Nah\"}")
     private def executeP(client: AMQPClient, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok,
@@ -119,9 +119,3 @@ trait ClientTests { this: Specification =>
   }
 
 }
-
-
-
-
-
-

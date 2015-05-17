@@ -1,19 +1,19 @@
 megam_common
 ==========
 
-Megam common libraries for scala, Java.
+Megam common libraries for Scala.
 
 * `AMQP` : AMQP client
 * `Riak` : Riak scaffolding mediator to the [scaliak driver by stackmob](https://github.com/stackmob/scaliak)
-* `UID`  : A Unique identity generating service client for scala which connects to twitters [snowflake](https://github.com/twitter/snowflake)
+* `UID`  : A Unique identity generating service client for scala which connects to python based twitters [snowflake](https://github.com/twitter/snowflake)
 
 
 ### Requirements
 
 >
-[RabbitMQ 3.3.4 +](http://www.rabbitmq.com)
-[OpenJDK 7.0](http://openjdk.java.net/install/index.html)
-[Riak 2.0.beta +](http://basho.com)
+[RabbitMQ 3.5.x +](http://www.rabbitmq.com)
+[OpenJDK 8.0](http://openjdk.java.net/install/index.html)
+[Riak 2.1.1 +](http://basho.com)
 [Python Snowflake server](http://github.com/megamsys/pysnowflake)
 
 
@@ -21,15 +21,14 @@ Megam common libraries for scala, Java.
 
 ## Building
 
-* You'll need `thrift 0.9.1 compiler`
-* Make changes in the `java build.properties to use slf4j 1.7.7, httpclient 4.3.2, httpcore 4.3.4`
+* You'll need `thrift 0.9.2 compiler`
 
 ```
 sbt
 
-thrift:generate-java
-
 clean
+
+thrift:generate-java
 
 compile
 

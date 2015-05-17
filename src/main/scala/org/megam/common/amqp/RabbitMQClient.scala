@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import RabbitMQClient._
 import java.util.concurrent.atomic.AtomicInteger
@@ -58,7 +58,7 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
    *  (userid, hostname, post, vhost)
    */
   private lazy val urisToAddress: ValidationNel[Throwable, Array[Address]] = {
-    (Validation.fromTryCatch[Array[org.megam.common.amqp.RawURI]] {
+    (Validation.fromTryCatchThrowable[Array[org.megam.common.amqp.RawURI],Throwable] {
       val urisSplitter = """(http|ftp|amqp)\:\/\/(.*)\:([0-9]+)\/([a-z]+)""".r
       uris.split(",").map(uri => uri match {
         case urisSplitter(protocol, hostname, port, vhost) =>
@@ -80,7 +80,7 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
       ((for {
         addrArr <- urisToAddress leftMap { t: NonEmptyList[Throwable] => t }
       } yield {
-        (Validation.fromTryCatch[Connection] {
+        (Validation.fromTryCatchThrowable[Connection,Throwable] {
           val factory: ConnectionFactory = new ConnectionFactory()
           println("Connecting to " + addrArr.mkString("{", " :: ", "}"))
           val a = factory.newConnection(addrArr)
@@ -101,7 +101,7 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
       ((for {
         connection <- connectionIO leftMap { t: NonEmptyList[Throwable] => t }
       } yield {
-        (Validation.fromTryCatch[Channel] {
+        (Validation.fromTryCatchThrowable[Channel,Throwable] {
           println("Creating Channel for connection: " + connection)
           connection.createChannel
         } leftMap { t: Throwable => t }).toValidationNel flatMap { new_channel: Channel => new_channel.successNel[Throwable] }
@@ -115,17 +115,17 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
       ((for {
         channel <- channelIO leftMap { t: NonEmptyList[Throwable] => t }
       } yield {
-        (Validation.fromTryCatch[com.rabbitmq.client.AMQP.Exchange.DeclareOk] {
+        (Validation.fromTryCatchThrowable[com.rabbitmq.client.AMQP.Exchange.DeclareOk,Throwable] {
           println("mkPublishChannel: exchangeDeclare start.")
           channel.exchangeDeclare(exchangeName, exchangeType, true)
         } leftMap { t: Throwable => t }).toValidationNel flatMap { exchgDeclOK: AMQP.Exchange.DeclareOk =>
-          (Validation.fromTryCatch[com.rabbitmq.client.AMQP.Queue.DeclareOk] {
+          (Validation.fromTryCatchThrowable[com.rabbitmq.client.AMQP.Queue.DeclareOk,Throwable] {
             // Declare a queue named as "queueName", durable : true, exclusive: false (ie. not restricted to this connection),
             //autodelete: false (ie. let the queue remain), and no other arguments.
             println("mkPublishChannel: exchangeDeclared successfully.")
             channel.queueDeclare(queueName, true, false, false, null)
           } leftMap { t: Throwable => t }).toValidationNel flatMap { queueDeclOK: AMQP.Queue.DeclareOk =>
-            (Validation.fromTryCatch[com.rabbitmq.client.AMQP.Queue.BindOk] {
+            (Validation.fromTryCatchThrowable[com.rabbitmq.client.AMQP.Queue.BindOk,Throwable] {
               println("mkPublishChannel: queueDeclared successfully.")
               channel.queueBind(queueName, exchangeName, routing)
             } leftMap { t: Throwable => t }).toValidationNel flatMap { queueBindOK: AMQP.Queue.BindOk =>
@@ -141,7 +141,7 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
 
   private def mkSubscribeChannel(routing: RoutingKey) = {
     channelIO flatMap { channel: Channel =>
-      (Validation.fromTryCatch[com.rabbitmq.client.AMQP.Queue.BindOk] {
+      (Validation.fromTryCatchThrowable[com.rabbitmq.client.AMQP.Queue.BindOk,Throwable] {
         channel.queueBind(queueName, exchangeName, routing)
       } leftMap { t: Throwable => t }).toValidationNel flatMap { queueBindOK: AMQP.Queue.BindOk =>
         channel.successNel[Throwable]
@@ -152,7 +152,7 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
   protected def executePublish(messages: Messages, routingKey: RoutingKey): Future[ValidationNel[Throwable, AMQPResponse]] = Future {
     val messageJson = MessagePayLoad(messages).toJson(false)
     mkPublishChannel(routingKey) flatMap { channel: Channel =>
-      (Validation.fromTryCatch[Unit] {
+      (Validation.fromTryCatchThrowable[Unit,Throwable] {
         channel.basicPublish(exchangeName, routingKey, null, messageJson.getBytes())
       } leftMap { t: Throwable => t }).toValidationNel flatMap { published: Unit =>
         val responseBody = RawBody("Message [%s] publised to [%s,%s] ---> successfully".format(messageJson, exchangeName, queueName))
@@ -173,7 +173,7 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
         channel <- mkSubscribeChannel(routingKey) leftMap { t: NonEmptyList[Throwable] => t }
       } yield {
         val consumer = new RabbitMQConsumer(channel, f)
-        (Validation.fromTryCatch[String] {
+        (Validation.fromTryCatchThrowable[String,Throwable] {
           channel.basicConsume(queueName, true, consumer)
         } leftMap { t: Throwable => t }).toValidationNel flatMap { consumerTag: String =>
           val responseBody = RawBody("Consumer [%s] subscribed to [%s,%s] ---> received messages".format(consumerTag, exchangeName, queueName))
@@ -216,5 +216,3 @@ object RabbitMQClient {
   lazy val AMQPExecutionContext = ExecutionContext.fromExecutorService(amqpThreadPool)
 
 }
-
-

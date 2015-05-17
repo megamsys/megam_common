@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,11 +35,11 @@ class UIDSpecs extends Specification {
   def is =
     "UIDSpecs".title ^ end ^
       """
-  UID is an implementation of TwitterSnowflakeId service 
+  UID is an implementation of TwitterSnowflakeId service
   """ ^ end ^
       "The UID Client Should" ^
       "Correctly return a Unique ID for agent act" ! UIDActNoneService().succeeds ^
-      //"Correctly return a Unique ID for agent nod" ! UIDActService().succeeds ^
+      "Correctly return a Unique ID for agent nod" ! UIDActService().succeeds ^
       end
 
   def execute[T](t: ValidationNel[Throwable, UniqueID], expectedPrefix: String)(fn: UniqueID => MatchResult[T]) = {
@@ -64,7 +64,7 @@ class UIDSpecs extends Specification {
 
   case class UIDActService() {
    //def succeeds = execute(UID("uid1.megam.co.in", 7609, "act").get, "act")(ensureUIDOk(_))
-    def succeeds = execute(UID("localhost", 7609, "act").get, "act")(ensureUIDOk(_))
+    def succeeds = execute(UID("localhost", 7609, "ACT").get, "ACT")(ensureUIDOk(_))
   }
 
 }

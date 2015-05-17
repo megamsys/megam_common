@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,6 @@ import org.megam.common.riak._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.Zoo
 
 class RiakStoreSpecs extends Specification {
 

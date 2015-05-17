@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ package object concurrent {
 
   implicit class RichFuture[T](fut: Future[T]) {
     def toEither(dur: Duration = duration): Either[Throwable, T] = {
-      Validation.fromTryCatch[T](block(dur)).toEither
+      Validation.fromTryCatchThrowable[T,Throwable](block(dur)).toEither
     }
 
     def block(dur: Duration = duration): T = {
