@@ -17,6 +17,8 @@ bintrayOrganization := Some("megamsys")
 
 bintrayRepository := "scala"
 
+publishMavenStyle := true
+
 scalacOptions := Seq(
 	  "-target:jvm-1.8",
 		"-deprecation",
@@ -29,7 +31,6 @@ scalacOptions := Seq(
 	  "-Yclosure-elim",
 	  "-Yconst-opt",
 	  "-Ybackend:GenBCode",
-	  "closurify:delegating",
 	  "-language:implicitConversions",
 	  "-language:higherKinds",
 	  "-language:reflectiveCalls",
