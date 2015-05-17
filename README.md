@@ -1,7 +1,7 @@
 megam_common
 ==========
 
-Megam common libraries for Scala.
+libmegam contains the common libraries in scala with a funcational twist.
 
 * `AMQP` : AMQP client
 * `Riak` : Riak scaffolding mediator to the [scaliak driver by stackmob](https://github.com/stackmob/scaliak)
@@ -23,7 +23,8 @@ Megam common libraries for Scala.
 
 * You'll need `thrift 0.9.2 compiler`
 
-```
+```shell
+
 sbt
 
 clean
@@ -37,108 +38,31 @@ compile
 
 ## Usage
 
-We'll see the usage in `akka`, `play` or `standalone programs in Scala`
-
-* Akka
-* Play framework
-* Any other standalone (`extends App` in Scala)
-
-At the minimum you need a configuration file with the following.
-
-### Akka
-
-// The global settings file loaded as an extension.
-
-```json
-
-
-
-app {
-
-	amqp {
-		uris = ["amqp://megam:team4megam@rabbitmq1.megam.co.in:5200/megam","amqp://megam:team4megam@rabbitmq2.megam.co.in:5200/megam"],
-		exchange = "megam_exchange",
-		queue = "megam_conf"
-	}
-	zoo {
-
-	}
-}
-
-```
-
 ### Play Framework
 
-// The global settings file loaded as an extension.
-
-```json
+For a sample, Refer [megam gateway](https://github.com/megamsys/megam_gateway.git)
 
 
-
-app {
-
-	amqp {
-		uris = ["amqp://megam:team4megam@rabbitmq1.megam.co.in:5200/megam","amqp://megam:team4megam@rabbitmq2.megam.co.in:5200/megam"],
-		exchange = "megam_exchange",
-		queue = "megam_conf"
-	}
-	zoo {
-
-	}
-}
-
-```
-
-###
-
-
-
-### Prepare your program
+### sbt
 
 Before your run it,
 
-* RabbitMQ Server is running
-
-> Add this maven dependency
-
-```xml
-	<dependency>
-	<groupId>com.github.indykish</groupId>
-	<artifactId>megam_common</artifactId>
-	<version>0.5.1</version>
-	</dependency>
-```
-
-```
-	libraryDependencies += "com.github.indykish" % "megam_common_2.10" % "0.5.1"
-```
-### Akka
-
-* Invoking AMQP Client as an extension in akka
 
 ```scala
 
+	resolvers ++= Seq(Resolver.sonatypeRepo("releases"),
+	Resolver.sonatypeRepo("snapshots"),
+	Resolver.bintrayRepo("scalaz", "releases"),
+	Resolver.bintrayRepo("io.megam", "scala"))
+
+	libraryDependencies += "io.megam" % "libmegam" % "0.8"
 
 ```
-
-### Play
-
-* Invoking AMQP Client as an extension in akka
-
-```scala
-
-
-```
-
 
 
 We are glad to help if you have questions, or request for new features..
 
 [twitter](http://twitter.com/indykish) [email](<rajthilak@megam.co.in>)
-
-#### TO - DO
-
-* Logging/Better Failure handling
 
 
 # License
