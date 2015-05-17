@@ -55,14 +55,14 @@ Before your run it,
 	Resolver.bintrayRepo("scalaz", "releases"),
 	Resolver.bintrayRepo("io.megam", "scala"))
 
-	libraryDependencies += "io.megam" % "libmegam" % "0.8"
+	libraryDependencies += "io.megam" % "libcommon" % "0.8.1"
 
 ```
 
 
 We are glad to help if you have questions, or request for new features..
 
-[twitter](http://twitter.com/indykish) [email](<rajthilak@megam.co.in>)
+[twitter](http://twitter.com/megamsys) [email](<support@megam.io>)
 
 
 # License
@@ -70,9 +70,9 @@ We are glad to help if you have questions, or request for new features..
 
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
-| **Author:**          | Rajthilak (<rajthilak@megam.co.in>)
-|		               | KishorekumarNeelamegam (<nkishore@megam.co.in>)
-| **Copyright:**       | Copyright (c) 2012-2013 Megam Systems.
+| **Author:**          | Rajthilak (<rajthilak@megam.io>)
+|		               | KishorekumarNeelamegam (<nkishore@megam.io>)
+| **Copyright:**       | Copyright (c) 2013-2015 Megam Systems.
 | **License:**         | Apache License, Version 2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
