@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,6 @@ import scalaz.effect.IO
 import scalaz.NonEmptyList._
 import Scalaz._
 import java.nio.charset.{ Charset }
-import scala.concurrent.{ExecutionContext, Future}
 import net.liftweb.json._
 import net.liftweb.json.scalaz._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -29,12 +28,10 @@ import net.liftweb.json.scalaz.JsonScalaz._
  *
  */
 package object amqp {
-  
-  val UTF8Charset = Charset.forName("UTF-8")
-  
-  type FutureValidation[Fail, Success] = Future[Validation[Fail, Success]]
 
-  type Message = (String, String) 
+  val UTF8Charset = Charset.forName("UTF-8")
+
+  type Message = (String, String)
   type MessageList = NonEmptyList[Message]
   type Messages = Option[MessageList]
 
@@ -64,9 +61,9 @@ package object amqp {
   }
 
   type RawBody = Array[Byte]
-  
+
   implicit val RawBodyMonoid: Monoid[RawBody] = Monoid.instance(_ ++ _, Array[Byte]())
-  
+
   object RawBody {
     def apply(s: String, charset: Charset = UTF8Charset): Array[Byte] = s.getBytes(charset)
     def apply(b: Array[Byte]): Array[Byte] = b
@@ -74,14 +71,14 @@ package object amqp {
   }
 
   type RawURI = (String, String, String, String)
- 
+
   object RawURI {
-    
+
     def apply(userid: String = "megam", hostname: String, port: String, vhost: String = "megam"): RawURI = new RawURI(userid, hostname, port, vhost)
     def show(ruri: RawURI) = (ruri._1 + " " + ruri._2 + " " + ruri._3 + " " + ruri._4)
 
   }
-  
+
   type RoutingKey = String
 
 

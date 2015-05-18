@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import org.megam.common.jsonscalaz._
 import java.nio.charset.Charset
@@ -71,7 +71,7 @@ object AMQPResponse {
     fromJSON(jValue)(AMQPResponseSerialization.reader)
   }
 
-  def fromJson(json: String): Result[AMQPResponse] = (Validation.fromTryCatch[JValue] {
+  def fromJson(json: String): Result[AMQPResponse] = (Validation.fromTryCatchThrowable[JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())

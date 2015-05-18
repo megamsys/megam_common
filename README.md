@@ -1,19 +1,19 @@
 megam_common
 ==========
 
-Megam common libraries for scala, Java.
+libmegam contains the common libraries in scala with a funcational twist.
 
 * `AMQP` : AMQP client
 * `Riak` : Riak scaffolding mediator to the [scaliak driver by stackmob](https://github.com/stackmob/scaliak)
-* `UID`  : A Unique identity generating service client for scala which connects to twitters [snowflake](https://github.com/twitter/snowflake)
+* `UID`  : A Unique identity generating service client for scala which connects to python based twitters [snowflake](https://github.com/twitter/snowflake)
 
 
 ### Requirements
 
 >
-[RabbitMQ 3.3.4 +](http://www.rabbitmq.com)
-[OpenJDK 7.0](http://openjdk.java.net/install/index.html)
-[Riak 2.0.beta +](http://basho.com)
+[RabbitMQ 3.5.x +](http://www.rabbitmq.com)
+[OpenJDK 8.0](http://openjdk.java.net/install/index.html)
+[Riak 2.1.1 +](http://basho.com)
 [Python Snowflake server](http://github.com/megamsys/pysnowflake)
 
 
@@ -21,15 +21,15 @@ Megam common libraries for scala, Java.
 
 ## Building
 
-* You'll need `thrift 0.9.1 compiler`
-* Make changes in the `java build.properties to use slf4j 1.7.7, httpclient 4.3.2, httpcore 4.3.4`
+* You'll need `thrift 0.9.2 compiler`
 
-```
+```shell
+
 sbt
 
-thrift:generate-java
-
 clean
+
+thrift:generate-java
 
 compile
 
@@ -38,108 +38,31 @@ compile
 
 ## Usage
 
-We'll see the usage in `akka`, `play` or `standalone programs in Scala`
-
-* Akka
-* Play framework
-* Any other standalone (`extends App` in Scala)
-
-At the minimum you need a configuration file with the following.
-
-### Akka
-
-// The global settings file loaded as an extension.
-
-```json
-
-
-
-app {
-
-	amqp {
-		uris = ["amqp://megam:team4megam@rabbitmq1.megam.co.in:5200/megam","amqp://megam:team4megam@rabbitmq2.megam.co.in:5200/megam"],
-		exchange = "megam_exchange",
-		queue = "megam_conf"
-	}
-	zoo {
-
-	}
-}
-
-```
-
 ### Play Framework
 
-// The global settings file loaded as an extension.
-
-```json
+For a sample, Refer [megam gateway](https://github.com/megamsys/megam_gateway.git)
 
 
-
-app {
-
-	amqp {
-		uris = ["amqp://megam:team4megam@rabbitmq1.megam.co.in:5200/megam","amqp://megam:team4megam@rabbitmq2.megam.co.in:5200/megam"],
-		exchange = "megam_exchange",
-		queue = "megam_conf"
-	}
-	zoo {
-
-	}
-}
-
-```
-
-###
-
-
-
-### Prepare your program
+### sbt
 
 Before your run it,
 
-* RabbitMQ Server is running
-
-> Add this maven dependency
-
-```xml
-	<dependency>
-	<groupId>com.github.indykish</groupId>
-	<artifactId>megam_common</artifactId>
-	<version>0.5.1</version>
-	</dependency>
-```
-
-```
-	libraryDependencies += "com.github.indykish" % "megam_common_2.10" % "0.5.1"
-```
-### Akka
-
-* Invoking AMQP Client as an extension in akka
 
 ```scala
 
+	resolvers ++= Seq(Resolver.sonatypeRepo("releases"),
+	Resolver.sonatypeRepo("snapshots"),
+	Resolver.bintrayRepo("scalaz", "releases"),
+	Resolver.bintrayRepo("io.megam", "scala"))
+
+	libraryDependencies += "io.megam" % "libcommon" % "0.8.1"
 
 ```
-
-### Play
-
-* Invoking AMQP Client as an extension in akka
-
-```scala
-
-
-```
-
 
 
 We are glad to help if you have questions, or request for new features..
 
-[twitter](http://twitter.com/indykish) [email](<rajthilak@megam.co.in>)
-
-#### TO - DO
-
-* Logging/Better Failure handling
+[twitter](http://twitter.com/megamsys) [email](<support@megam.io>)
 
 
 # License
@@ -147,9 +70,9 @@ We are glad to help if you have questions, or request for new features..
 
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
-| **Author:**          | Rajthilak (<rajthilak@megam.co.in>)
-|		               | KishorekumarNeelamegam (<nkishore@megam.co.in>)
-| **Copyright:**       | Copyright (c) 2012-2013 Megam Systems.
+| **Author:**          | Rajthilak (<rajthilak@megam.io>)
+|		               | KishorekumarNeelamegam (<nkishore@megam.io>)
+| **Copyright:**       | Copyright (c) 2013-2015 Megam Systems.
 | **License:**         | Apache License, Version 2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");

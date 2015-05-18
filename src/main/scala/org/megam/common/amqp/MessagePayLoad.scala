@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -56,11 +56,9 @@ object MessagePayLoad {
 
   }
 
-  def fromJson(json: String): Result[MessagePayLoad] = (Validation.fromTryCatch[JValue] {
+  def fromJson(json: String): Result[MessagePayLoad] = (Validation.fromTryCatchThrowable[JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 }
-
-

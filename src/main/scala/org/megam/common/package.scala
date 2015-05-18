@@ -7,7 +7,6 @@ import scalaz.NonEmptyList._
 import Scalaz._
 
 import scala.collection.JavaConverters._
-import org.megam.util.Stopwatch
 
 
 import org.megam.common.riak.GSErrors._
@@ -29,6 +28,6 @@ package object common {
 
   }
 
-  
+
 
 }

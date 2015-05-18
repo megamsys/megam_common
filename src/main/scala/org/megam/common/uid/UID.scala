@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ package org.megam.common.uid
 import scalaz._
 import Scalaz._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 
 
@@ -29,12 +29,12 @@ import org.apache.thrift.transport.{ TTransport }
  *
  */
 class UID(hostname: String, port: Int, agent: String, soTimeoutMS: Int = 5000) {
- 
+
   //lazy val, just evaluates once, we'll make it eval everytime you call.
   private def service: UniqueIDService = USnowflakeClient.create(hostname, port, soTimeoutMS)
 
   def get: ValidationNel[Throwable, UniqueID] = {
-    (Validation.fromTryCatch[Long] {
+    (Validation.fromTryCatchThrowable[Long,Throwable] {
       service._2.get_id(agent)
     } leftMap { t: Throwable =>
       new Throwable(
