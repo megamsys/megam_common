@@ -35,6 +35,20 @@ compile
 
 ```
 
+#Publishing in bintray
+
+For more information [https://github.com/softprops/bintray-sbt](https://github.com/softprops/bintray-sbt)
+
+```
+#from the sbt REPL
+
+> bintrayChangeCredentials
+
+> bintrayWhoami
+
+> publish
+
+```
 
 ## Usage
 

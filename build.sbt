@@ -11,7 +11,7 @@ Feel free to collaborate at https://github.com/megamsys/megam_common.git."""
 
 licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 bintrayOrganization := Some("megamsys")
 
@@ -47,10 +47,10 @@ Resolver.bintrayRepo("io.megam", "scala")
 )
 
 {
-  val scalazVersion = "7.1.2"
-  val liftJsonVersion = "2.6.2"
-  val amqpVersion = "3.5.1"
-  val specs2Version = "3.6"
+  val scalazVersion = "7.1.3"
+  val liftJsonVersion = "3.0-M5-1"
+  val amqpVersion = "3.5.3"
+  val specs2Version = "3.6.1-20150618235732-d4f57e9"
 
 libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
@@ -58,7 +58,7 @@ libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion % "test",
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "io.megam" %% "scaliak" % "0.14",
+    "io.megam" %% "scaliak" % "0.15",
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2-core" % specs2Version % "test",
     "org.apache.commons" % "commons-lang3" % "3.4",
