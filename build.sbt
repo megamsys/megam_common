@@ -48,8 +48,8 @@ Resolver.bintrayRepo("io.megam", "scala")
 
 {
   val scalazVersion = "7.1.3"
-  val liftJsonVersion = "3.0-M5-1"
-  val amqpVersion = "3.5.3"
+  val liftJsonVersion = "3.0-M6"
+  val amqpVersion = "3.5.4"
   val specs2Version = "3.6.1-20150618235732-d4f57e9"
 
 libraryDependencies ++=  Seq(
