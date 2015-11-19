@@ -58,7 +58,7 @@ libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion % "test",
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "io.megam" %% "scaliak" % "0.15",
+    "io.megam" %% "scaliak" % "0.16",
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2-core" % specs2Version % "test",
     "org.apache.commons" % "commons-lang3" % "3.4",

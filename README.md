@@ -69,7 +69,7 @@ Before your run it,
 	Resolver.bintrayRepo("scalaz", "releases"),
 	Resolver.bintrayRepo("io.megam", "scala"))
 
-	libraryDependencies += "io.megam" % "libcommon" % "0.11"
+	libraryDependencies += "io.megam" % "libcommon" % "0.12"
 
 ```
 
