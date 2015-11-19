@@ -47,10 +47,10 @@ Resolver.bintrayRepo("io.megam", "scala")
 )
 
 {
-  val scalazVersion = "7.1.3"
+  val scalazVersion = "7.1.5"
   val liftJsonVersion = "3.0-M6"
-  val amqpVersion = "3.5.4"
-  val specs2Version = "3.6.1-20150618235732-d4f57e9"
+  val amqpVersion = "3.5.6"
+  val specs2Version = "3.6.5-20151108070227-1e34889"
 
 libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
@@ -62,7 +62,7 @@ libraryDependencies ++=  Seq(
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2-core" % specs2Version % "test",
     "org.apache.commons" % "commons-lang3" % "3.4",
-    "org.apache.thrift" % "libthrift" % "0.9.2" excludeAll (
+    "org.apache.thrift" % "libthrift" % "0.9.3" excludeAll (
       ExclusionRule("commons-logging", "commons-logging"),
       ExclusionRule("org.slf4j","slf4j-simple"),
       ExclusionRule("org.slf4j","slf4j-nop"),
