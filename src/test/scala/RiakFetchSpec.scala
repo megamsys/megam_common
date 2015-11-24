@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,7 +56,6 @@ class RiakFetchSpec extends Specification {
       val t: ValidationNel[Throwable, List[String]] = riak.fetchIndexByValue(new GunnySack("email", "megam@mypaas.io", RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
       println("-->" + t)
       t.toOption must beSome.which { _.contains("key14")}
-
 
     }
   }
