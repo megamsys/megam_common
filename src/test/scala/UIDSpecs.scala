@@ -46,13 +46,9 @@ class UIDSpecs extends Specification {
     val res = t match {
       case Success(uid) => uid
       case Failure(errThrown) => {
-        println("*=----------------------------------------*\n")
-        errThrown.head.printStackTrace
-        println("*=----------------------------------------*\n")
         UniqueID.empty
       }
     }
-    println(res.get._1 + res.get._2)
     res.get._1.toString must startWith(expectedPrefix) and fn(res)
   }
 
@@ -63,7 +59,6 @@ class UIDSpecs extends Specification {
   }
 
   case class UIDActService() {
-   //def succeeds = execute(UID("uid1.megam.co.in", 7609, "act").get, "act")(ensureUIDOk(_))
     def succeeds = execute(UID("localhost", 7609, "ACT").get, "ACT")(ensureUIDOk(_))
   }
 

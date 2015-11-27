@@ -62,6 +62,7 @@ libraryDependencies ++=  Seq(
     "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2-core" % specs2Version % "test",
     "org.apache.commons" % "commons-lang3" % "3.4",
+		"org.eclipse.jgit" % "org.eclipse.jgit" % "4.1.1.201511131810-r",
     "org.apache.thrift" % "libthrift" % "0.9.3" excludeAll (
       ExclusionRule("commons-logging", "commons-logging"),
       ExclusionRule("org.slf4j","slf4j-simple"),
