@@ -33,15 +33,25 @@ class GitCloneSpecs extends Specification {
   Git clone which interfaces with git
     """ ^ end ^
       "The Git clone spec Should" ^
+      "Correctly get reponame for a valid git repo " ! GitRepoName.succeeds ^
       "Correctly clone for a valid git repo " ! GitCloneFetch.succeeds ^
       end
 
+  case object GitRepoName {
+
+    def succeeds = {
+      val r = new GitRepo("/home/ram/Desktop/first", "https://github.com/megamsys/meghack.git")
+      r.name.hostname == "github.com"
+      r.name.namespace == "megamsys"
+      r.name.repo == "meghack"
+      r.name.prefix == "git"
+    }
+  }
 
   case object GitCloneFetch {
 
     def succeeds = {
-		  val t: ValidationNel[Throwable, GitRepo] = MGit.clone(new GitRepo("/home/ram/Desktop/first", "https://github.com/megamsys/meghack.git"))
-      println("-->" + t)
+      val t: ValidationNel[Throwable, GitRepo] = MGit.clone(new GitRepo("/home/ram/Desktop/first", "https://github.com/megamsys/meghack.git"))
       t.toOption must beSome
     }
   }
