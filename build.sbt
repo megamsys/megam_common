@@ -48,9 +48,9 @@ Resolver.bintrayRepo("io.megam", "scala")
 
 {
   val scalazVersion = "7.1.5"
-  val liftJsonVersion = "3.0-M6"
+  val liftJsonVersion = "3.0-M7"
   val amqpVersion = "3.5.6"
-  val specs2Version = "3.6.5-20151108070227-1e34889"
+  val specs2Version = "3.6.6-20151204011838-90b7de9"
 
 libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
