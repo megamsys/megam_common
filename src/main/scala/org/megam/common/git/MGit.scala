@@ -41,8 +41,11 @@ case class RepoName(
   }
 }
 
-case class GitRepo(local: String, remote: String) {
+case class GitRepo(root: String, remote: String) {
   val name = RepoName(remote)
+
+  val local = root + java.io.File.separator  + name.repo
+
 }
 
 object MGit {
