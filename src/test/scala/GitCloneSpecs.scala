@@ -41,17 +41,18 @@ class GitCloneSpecs extends Specification {
 
     def succeeds = {
       val r = new GitRepo("/home/ram/Desktop/first", "https://github.com/megamsys/meghack.git")
-      r.name.hostname == "github.com"
-      r.name.namespace == "megamsys"
-      r.name.repo == "meghack"
-      r.name.prefix == "git"
+      r.name.hostname must beEqualTo("github.com")
+      r.name.namespace must beEqualTo("megamsys")
+      r.name.repo must beEqualTo("meghack")
+      r.name.prefix must beEqualTo("git")
+      r.local must beEqualTo("/home/ram/Desktop/first/meghack")
+
     }
   }
 
   case object GitCloneFetch {
-
     def succeeds = {
-      val t: ValidationNel[Throwable, GitRepo] = MGit.clone(new GitRepo("/home/ram/Desktop/first", "https://github.com/megamsys/meghack.git"))
+      val t: ValidationNel[Throwable, GitRepo] = MGit.clone(new GitRepo("/home/ram/code/megam/home/megamgateway/yonpis", "https://github.com/megamsys/testsparkbb.git"))
       t.toOption must beSome
     }
   }
