@@ -18,6 +18,7 @@ package org.megam.common.git
 import scalaz._
 import Scalaz._
 import org.eclipse.jgit.api.Git
+import scalaz.Validation.FlatMap._
 
 object RepoName {
   def apply(name: String): RepoName = {

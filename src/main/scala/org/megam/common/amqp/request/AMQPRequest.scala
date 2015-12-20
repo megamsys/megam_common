@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,7 +71,7 @@ trait PublishRequest extends AMQPRequest {
 }
 
 object PublishRequest {
-  def apply(m: Messages, key: RoutingKey)(async: => Future[ValidationNel[Throwable, AMQPResponse]]): PublishRequest = new PublishRequest {
+  def apply(m: Messages, key: RoutingKey = "megam")(async: => Future[ValidationNel[Throwable, AMQPResponse]]): PublishRequest = new PublishRequest {
     override lazy val messages = m
     override lazy val routingKey = key
     override lazy val apply = async

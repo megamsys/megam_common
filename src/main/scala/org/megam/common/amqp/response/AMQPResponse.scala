@@ -56,7 +56,7 @@ case class AMQPResponse(code: AMQPResponseCode,
   def toJson(prettyPrint: Boolean = false)(implicit charset: Charset = UTF8Charset): String = {
     jsonMap.getOrElseUpdate((charset, prettyPrint), {
       if (prettyPrint) {
-        pretty(render(toJValue))
+        prettyRender(toJValue)
       } else {
         compactRender(toJValue)
       }

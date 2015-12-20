@@ -30,9 +30,9 @@ import org.megam.common.concurrent._
 import scala.concurrent.{ Future }
 import scala.concurrent.duration.Duration
 
-trait ClientTests { this: Specification =>
+trait RMQClientTests { this: Specification =>
 
-  class ClientTests {
+  class RMQClientTests {
 
     private val exchange_name = "megam_bannister1.megam.co_exchange"
     private val queue_name = "megam_bannister1.megam.co_queue"
@@ -107,8 +107,8 @@ trait ClientTests { this: Specification =>
 
   }
 
-  object ClientTests {
-    def apply = new ClientTests()
+  object RMQClientTests {
+    def apply = new RMQClientTests()
   }
 
 }
