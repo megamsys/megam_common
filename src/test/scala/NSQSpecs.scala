@@ -32,15 +32,12 @@ import org.megam.common.amqp.response._
  *
  */
 
-class AMQPSpecs extends Specification with RMQClientTests {
+class NSQSpecs extends Specification with NSQClientTests {
   def is =
-    "AMQPSpecs".title ^ end ^
-      "RabbitMQClient is an implementation of AMQPClient that connects to a RabbitMQ server" ^ end ^
-      "PUB with faulty url should work" ! RMQClientTests.apply.pubBADURL ^ end ^
-      "PUB with MQ down    should work" ! RMQClientTests.apply.pubCONNDOWN ^ end ^
-      "PUB should work" ! RMQClientTests.apply.pub ^ end ^
-      "SUB with faulty url should work" ! RMQClientTests.apply.subBADURL ^ end ^
-      "SUB with MQ down    should work" ! RMQClientTests.apply.subCONNDOWN ^ end ^
-      "SUB should work" ! RMQClientTests.apply.sub ^ end ^
+    "NSQSpecs".title ^ end ^
+      "NSQClient is an implementation that connects to a NSQ server" ^ end ^
+      "PUB with faulty url should work" ! NSQClientTests.apply.pubBADURL ^ end ^
+      "PUB with MQ down    should work" ! NSQClientTests.apply.pubCONNDOWN ^ end ^
+      "PUB should work" ! NSQClientTests.apply.pub ^ end ^
       end
 }

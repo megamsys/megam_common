@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,5 +29,5 @@ import org.megam.common.amqp.response.AMQPResponse
 
 trait AMQPClient {
   def subscribe(f: AMQPResponse => ValidationNel[Throwable, Option[String]], key: RoutingKey): SubscribeRequest
-  def publish(messages: Messages, key: RoutingKey): PublishRequest
+  def publish(messages: Messages, key: RoutingKey = ""): PublishRequest
 }

@@ -74,8 +74,10 @@ package object amqp {
 
   object RawURI {
 
+    def apply(hostname: String, port: String): RawURI = RawURI("megam", hostname, port, "megam")
     def apply(userid: String = "megam", hostname: String, port: String, vhost: String = "megam"): RawURI = new RawURI(userid, hostname, port, vhost)
     def show(ruri: RawURI) = (ruri._1 + " " + ruri._2 + " " + ruri._3 + " " + ruri._4)
+    def mk(ruri: RawURI) = ruri._2 + ":" + ruri._3
 
   }
 
