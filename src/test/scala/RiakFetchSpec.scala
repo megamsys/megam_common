@@ -17,15 +17,15 @@
  * @author rajthilak
  *
  */
-
+import io.megam.common.amqp._
+import io.megam.common.riak._
 import org.specs2._
 import scalaz._
 import Scalaz._
 import org.specs2.mutable._
 import org.specs2.Specification
-import org.megam.common.amqp._
 import org.specs2.matcher.MatchResult
-import org.megam.common.riak._
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }

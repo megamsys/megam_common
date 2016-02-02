@@ -15,17 +15,17 @@
 */
 //package test
 
+import io.megam.common.amqp._
+import io.megam.common.concurrent._
+import io.megam.common.amqp.request.AMQPRequest
+import io.megam.common.amqp.response._
 import org.specs2._
 import scalaz._
 import Scalaz._
 import org.specs2.mutable._
 import org.specs2.Specification
-import org.megam.common.amqp._
-import org.megam.common.concurrent._
 import scala.concurrent.duration._
 import org.specs2.matcher.MatchResult
-import org.megam.common.amqp.request.AMQPRequest
-import org.megam.common.amqp.response._
 
 /**
  * @author rajthilak
