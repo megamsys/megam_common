@@ -17,18 +17,16 @@
  * @author subash
  *
  */
-
+import io.megam.common.uid.UID
+import io.megam.common.uid._
+import org.specs2._
 import scalaz._
 import Scalaz._
 
-import org.specs2._
 import org.specs2.mutable._
 import org.specs2.Specification
-import org.megam.common.amqp._
 import org.specs2.matcher.MatchResult
 
-import org.megam.common.uid.UID
-import org.megam.common.uid._
 
 class UIDSpecs extends Specification {
 
@@ -39,7 +37,7 @@ class UIDSpecs extends Specification {
   """ ^ end ^
       "The UID Client Should" ^
       "Correctly return a Unique ID for agent act" ! UIDActNoneService().succeeds ^
-      "Correctly return a Unique ID for agent nod" ! UIDActService().succeeds ^
+      "Correctly return a Unique ID for agent ACT" ! UIDActService().succeeds ^
       end
 
   def execute[T](t: ValidationNel[Throwable, UniqueID], expectedPrefix: String)(fn: UniqueID => MatchResult[T]) = {
@@ -55,11 +53,11 @@ class UIDSpecs extends Specification {
   protected def ensureUIDOk(h: UniqueID) = h.get._2 must beGreaterThan(0L)
 
   case class UIDActNoneService() {
-    def succeeds = execute(UID("uid1.megam.co.in", 7609, "act").get, "non")(ensureUIDOk(_))
+    def succeeds = execute(UID("act").get, "ACT")(ensureUIDOk(_))
   }
 
   case class UIDActService() {
-    def succeeds = execute(UID("localhost", 7609, "ACT").get, "ACT")(ensureUIDOk(_))
+    def succeeds = execute(UID("ACT").get, "ACT")(ensureUIDOk(_))
   }
 
 }

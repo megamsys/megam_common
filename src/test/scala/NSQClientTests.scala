@@ -17,16 +17,16 @@
  * @author ram
  *
  */
+import io.megam.common.amqp._
+import io.megam.common.concurrent._
+import io.megam.common.amqp.{ AMQPClient, RabbitMQClient }
+import io.megam.common.amqp.response.{ AMQPResponse, AMQPResponseCode }
 
 import org.specs2.Specification
-import org.megam.common.amqp.{ AMQPClient, RabbitMQClient }
-import org.megam.common.amqp.response.{ AMQPResponse, AMQPResponseCode }
 import java.net.URL
 import scalaz._
 import Scalaz._
 import scalaz.Validation._
-import org.megam.common.amqp._
-import org.megam.common.concurrent._
 import scala.concurrent.{ Future }
 import scala.concurrent.duration.Duration
 
@@ -35,11 +35,11 @@ trait NSQClientTests { this: Specification =>
   class NSQClientTests {
 
     private val topic = "test"
-    private val message1 = Messages("message" ->  "{\"Id\":\"APR416511659171905536\"},{\"Action\":\"nstop\"},{\"Args\":\"Nah\"}")
+    private val message1 = Messages("message" -> "{\"Id\":\"APR416511659171905536\"},{\"Action\":\"nstop\"},{\"Args\":\"Nah\"}")
 
     private def executeP(client: AMQPClient, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok,
       duration: Duration = duration) = {
-      import org.megam.common.concurrent.SequentialExecutionContext
+      import io.megam.common.concurrent.SequentialExecutionContext
       val responseFuture: Future[ValidationNel[Throwable, AMQPResponse]] =
         client.publish(message1).apply
       responseFuture.block(duration).toEither must beRight.like {

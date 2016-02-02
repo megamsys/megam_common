@@ -17,13 +17,13 @@
  * @author rajthilak
  *
  */
+import io.megam.common.git._
 import org.specs2._
 import scalaz._
 import Scalaz._
 import org.specs2.mutable._
 import org.specs2.Specification
 import org.specs2.matcher.MatchResult
-import org.megam.common.git._
 
 class GitCloneSpecs extends Specification {
 

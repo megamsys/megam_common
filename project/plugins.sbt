@@ -6,6 +6,4 @@ resolvers += Resolver.url(
 
 resolvers += "bigtoast-github" at "http://bigtoast.github.com/repo/"
 
-addSbtPlugin("com.github.bigtoast" % "sbt-thrift" % "0.7")
-
 addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0")
