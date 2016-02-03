@@ -35,7 +35,7 @@ import io.megam.common.amqp.response.AMQPResponse
 
 trait AMQPRequest {
 
-  def messages: Messages
+  def messages: String
   def routingKey: RoutingKey
   def requestType: AMQPRequestType
 
@@ -71,7 +71,7 @@ trait PublishRequest extends AMQPRequest {
 }
 
 object PublishRequest {
-  def apply(m: Messages, key: RoutingKey = "megam")(async: => Future[ValidationNel[Throwable, AMQPResponse]]): PublishRequest = new PublishRequest {
+  def apply(m: String, key: RoutingKey = "megam")(async: => Future[ValidationNel[Throwable, AMQPResponse]]): PublishRequest = new PublishRequest {
     override lazy val messages = m
     override lazy val routingKey = key
     override lazy val apply = async
@@ -85,7 +85,7 @@ trait SubscribeRequest extends AMQPRequest {
 object SubscribeRequest {
   def apply(f: AMQPResponse => ValidationNel[Throwable, Option[String]],
     key: RoutingKey)(async: => Future[ValidationNel[Throwable, AMQPResponse]]): SubscribeRequest = new SubscribeRequest {
-    override lazy val messages = None
+    override lazy val messages = ""
     override lazy val routingKey = key
     override lazy val apply = async
   }

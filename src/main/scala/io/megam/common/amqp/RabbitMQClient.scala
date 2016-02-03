@@ -149,8 +149,7 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
     }
   }
 
-  protected def executePublish(messages: Messages, routingKey: RoutingKey): Future[ValidationNel[Throwable, AMQPResponse]] = Future {
-    val messageJson = MessagePayLoad(messages).toJson(false)
+  protected def executePublish(messageJson: String, routingKey: RoutingKey): Future[ValidationNel[Throwable, AMQPResponse]] = Future {
     mkPublishChannel(routingKey) flatMap { channel: Channel =>
       (Validation.fromTryCatchThrowable[Unit,Throwable] {
         channel.basicPublish(exchangeName, routingKey, null, messageJson.getBytes())
@@ -185,7 +184,7 @@ class RabbitMQClient(connectionTimeout: Int, maxChannels: Int, exchangeType: Str
 
   }
 
-  override def publish(m1: Messages, key: RoutingKey): PublishRequest = PublishRequest(m1, key) {
+  override def publish(m1: String, key: RoutingKey): PublishRequest = PublishRequest(m1, key) {
     executePublish(m1, key)
   }
 

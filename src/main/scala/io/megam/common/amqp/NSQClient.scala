@@ -65,8 +65,7 @@ class NSQClient(uri: String, topic: String)(implicit val requestContext: Executi
     }
   }
 
-  protected def executePublish(messages: Messages): Future[ValidationNel[Throwable, AMQPResponse]] = Future {
-    val messageJson = MessagePayLoad(messages).toJson(false)
+  protected def executePublish(messageJson: String): Future[ValidationNel[Throwable, AMQPResponse]] = Future {
     mkProducer flatMap { pd: NSQProducer =>
       (Validation.fromTryCatchThrowable[Unit, Throwable] {
         pd.put(messageJson)
@@ -81,7 +80,7 @@ class NSQClient(uri: String, topic: String)(implicit val requestContext: Executi
     (new java.lang.Error("Not implemented %s".format(topic)).failureNel[AMQPResponse])
   }
 
-  override def publish(m1: Messages, key: io.megam.common.amqp.RoutingKey = "megam"): PublishRequest = PublishRequest(m1) {
+  override def publish(m1: String, key: io.megam.common.amqp.RoutingKey = "megam"): PublishRequest = PublishRequest(m1) {
     executePublish(m1)
   }
 
