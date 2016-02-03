@@ -29,5 +29,5 @@ import io.megam.common.amqp.response.AMQPResponse
 
 trait AMQPClient {
   def subscribe(f: AMQPResponse => ValidationNel[Throwable, Option[String]], key: RoutingKey): SubscribeRequest
-  def publish(messages: Messages, key: RoutingKey = ""): PublishRequest
+  def publish(messageJson: String, key: RoutingKey = ""): PublishRequest
 }

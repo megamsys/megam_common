@@ -40,8 +40,9 @@ trait NSQClientTests { this: Specification =>
     private def executeP(client: AMQPClient, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok,
       duration: Duration = duration) = {
       import io.megam.common.concurrent.SequentialExecutionContext
+      val messageJson = MessagePayLoad(message1).toJson(false)
       val responseFuture: Future[ValidationNel[Throwable, AMQPResponse]] =
-        client.publish(message1).apply
+        client.publish(messageJson).apply
       responseFuture.block(duration).toEither must beRight.like {
         case ampq_res => ampq_res.code must beEqualTo(expectedCode)
       }

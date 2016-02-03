@@ -37,12 +37,13 @@ trait RMQClientTests { this: Specification =>
     private val exchange_name = "megam_bannister1.megam.co_exchange"
     private val queue_name = "megam_bannister1.megam.co_queue"
     private val routingKey = "megam_key"
-    private val message1 = Messages("message" ->  "{\"Id\":\"APR416511659171905536\"},{\"Action\":\"nstop\"},{\"Args\":\"Nah\"}")
+    private val message1 = Messages("message" -> "{\"Id\":\"APR416511659171905536\"},{\"Action\":\"nstop\"},{\"Args\":\"Nah\"}")
+    private val messageJson = MessagePayLoad(message1).toJson(false)
     private def executeP(client: AMQPClient, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok,
       duration: Duration = duration) = {
       import io.megam.common.concurrent.SequentialExecutionContext
       val responseFuture: Future[ValidationNel[Throwable, AMQPResponse]] =
-        client.publish(message1, routingKey).apply
+        client.publish(messageJson, routingKey).apply
       responseFuture.block(duration).toEither must beRight.like {
         case ampq_res => ampq_res.code must beEqualTo(expectedCode)
       }
@@ -66,7 +67,7 @@ trait RMQClientTests { this: Specification =>
       val result = h.toJson(true) // the response is parsed back
       val res: ValidationNel[Throwable, Option[String]] = result match {
         case respJSON => respJSON.some.successNel
-        case _        => new  java.lang.Error("Error occurred in the subscribed response. Unsupported response type").failureNel
+        case _ => new java.lang.Error("Error occurred in the subscribed response. Unsupported response type").failureNel
       }
       res
     }
