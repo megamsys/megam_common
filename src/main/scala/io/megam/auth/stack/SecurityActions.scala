@@ -80,7 +80,7 @@ object SecurityActions {
         var flag = false
         if (freq.clientAPIPuttusavi != None) {
           if (freq.clientAPIPuttusavi.get == "true") {
-            calculatedHMACPASSWORD = GoofyCrypto.calculateHMAC(fres.password, freq.mkSign)
+            calculatedHMACPASSWORD = GoofyCrypto.calculateHMAC(new String(Base64.decodeBase64(fres.password)), freq.mkSign)
           } else {
             flag = true
           }
