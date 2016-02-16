@@ -38,7 +38,7 @@ import io.megam.auth.stack.GoofyCrypto._
  *            FunneledRequest(maybeEmail,clientAPIHmac, clientAPIDate,
  *            clientAPIPath, clientAPIBody)
  */
-case class FunneledRequest(maybeEmail: Option[String], clientAPIHmac: Option[String],
+case class FunneledRequest(maybeEmail: Option[String], maybeOrg: Option[String], clientAPIHmac: Option[String],
   clientAPIDate: Option[String], clientAPIPath: Option[String], clientAPIBody: Option[String], clientAPIPuttusavi: Option[String]) {
 
   /**
@@ -67,7 +67,7 @@ case class FunneledRequest(maybeEmail: Option[String], clientAPIHmac: Option[Str
 
   override def toString = {
     "%-16s%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n".format("FunneledRequest",
-      "email", maybeEmail, "apiHMAC", clientAPIHmac, "apiDATE", clientAPIDate,
+      "email", maybeEmail, "org", maybeOrg, "apiHMAC", clientAPIHmac, "apiDATE", clientAPIDate,
       "apiPATH", clientAPIPath, "apiBody", clientAPIBody, "apiPUTTUSAVI", clientAPIPuttusavi)
   }
 }
@@ -77,6 +77,7 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
 
   private val clientAPIReqBody = ((req.body).toString()).some
   private val clientAPIReqDate: Option[String] = rawheader.get(X_Megam_DATE)
+  private val maybeOrg: Option[String] = rawheader.get(X_Megam_ORG)
   private val clientAPIPuttusavi: Option[String] = rawheader.get(X_Megam_PUTTUSAVI)
   private val clientAPIReqPath: Option[String] = req.path.some
   //Look for the X_Megam_HMAC field. If not the FunneledRequest will be None.
@@ -87,7 +88,7 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
     if (res.indexOf(":") > 0)
   } yield {
     val res1 = res.split(":").take(2)
-    FunneledRequest(res1(0).some, res1(1).some, clientAPIReqDate, clientAPIReqPath, clientAPIReqBody, clientAPIPuttusavi)
+    FunneledRequest(res1(0).some, maybeOrg, res1(1).some, clientAPIReqDate, clientAPIReqPath, clientAPIReqBody, clientAPIPuttusavi)
   })
 
   /**
