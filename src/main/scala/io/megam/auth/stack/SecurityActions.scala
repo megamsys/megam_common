@@ -39,7 +39,7 @@ import play.api.http.Status._
  * @author rajthilak
  *
  */
-case class AuthBag(email: String, api_key: String, authority: String)
+case class AuthBag(email: String, org_id: String, api_key: String, authority: String)
 
 object SecurityActions {
 
@@ -91,9 +91,9 @@ object SecurityActions {
           calculatedHMACAPIKEY = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
         }
         if (calculatedHMACAPIKEY === freq.clientAPIHmac.get) {
-          (AuthBag(fres.email, fres.api_key, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
+          (AuthBag(fres.email, freq.maybeOrg.get, fres.api_key, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
         } else if (calculatedHMACPASSWORD === freq.clientAPIHmac.get) {
-          (AuthBag(fres.email, fres.password, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
+          (AuthBag(fres.email, freq.maybeOrg.get, fres.password, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
         } else {
           (nels((CannotAuthenticateError("""Authorization failure for 'email:' HMAC doesn't match: '%s'."""
             .format(fres.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Throwable]).left[Option[AuthBag]].pure[IO]
