@@ -93,6 +93,8 @@ object SecurityActions {
           calculatedHMACAPIKEY = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
         }
         play.api.Logger.debug(("%-20s -->[%s]").format("HMAC", freq.clientAPIHmac.get))
+        play.api.Logger.debug(("%-20s -->[%s]").format("HMAC Apikey", calculatedHMACAPIKEY))
+        play.api.Logger.debug(("%-20s -->[%s]").format("HMAC Password", calculatedHMACPASSWORD))
         if (calculatedHMACAPIKEY === freq.clientAPIHmac.get) {
           play.api.Logger.debug(("%-20s -->[%s]").format("HMAC Apikey", calculatedHMACAPIKEY))
           (AuthBag(fres.email, freq.maybeOrg.get, fres.api_key, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
