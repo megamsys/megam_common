@@ -80,6 +80,7 @@ object SecurityActions {
         var flag = false
         if (freq.clientAPIPuttusavi != None) {
           if (freq.clientAPIPuttusavi.get == "true") {
+            play.api.Logger.debug(("%-20s -->[%s]").format("Password Auth", new String(Base64.decodeBase64(fres.password))))
             calculatedHMACPASSWORD = GoofyCrypto.calculateHMAC(new String(Base64.decodeBase64(fres.password)), freq.mkSign)
           } else {
             flag = true
@@ -88,13 +89,18 @@ object SecurityActions {
           flag = true
         }
         if (flag) {
+          play.api.Logger.debug(("%-20s -->[%s]").format("Apikey Auth", fres.api_key))
           calculatedHMACAPIKEY = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
         }
+        play.api.Logger.debug(("%-20s -->[%s]").format("HMAC", freq.clientAPIHmac.get))
         if (calculatedHMACAPIKEY === freq.clientAPIHmac.get) {
+          play.api.Logger.debug(("%-20s -->[%s]").format("HMAC Apikey", calculatedHMACAPIKEY))
           (AuthBag(fres.email, freq.maybeOrg.get, fres.api_key, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
         } else if (calculatedHMACPASSWORD === freq.clientAPIHmac.get) {
+          play.api.Logger.debug(("%-20s -->[%s]").format("HMAC Password", calculatedHMACPASSWORD))
           (AuthBag(fres.email, freq.maybeOrg.get, fres.password, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
         } else {
+          play.api.Logger.debug(("%-20s -->[%s]").format("Auth error", ""))
           (nels((CannotAuthenticateError("""Authorization failure for 'email:' HMAC doesn't match: '%s'."""
             .format(fres.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Throwable]).left[Option[AuthBag]].pure[IO]
         }
