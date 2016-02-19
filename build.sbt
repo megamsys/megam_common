@@ -64,7 +64,6 @@ libraryDependencies ++=  Seq(
 		"jp.t2v" %% "play2-auth"        % "0.14.1",
 		"io.jvm.uuid" %% "scala-uuid" % "0.2.1",
     "io.megam" %% "scaliak" % "0.16",
-    "com.rabbitmq" % "amqp-client" % amqpVersion,
     "org.specs2" %% "specs2-core" % specs2Version % "test" excludeAll (
       ExclusionRule("org.specs2", "org.specs2.io")),
     "org.apache.commons" % "commons-lang3" % "3.4",
