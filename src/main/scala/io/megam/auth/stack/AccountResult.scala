@@ -32,8 +32,55 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
 
-case class AccountResult(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String,  password_reset_key: String, password_reset_sent_at: String, created_at: String) {
 
+case class Name(first_name: String, last_name: String) {
+ }
+
+ object Name {
+   def empty: Name = new Name(new String(), new String())
+ }
+
+ case class Phone(phone: String, phone_verified: Boolean) {
+ }
+ object Phone {
+   def empty: Phone = new Phone(new String(), false)
+ }
+
+ case class Password(password: String, password_reset_key: String, password_reset_sent_at: String) {
+ val json = "{\"password\":\"" + password + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\"}"
+}
+object Password {
+  def empty: Password = new Password(new String(), new String(), new String())
+}
+
+case class Approval(approved: Boolean, approved_by_id: String, approved_at: String) {
+}
+object Approval {
+  def empty: Approval = new Approval(false, new String(), new String())
+}
+
+case class Suspend(suspended: Boolean, suspended_at: String, suspended_till: Boolean) {
+}
+object Suspend {
+  def empty: Suspend = new Suspend(false, new String(), false)
+}
+
+case class Dates(last_posted_at: String, last_emailed_at: String, previous_visit_at: String, first_seen_at: String, created_at: String) {
+val json = "{\"last_posted_at\":\"" + last_posted_at + "\",\"last_emailed_at\":\"" + last_emailed_at + "\",\"previous_visit_at\":\"" + previous_visit_at + "\",\"first_seen_at\":\"" + first_seen_at + "\", \"created_at\":\"Time.now.toString()\"}"
+}
+object Dates {
+  def empty: Dates = new Dates(new String(), new String(), new String(), new String(), new String())
+}
+
+case class States(authority: String, active: Boolean, blocked: Boolean, staged: String) {
+}
+object States {
+  def empty: States = new States(new String(), false, false, new String() )
+}
+
+
+case class AccountResult(id: String, name: Name,  phone: Phone, email: String, api_key: String, password: Password, states: States,  approval: Approval, suspend: Suspend, registration_ip_address: String, dates: Dates) {
+/*
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import io.megam.json.AccountResultSerialization
@@ -46,16 +93,16 @@ case class AccountResult(id: String, first_name: String, last_name: String, phon
   } else {
     compactRender(toJValue)
   }
-
+*/
 }
 
 object AccountResult {
 
   //def apply(id: String, email: String, api_key: String, authority: String) = new AccountResult(id, email, api_key, authority, Time.now.toString)
-  def apply(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String) = new AccountResult(id, first_name, last_name, phone, email, api_key, password, authority, password_reset_key, password_reset_sent_at, Time.now.toString)
+  //def apply(id: String, name: Name,  phone: Phone, email: String, api_key: String, password: Password, states: States,  approval: Approval, suspend: Suspend, registration_ip_address: String, dates: Dates) = new AccountResult(id, name, phone, email, api_key,  password,  states,  approval, suspend, registration_ip_address, dates)
 
-  def apply(email: String): AccountResult = AccountResult("not found", new String(), new String(), new String(), new String(), email, new String(), new String(), new String(), new String())
-
+  def apply(email: String): AccountResult = AccountResult("not found", Name.empty, Phone.empty,  email, new String(), Password.empty, States.empty, Approval.empty, Suspend.empty, new String(), Dates.empty)
+/*
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AccountResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import io.megam.json.AccountResultSerialization
@@ -68,5 +115,5 @@ object AccountResult {
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
+*/
 }

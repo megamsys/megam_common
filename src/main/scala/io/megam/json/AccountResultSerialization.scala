@@ -14,7 +14,7 @@
 ** limitations under the License.
 */
 package io.megam.json
-
+/*
 import scalaz._
 import scalaz.NonEmptyList._
 import scalaz.Validation
@@ -37,34 +37,35 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
 
   protected val JSONClazKey = io.megam.common.Constants.JSON_CLAZ
   protected val IdKey = "id"
-  protected val FirstNameKey = "first_name"
-  protected val LastNameKey = "last_name"
+  protected val NameKey = "name"
+
   protected val PhoneKey = "phone"
   protected val EmailKey = "email"
   protected val APIKey = "api_key"
   protected val PasswordKey = "password"
-  protected val AuthorityKey = "authority"
+  protected val StatesKey = "states"
   //protected val OrgKey = "org_id"
-  protected val PasswordResetKey = "password_reset_key"
-  protected val PasswordResetSentAtKey = "password_reset_sent_at"
-  protected val CreatedAtKey = "created_at"
+  protected val ApprovalKey = "approval"
+  protected val SuspendKey = "suspend"
+  protected val RegistrationIpAddressKey = "registration_ip_address"
+  protected val DatesKey = "dates"
 
   override implicit val writer = new JSONW[AccountResult] {
 
     override def write(h: AccountResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(FirstNameKey, toJSON(h.first_name)) ::
-          JField(LastNameKey, toJSON(h.last_name)) ::
+          JField(NameKey, toJSON(h.name)) ::
           JField(PhoneKey, toJSON(h.phone)) ::
           JField(EmailKey, toJSON(h.email)) ::
           JField(APIKey, toJSON(h.api_key)) ::
           JField(PasswordKey, toJSON(h.password)) ::
-          JField(AuthorityKey, toJSON(h.authority)) ::
+          JField(StatesKey, toJSON(h.states)) ::
           //JField(OrgKey, toJSON(h.org_id))    ::
-          JField(PasswordResetKey, toJSON(h.password_reset_key)) ::
-          JField(PasswordResetSentAtKey, toJSON(h.password_reset_sent_at)) ::
-          JField(CreatedAtKey, toJSON(h.created_at)) ::
+          JField(ApprovalKey, toJSON(h.approval)) ::
+          JField(SuspendKey, toJSON(h.suspend)) ::
+          JField(RegistrationIpAddressKey, toJSON(h.registration_ip_address)) ::
+          JField(DatesKey, toJSON(h.dates)) ::
           JField(JSONClazKey, toJSON("Megam::Account")) :: Nil)
     }
   }
@@ -73,23 +74,26 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
 
     override def read(json: JValue): Result[AccountResult] = {
       val idField = field[String](IdKey)(json)
-      val firstNameField = field[String](FirstNameKey)(json)
-      val lastNameField = field[String](LastNameKey)(json)
-      val phoneField = field[String](PhoneKey)(json)
+      val nameField = field[Name](NameKey)(json)
+      val phoneField = field[Phone](PhoneKey)(json)
 
       val emailField = field[String](EmailKey)(json)
       val apiKeyField = field[String](APIKey)(json)
       val passwordField = field[String](PasswordKey)(json)
-      val authorityField = field[String](AuthorityKey)(json)
+      val statesField = field[States](StatesKey)(json)
       //val orgField = field[String](OrgKey)(json)
-      val passwordResetField = field[String](PasswordResetKey)(json)
-      val passwordResetSentAtField = field[String](PasswordResetSentAtKey)(json)
-      val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| firstNameField |@| lastNameField |@| phoneField |@| emailField |@| apiKeyField |@| passwordField |@| authorityField |@| passwordResetField |@| passwordResetSentAtField |@| createdAtField) {
-        (id: String, first_name: String, last_name: String, phone: String, email: String, apikey: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String, created_at: String) =>
-          new AccountResult(id, first_name, last_name, phone, email, apikey, password, authority, password_reset_key, password_reset_sent_at, created_at)
+      val approvalField = field[S](ApprovalKey)(json)
+      val suspendField = field[String](SuspendKey)(json)
+      val registrationIpAddressField = field[String](RegistrationIpAddressKey)(json)
+      val datesField = field[String](DatesKey)(json)
+
+      (idField |@| nameField  |@| phoneField |@| emailField |@| apiKeyField |@| passwordField |@| statesField |@| approvalField |@| suspendField |@| registrationIpAddressField |@| datesField) {
+        (id: String, name: Name, phone: Phone, email: String, apikey: String, password: Password, states: States, approval: Approval, suspend: Suspend, registration_ip_address: String, dates: Dates) =>
+          new AccountResult(id, name,  phone, email, apikey, password, states, approval, suspend, registration_ip_address, dates)
       }
     }
   }
+
 }
+*/
