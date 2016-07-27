@@ -34,6 +34,7 @@ import java.nio.charset.Charset
 
 
 case class Name(first_name: String, last_name: String) {
+val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\"}"
  }
 
  object Name {
@@ -41,6 +42,8 @@ case class Name(first_name: String, last_name: String) {
  }
 
  case class Phone(phone: String, phone_verified: Boolean) {
+val json = "{\"phone\":\"" + phone + "\",\"phone_verified\":"+ phone_verified + "}"
+
  }
  object Phone {
    def empty: Phone = new Phone(new String(), false)
@@ -49,30 +52,37 @@ case class Name(first_name: String, last_name: String) {
  case class Password(password: String, password_reset_key: String, password_reset_sent_at: String) {
  val json = "{\"password\":\"" + password + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\"}"
 }
+
 object Password {
+def apply(password_reset_key: String, password_reset_sent_at: String): Password = Password(new String(), new String())
   def empty: Password = new Password(new String(), new String(), new String())
 }
 
 case class Approval(approved: Boolean, approved_by_id: String, approved_at: String) {
+val json = "{\"approved\":" + approved + ",\"approved_by_id\":\"" + approved_by_id + "\",\"approved_at\":\"" + approved_at + "\"}"
 }
 object Approval {
   def empty: Approval = new Approval(false, new String(), new String())
 }
 
 case class Suspend(suspended: Boolean, suspended_at: String, suspended_till: Boolean) {
+val json = "{\"suspended\":" + suspended + ",\"suspended_at\":\"" + suspended_at + "\",\"suspended_till\":" + suspended_till + "}"
+
 }
 object Suspend {
   def empty: Suspend = new Suspend(false, new String(), false)
 }
 
 case class Dates(last_posted_at: String, last_emailed_at: String, previous_visit_at: String, first_seen_at: String, created_at: String) {
-val json = "{\"last_posted_at\":\"" + last_posted_at + "\",\"last_emailed_at\":\"" + last_emailed_at + "\",\"previous_visit_at\":\"" + previous_visit_at + "\",\"first_seen_at\":\"" + first_seen_at + "\", \"created_at\":\"Time.now.toString()\"}"
+val json = "{\"last_posted_at\":\"" + last_posted_at + "\",\"last_emailed_at\":\"" + last_emailed_at + "\",\"previous_visit_at\":\"" + previous_visit_at + "\",\"first_seen_at\":\"" + first_seen_at + "\", \"created_at\":\""+created_at+"\"}"
 }
 object Dates {
   def empty: Dates = new Dates(new String(), new String(), new String(), new String(), new String())
 }
 
 case class States(authority: String, active: Boolean, blocked: Boolean, staged: String) {
+val json = "{\"authority\":\"" + authority + "\",\"active\":" + active + ",\"blocked\":" + blocked + ", \"staged\":\"" + staged + "\"}"
+
 }
 object States {
   def empty: States = new States(new String(), false, false, new String() )
