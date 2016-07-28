@@ -10,7 +10,7 @@ Feel free to collaborate at https://github.com/megamsys/megam_common.git."""
 
 licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 bintrayOrganization := Some("megamsys")
 
@@ -48,10 +48,9 @@ Resolver.bintrayRepo("io.megam", "scala")
 )
 
 {
-  val scalazVersion = "7.1.6"
+  val scalazVersion = "7.1.9"
   val liftJsonVersion = "3.0-M8"
-  val amqpVersion = "3.6.0"
-  val specs2Version = "3.7-scalaz-7.1.6"
+  val specs2Version = "3.7.2-scalaz-7.1.7"
 
 libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
@@ -59,14 +58,13 @@ libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion % "test",
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-		"com.typesafe.play" %% "play" % "2.4.6",
-		"com.typesafe.play" %% "play-cache" % "2.4.6",
-		"jp.t2v" %% "play2-auth"        % "0.14.1",
+		"com.typesafe.play" %% "play" % "2.4.8",
+		"com.typesafe.play" %% "play-cache" % "2.4.8",
+		"jp.t2v" %% "play2-auth"        % "0.14.2",
 		"io.jvm.uuid" %% "scala-uuid" % "0.2.1",
-    "io.megam" %% "scaliak" % "0.16",
     "org.specs2" %% "specs2-core" % specs2Version % "test" excludeAll (
       ExclusionRule("org.specs2", "org.specs2.io")),
     "org.apache.commons" % "commons-lang3" % "3.4",
 		"org.walkmod" % "nsq-java" % "1.1",
-		"org.eclipse.jgit" % "org.eclipse.jgit" % "4.2.0.201601211800-r")
+		"org.eclipse.jgit" % "org.eclipse.jgit" % "4.4.1.201607150455-r")
 }
