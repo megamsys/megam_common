@@ -41,12 +41,12 @@ val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name
    def empty: Name = new Name(new String(), new String())
  }
 
- case class Phone(phone: String, phone_verified: Boolean) {
-val json = "{\"phone\":\"" + phone + "\",\"phone_verified\":"+ phone_verified + "}"
+ case class Phone(phone: String, phone_verified: String) {
+val json = "{\"phone\":\"" + phone + "\",\"phone_verified\":\""+ phone_verified + "\"}"
 
  }
  object Phone {
-   def empty: Phone = new Phone(new String(), false)
+   def empty: Phone = new Phone(new String(), new String())
  }
 
  case class Password(password: String, password_reset_key: String, password_reset_sent_at: String) {
@@ -58,19 +58,19 @@ def apply(password_reset_key: String, password_reset_sent_at: String): Password 
   def empty: Password = new Password(new String(), new String(), new String())
 }
 
-case class Approval(approved: Boolean, approved_by_id: String, approved_at: String) {
-val json = "{\"approved\":" + approved + ",\"approved_by_id\":\"" + approved_by_id + "\",\"approved_at\":\"" + approved_at + "\"}"
+case class Approval(approved: String, approved_by_id: String, approved_at: String) {
+val json = "{\"approved\":\"" + approved + "\",\"approved_by_id\":\"" + approved_by_id + "\",\"approved_at\":\"" + approved_at + "\"}"
 }
 object Approval {
-  def empty: Approval = new Approval(false, new String(), new String())
+  def empty: Approval = new Approval(new String(), new String(), new String())
 }
 
-case class Suspend(suspended: Boolean, suspended_at: String, suspended_till: Boolean) {
-val json = "{\"suspended\":" + suspended + ",\"suspended_at\":\"" + suspended_at + "\",\"suspended_till\":" + suspended_till + "}"
+case class Suspend(suspended: String, suspended_at: String, suspended_till: String) {
+val json = "{\"suspended\":\"" + suspended + "\",\"suspended_at\":\"" + suspended_at + "\",\"suspended_till\":\"" + suspended_till + "\"}"
 
 }
 object Suspend {
-  def empty: Suspend = new Suspend(false, new String(), false)
+  def empty: Suspend = new Suspend(new String(), new String(), new String())
 }
 
 case class Dates(last_posted_at: String, last_emailed_at: String, previous_visit_at: String, first_seen_at: String, created_at: String) {
@@ -80,30 +80,17 @@ object Dates {
   def empty: Dates = new Dates(new String(), new String(), new String(), new String(), new String())
 }
 
-case class States(authority: String, active: Boolean, blocked: Boolean, staged: String) {
-val json = "{\"authority\":\"" + authority + "\",\"active\":" + active + ",\"blocked\":" + blocked + ", \"staged\":\"" + staged + "\"}"
+case class States(authority: String, active: String, blocked: String, staged: String) {
+val json = "{\"authority\":\"" + authority + "\",\"active\":\"" + active + "\",\"blocked\":\"" + blocked + "\", \"staged\":\"" + staged + "\"}"
 
 }
 object States {
-  def empty: States = new States(new String(), false, false, new String() )
+  def empty: States = new States(new String(), new String(), new String(), new String() )
 }
 
 
 case class AccountResult(id: String, name: Name,  phone: Phone, email: String, api_key: String, password: Password, states: States,  approval: Approval, suspend: Suspend, registration_ip_address: String, dates: Dates) {
-/*
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import io.megam.json.AccountResultSerialization
-    val acctser = new AccountResultSerialization()
-    toJSON(this)(acctser.writer)
-  }
 
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
-*/
 }
 
 object AccountResult {
@@ -112,18 +99,4 @@ object AccountResult {
   //def apply(id: String, name: Name,  phone: Phone, email: String, api_key: String, password: Password, states: States,  approval: Approval, suspend: Suspend, registration_ip_address: String, dates: Dates) = new AccountResult(id, name, phone, email, api_key,  password,  states,  approval, suspend, registration_ip_address, dates)
 
   def apply(email: String): AccountResult = AccountResult("not found", Name.empty, Phone.empty,  email, new String(), Password.empty, States.empty, Approval.empty, Suspend.empty, new String(), Dates.empty)
-/*
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AccountResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import io.megam.json.AccountResultSerialization
-    val acctser = new AccountResultSerialization()
-    fromJSON(jValue)(acctser.reader)
-  }
-
-  def fromJson(json: String): Result[AccountResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-*/
 }
