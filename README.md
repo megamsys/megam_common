@@ -1,21 +1,19 @@
 megam_common
 ==========
 
-libmegam contains the common libraries in scala with a funcational twist.
+libcommon contains the common scala libraries with a funcational twist used by Megam.
 
-* `AMQP` : AMQP client
-* `NSQ` :  NSQ  scaffolding mediator to the (nsq-java walkmod)
-
+* `AMQP` : AMQP abstract client
+* `NSQ`  : NSQ  scaffolding mediator to the (nsq-java walkmod)
+* `UID`  : Unique id generator.
 
 ### Requirements
 
 >
-[NSQ.io 3.5.x +](http://www.rabbitmq.com)
+[NSQ.io 0.3.x +](http://www.nsq.io)
 [OpenJDK 8.0](http://openjdk.java.net/install/index.html)
 
 
-
-#### Tested on Ubuntu 14.04
 
 ## Building
 
@@ -63,7 +61,7 @@ Before your run it,
 	Resolver.bintrayRepo("scalaz", "releases"),
 	Resolver.bintrayRepo("io.megam", "scala"))
 
-	libraryDependencies += "io.megam" % "libcommon" % "1.5.rc5"
+	libraryDependencies += "io.megam" % "libcommon" % "1.5.0"
 
 ```
 
