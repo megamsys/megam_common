@@ -30,5 +30,4 @@ object HeaderConstants {
   val application_gzip = "gzip"
   val Accept = "Accept"
   val application_vnd_megam_json = "application/vnd.megam+json"
-
 }

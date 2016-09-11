@@ -39,7 +39,7 @@ import io.megam.auth.stack.GoofyCrypto._
  *            clientAPIPath, clientAPIBody)
  */
 case class FunneledRequest(maybeEmail: Option[String], maybeOrg: Option[String], clientAPIHmac: Option[String],
-  clientAPIDate: Option[String], clientAPIPath: Option[String], clientAPIBody: Option[String], clientAPIPuttusavi: Option[String]) {
+ clientAPIDate: Option[String], clientAPIPath: Option[String], clientAPIBody: Option[String], clientAPIPuttusavi: Option[String]) {
 
   /**
    * We massage the email to check if it has a valid format
@@ -50,14 +50,13 @@ case class FunneledRequest(maybeEmail: Option[String], maybeOrg: Option[String],
   } match {
     case Some(succ) => Validation.success[Throwable, Option[String]](succ.some)
     case None => Validation.failure[Throwable, Option[String]](new MalformedHeaderError(maybeEmail.get,
-      """Email is blank or invalid. Kindly provide us an email in the standard format.\n"
+      """Email is blank or invalid. Must be in a standard format.\n"
       eg: goodemail@megam.io"""))
   }
   /**
    * Hmm this has created a dependency with GoofyCrypto. Not a good one.
    * This creates a signed string
    * concatenates (date + path + md5ed body) of the content sent via header
-   * To do, we append all the Option using ++ and map on it.
    */
   val mkSign = {
     val ab = ((clientAPIDate ++ clientAPIPath ++ calculateMD5(clientAPIBody)) map { a: String => a
@@ -67,8 +66,8 @@ case class FunneledRequest(maybeEmail: Option[String], maybeOrg: Option[String],
 
   override def toString = {
     "%-16s%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n".format("FunneledRequest",
-      "email", maybeEmail, "org", maybeOrg, "apiHMAC", clientAPIHmac, "apiDATE", clientAPIDate,
-      "apiPATH", clientAPIPath, "apiBody", clientAPIBody, "apiPUTTUSAVI", clientAPIPuttusavi)
+      "email", maybeEmail, "org", maybeOrg, "HMAC", clientAPIHmac, "DATE", clientAPIDate,
+      "PATH", clientAPIPath, "BODY", clientAPIBody, "PUTTUSAVI", clientAPIPuttusavi)
   }
 }
 case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {

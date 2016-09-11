@@ -30,11 +30,10 @@ import play.api.http.Status._
 object FunnelErrors {
 
   val tailMsg =
-    """Forum   :http://docs.megam.io/discuss
-  	  |Docs    :http://docs.megam.io
-      |Support :http://support.megam.io""".stripMargin
+    """Forum   :https://forumns.megam.io
+  	  |Docs    :https://docs.megam.io""".stripMargin
 
-  case class CannotAuthenticateError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
+  case class CannotAuthenticateError(input: String, msg: String, httpCode: Int = UNAUTHORIZED)
     extends java.lang.Error(msg)
 
   case class MalformedBodyError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
@@ -72,11 +71,11 @@ object FunnelErrors {
         h => """Header received from the api contains invalid input. 'header:' %n'%s'
             |verify the header content as required for this resource.
             |%s""".format(h.input).stripMargin,
-        c => """Service layer failed to perform the the request
-            |verify riak, snowflake or rabbitmq %n'%s'""".format(c.input).stripMargin,
+        c => """Service layer failed to perform the request
+            |verify cassandra or nsq %n'%s'""".format(c.input).stripMargin,
         r => """The resource wasn't found   '%s'""".format(r.input).stripMargin,
         t => """Ooops ! I know its crazy. We flunked.
-            |Contact support@megam.io with this text.
+            |Contact info@megam.io with this text.
             """.format(t.getLocalizedMessage).stripMargin)
     }
 
@@ -94,7 +93,7 @@ object FunnelErrors {
 
     def mkMore(err: Throwable) = {
       err.fold(a => null,
-        m => """|The error received when parsing the JSON is :
+        m => """|The error received when parsing the json is :
     		  	|%s""".format(m.msg).stripMargin,
         h => null,
         c => """|The error received from the service :

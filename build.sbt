@@ -50,7 +50,8 @@ Resolver.bintrayRepo("io.megam", "scala")
 {
   val scalazVersion = "7.1.9"
   val liftJsonVersion = "3.0-M8"
-  val specs2Version = "3.7.2-scalaz-7.1.7"
+  val specs2Version =  "3.8.4.1-scalaz-7.1"
+
 
 libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
@@ -64,7 +65,8 @@ libraryDependencies ++=  Seq(
 		"io.jvm.uuid" %% "scala-uuid" % "0.2.1",
     "org.specs2" %% "specs2-core" % specs2Version % "test" excludeAll (
       ExclusionRule("org.specs2", "org.specs2.io")),
-    "org.apache.commons" % "commons-lang3" % "3.4",
 		"org.walkmod" % "nsq-java" % "1.1",
+		"io.github.nremond" %% "pbkdf2-scala" % "0.5",
+		"me.lessis" %% "base64" % "0.2.0",
 		"org.eclipse.jgit" % "org.eclipse.jgit" % "4.4.1.201607150455-r")
 }
