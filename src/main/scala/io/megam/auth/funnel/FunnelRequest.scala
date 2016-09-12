@@ -59,7 +59,7 @@ case class FunneledRequest(maybeEmail: Option[String], maybeOrg: Option[String],
    * concatenates (date + path + md5ed body) of the content sent via header
    */
   val mkSign = {
-    val ab = ((clientAPIDate ++ clientAPIPath ++ calculateMD5(clientAPIBody)) map { a: String => a
+    val ab = ((clientAPIDate ++ clientAPIPath ++ toMD5(clientAPIBody)) map { a: String => a
     }).mkString("\n")
     ab
   }

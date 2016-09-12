@@ -32,6 +32,7 @@ object SecurePasswordHashing {
 
   def validatePassword(password: String, hashedPassword: String): Boolean = {
     /** Compares two byte arrays in length-constant time to prevent timing attacks. */
+
     def slowEquals(a: Array[Byte], b: Array[Byte]): Boolean = {
       var diff = a.length ^ b.length;
       for (i <- 0 until math.min(a.length, b.length)) diff |= a(i) ^ b(i)

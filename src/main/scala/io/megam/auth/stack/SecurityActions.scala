@@ -36,6 +36,7 @@ import play.api.http.Status._
  *
  */
 case class AuthBag(email: String, org_id: String, api_key: String, authority: String)
+case class AuthBagHMAC(bag: AuthBag, hmac: String, dbhmac: String)
 
 object SecurityActions {
 
@@ -44,25 +45,23 @@ object SecurityActions {
     req.funneled match {
       case Success(succ) => {
         (succ map (x => bazookaAtDataSource(x, authImpl))).getOrElse(
-          Validation.failure[Throwable, Option[AuthBag]](CannotAuthenticateError("""Invalid content in header. parse failure.""",
-            "Request can't be funneled.")).toValidationNel)
+          Validation.failure[Throwable, Option[AuthBag]](CannotAuthenticateError("Invalid header.",
+            "Mismatch.")).toValidationNel)
 
       }
       case Failure(err) =>
         val errm = (err.list.map(m => m.getMessage)).mkString("\n")
         Validation.failure[Error, Option[AuthBag]](CannotAuthenticateError(
-          """Invalid content in header. parse failure.""", errm)).toValidationNel
+          "Invalid header.", errm)).toValidationNel
     }
   }
   
   def Validate(password: String, password_hash: String): ValidationNel[Throwable, Option[Boolean]] = {
-    SecurePasswordHashing.validatePassword(password, password_hash).some match {
-      case Some(succ) => {
+    if(SecurePasswordHashing.validatePassword(password, password_hash)) {
           Validation.success[Throwable, Option[Boolean]](true.some).toValidationNel
-      }
-      case None =>
+      } else {
         Validation.failure[Throwable, Option[Boolean]](CannotAuthenticateError(
-          """Login failed. Fat finger ?.""", "Password hash doesn't match")).toValidationNel
+          "Login failed.", "Mismatch password hash")).toValidationNel
     }
   }
 
@@ -74,7 +73,7 @@ object SecurityActions {
    * the string is split on : and the header is parsed
    * else
    */
-  def bazookaAtDataSource(funldRequest: FunneledRequest,
+def bazookaAtDataSource(funldRequest: FunneledRequest,
     authImpl: String => ValidationNel[Throwable, Option[AccountResult]]): ValidationNel[Throwable, Option[AuthBag]] = {
     (for {
       dbRespOpt <- eitherT[IO, NonEmptyList[Throwable], Option[AccountResult]] {
@@ -85,24 +84,18 @@ object SecurityActions {
         if (dbResp!= null) {
           funldRequest.clientAPIPuttusavi match  {
             case Some(p) =>  {
-              play.api.Logger.debug(("%-20s -->[%s]").format("CLIENT PW HMAC", funldRequest.clientAPIHmac.get))
-              val dbHMAC  =   calculateHMAC(dbResp.password.password_hash,funldRequest.mkSign)
-
-             play.api.Logger.debug(("%-20s -->[%s]").format("CALCUL PW HMAC?", dbHMAC))
-              play.api.Logger.debug(("%-20s -->[%s]").format("GOOF CRYPT", "verify"))
-              GoofyCrypto.verifyAPI(funldRequest,dbHMAC) //this has to be a trait.
+              val a = AuthBagHMAC(AuthBag(dbResp.email, funldRequest.maybeOrg.get, dbResp.password.password_hash, dbResp.states.authority),
+              funldRequest.clientAPIHmac.get,toHMAC(dbResp.password.password_hash,funldRequest.mkSign))
+              GoofyCrypto.compareFor(a, "email/password") 
             }
             case None => {
-              play.api.Logger.debug(("%-20s -->[%s]").format("CLIENT API HMAC", funldRequest.clientAPIHmac.get))
-              val dbHMAC    = calculateHMAC(dbResp.api_key,funldRequest.mkSign)
-              play.api.Logger.debug(("%-20s -->[%s]").format("CALCUL API HMAC?", dbHMAC))
-              play.api.Logger.debug(("%-20s -->[%s]").format("GOOF CRYPT", "verify"))
-              GoofyCrypto.verifyPW(funldRequest, dbHMAC) //this has to be a trait.
+              val a = AuthBagHMAC(AuthBag(dbResp.email, funldRequest.maybeOrg.get, dbResp.api_key, dbResp.states.authority),
+              funldRequest.clientAPIHmac.get,toHMAC(dbResp.api_key,funldRequest.mkSign))
+              GoofyCrypto.compareFor(a, "email/api-key") //this has to be a trait.
             }
           }
         } else {
-          play.api.Logger.debug(("%-20s -->[%s]").format("AUTH ERROR", ""))
-          (nels((CannotAuthenticateError("""Authorization failure for 'email:' HMAC doesn't match: '%s'."""
+          (nels((CannotAuthenticateError("""Authorization failure: ✘ '%s'."""
             .format(dbResp.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Throwable]).left[Option[AuthBag]].pure[IO]
         }
       }
