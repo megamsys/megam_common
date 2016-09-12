@@ -1,5 +1,5 @@
-/* 
-** Copyright [2013-2014] [Megam Systems]
+/*
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -313,7 +313,7 @@ object Time extends TimeLikeOps[Time] {
    */
   val epoch = fromNanoseconds(0L)
 
- 
+
   private val defaultFormat = new TimeFormat("yyyy-MM-dd HH:mm:ss Z")
   private val rssFormat = new TimeFormat("E, dd MMM yyyy HH:mm:ss Z")
 
@@ -323,7 +323,7 @@ object Time extends TimeLikeOps[Time] {
   private[util] val localGetTime = new Local[()=>Time]
   private[util] val localGetTimer = new Local[MockTimer]
 
-  
+
   def apply(date: Date): Time = fromMilliseconds(date.getTime)
 
   def at(datetime: String) = defaultFormat.parse(datetime)
@@ -400,7 +400,7 @@ object Time extends TimeLikeOps[Time] {
     }
   }
 
-  
+
 
   /** Returns the Time parsed from a string in RSS format. Eg: "Wed, 15 Jun 2005 19:00:00 GMT" */
   def fromRss(rss: String) = rssFormat.parse(rss)

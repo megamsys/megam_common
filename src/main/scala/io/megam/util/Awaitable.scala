@@ -154,7 +154,7 @@ trait CloseAwaitably extends Awaitable[Unit] {
 
   def result(timeout: Duration)(implicit permit: Awaitable.CanAwait): Unit =
     onClose.result(timeout)
-  
+
   def isReady(implicit permit: Awaitable.CanAwait): Boolean =
     onClose.isReady
 }
