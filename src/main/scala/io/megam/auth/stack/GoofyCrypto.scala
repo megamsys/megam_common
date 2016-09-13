@@ -58,6 +58,9 @@ object GoofyCrypto {
     dumpByt(rawHmac.some)
   }
 
+  
+  
+
   private def dumpByt(bytesOpt: Option[Array[Byte]]): String = {
     val b: Array[String] = (bytesOpt match {
       case Some(bytes) => bytes.map(byt => (("00" + (byt &
