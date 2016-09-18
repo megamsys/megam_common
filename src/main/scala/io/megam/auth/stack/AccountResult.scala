@@ -91,5 +91,5 @@ object States {
 case class AccountResult(id: String, name: Name, phone: Phone, email: String, api_key: String, password: Password, states: States, approval: Approval, suspend: Suspend, registration_ip_address: String, dates: Dates)
 
 object AccountResult {
-  def apply(email: String): AccountResult = AccountResult("not found", Name.empty, Phone.empty, email, new String(), Password.empty, States.empty, Approval.empty, Suspend.empty, new String(), Dates.empty)
+  def apply(email: String): AccountResult = AccountResult("act", Name.empty, Phone.empty, email, new String(), Password.empty, States.empty, Approval.empty, Suspend.empty, new String(), Dates.empty)
 }

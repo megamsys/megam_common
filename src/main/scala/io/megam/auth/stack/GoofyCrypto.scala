@@ -52,7 +52,7 @@ object GoofyCrypto {
    */
   def toHMAC(secret: String, toEncode: String): String = {
     val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")
-    val mac = Mac.getInstance("HmacSHA1")
+    val mac = Mac.getInstance("HmacSHA256")
     mac.init(signingKey)
     val rawHmac = mac.doFinal(toEncode.getBytes())
     dumpByt(rawHmac.some)
