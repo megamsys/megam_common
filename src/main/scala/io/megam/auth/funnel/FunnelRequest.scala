@@ -39,7 +39,7 @@ import io.megam.auth.stack.GoofyCrypto._
  *            clientAPIPath, clientAPIBody)
  */
 case class FunneledRequest(maybeEmail: Option[String], maybeOrg: Option[String], clientAPIHmac: Option[String],
- clientAPIDate: Option[String], clientAPIPath: Option[String], clientAPIBody: Option[String], clientAPIPuttusavi: Option[String]) {
+ clientAPIDate: Option[String], clientAPIPath: Option[String], clientAPIBody: Option[String], clientAPIPuttusavi: Option[String], clientMasterKey: Option[String]) {
 
   /**
    * We massage the email to check if it has a valid format
@@ -65,9 +65,9 @@ case class FunneledRequest(maybeEmail: Option[String], maybeOrg: Option[String],
   }
 
   override def toString = {
-    "%-16s%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n".format("FunneledRequest",
+    "%-16s%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n".format("FunneledRequest",
       "email", maybeEmail, "org", maybeOrg, "HMAC", clientAPIHmac, "DATE", clientAPIDate,
-      "PATH", clientAPIPath, "BODY", clientAPIBody, "PUTTUSAVI", clientAPIPuttusavi)
+      "PATH", clientAPIPath, "BODY", clientAPIBody, "PUTTUSAVI", clientAPIPuttusavi, "MASTERKEY", clientMasterKey)
   }
 }
 case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
@@ -78,6 +78,7 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
   private val clientAPIReqDate: Option[String] = rawheader.get(X_Megam_DATE)
   private val maybeOrg: Option[String] = rawheader.get(X_Megam_ORG)
   private val clientAPIPuttusavi: Option[String] = rawheader.get(X_Megam_PUTTUSAVI)
+  private val clientMasterKey: Option[String] = rawheader.get(X_Megam_MASTERKEY)
   private val clientAPIReqPath: Option[String] = req.path.some
   //Look for the X_Megam_HMAC field. If not the FunneledRequest will be None.
   private lazy val frOpt: Option[FunneledRequest] = (for {
@@ -87,7 +88,7 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
     if (res.indexOf(":") > 0)
   } yield {
     val res1 = res.split(":").take(2)
-    FunneledRequest(res1(0).some, maybeOrg, res1(1).some, clientAPIReqDate, clientAPIReqPath, clientAPIReqBody, clientAPIPuttusavi)
+    FunneledRequest(res1(0).some, maybeOrg, res1(1).some, clientAPIReqDate, clientAPIReqPath, clientAPIReqBody, clientAPIPuttusavi, clientMasterKey)
   })
 
   /**
