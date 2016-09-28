@@ -15,20 +15,20 @@
 */
 package io.megam.auth.stack
 
-/**
- * @author ram
- *
- */
-object HeaderConstants {
-  val X_Megam_DATE = "X-Megam-DATE"
-  val X_Megam_ORG = "X-Megam-ORG"
-  val X_Megam_HMAC = "X-Megam-HMAC"
-  val X_Megam_OTTAI = "X-Megam-OTTAI"
-  val X_Megam_PUTTUSAVI = "X-Megam-PUTTUSAVI"
-  val X_Megam_MASTERKEY = "X-Megam-MASTERKEY"
-  val Content_Type = "Content-Type"
-  val application_json = "application/json"
-  val application_gzip = "gzip"
-  val Accept = "Accept"
-  val application_vnd_megam_json = "application/vnd.megam+json"
-}
+import scalaz._
+import Scalaz._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scala.concurrent.Future
+
+import io.megam.common.Constants._
+import io.megam.auth.funnel._
+import io.megam.auth.funnel.FunnelErrors._
+
+import io.megam.util.Time
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+import java.nio.charset.Charset
+
+case class MasterKeyResult(id: String, key: String, created_at: String) {}

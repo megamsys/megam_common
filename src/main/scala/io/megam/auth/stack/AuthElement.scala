@@ -45,6 +45,8 @@ trait AuthElement extends StackableController {
 
   def authImpl(input: String): ValidationNel[Throwable, Option[AccountResult]]
 
+  def masterImpl(input: String): ValidationNel[Throwable, Option[MasterKeyResult]]
+
   /**
    * If HMAC authentication is true, the req send in super class
    * otherwise send out a json formatted error
@@ -53,7 +55,7 @@ trait AuthElement extends StackableController {
     play.api.Logger.debug("%s%s====> %s%s%s ".format(Console.CYAN, Console.BOLD, req.host, req.path, Console.RESET))
     play.api.Logger.debug("%s%sHEAD:%s %s%s%s".format(Console.MAGENTA, Console.BOLD, Console.RESET, Console.BLUE, req.headers, Console.RESET))
     play.api.Logger.debug("%s%sBODY:%s %s%s%s\n".format(Console.MAGENTA, Console.BOLD, Console.RESET, Console.BLUE, req.body, Console.RESET))
-    SecurityActions.Authenticated(req, authImpl) match {
+    SecurityActions.Authenticated(req, authImpl, masterImpl) match {
       case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
       case Failure(err) => {
         val g = Action { implicit request =>
