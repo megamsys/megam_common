@@ -8,7 +8,7 @@ organization := "io.megam"
 description := """This is a set of function libraries used in megam.io. This contains amqp, json, riak and an unique id thrift client based on snowflake all built using a funcitonal twist.
 Feel free to collaborate at https://github.com/megamsys/megam_common.git."""
 
-licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
+licenses += ("MIT", url("https://opensource.org/licenses/MIT"))
 
 scalaVersion := "2.11.8"
 

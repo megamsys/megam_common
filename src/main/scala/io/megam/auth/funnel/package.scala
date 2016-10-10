@@ -1,17 +1,8 @@
 /*
 ** Copyright [2013-2016] [Megam Systems]
 **
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
+** https://opensource.org/licenses/MIT
 **
-** http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
 */
 package io.megam.auth
 
@@ -83,12 +74,14 @@ package object funnel {
       malformedHeaderError: MalformedHeaderError => T,
       serviceUnavailableError: ServiceUnavailableError => T,
       resourceNotFound: ResourceItemNotFound => T,
+      nopPerm: PermissionNotThere => T,
       anyError: Throwable => T): T = thrownExp match {
       case a @ CannotAuthenticateError(_, _, _) => cannotAuthError(a)
       case m @ MalformedBodyError(_, _, _)      => malformedBodyError(m)
       case h @ MalformedHeaderError(_, _, _)    => malformedHeaderError(h)
       case c @ ServiceUnavailableError(_, _, _) => serviceUnavailableError(c)
       case r @ ResourceItemNotFound(_, _, _)    => resourceNotFound(r)
+      case f @ PermissionNotThere(_, _, _)     => nopPerm(f)
       case t @ _                                => anyError(t)
     }
   }
@@ -101,6 +94,7 @@ package object funnel {
       h => new FunnelResponse(hpret.mkCode(h).getOrElse(BAD_REQUEST), hpret.mkMsg(h), hpret.mkMore(h), "Megam::Error", hpret.severity),
       c => new FunnelResponse(hpret.mkCode(c).getOrElse(BAD_REQUEST), hpret.mkMsg(c), hpret.mkMore(c), "Megam::Error", hpret.severity),
       r => new FunnelResponse(hpret.mkCode(r).getOrElse(BAD_REQUEST), hpret.mkMsg(r), hpret.mkMore(r), "Megam::Error", hpret.severity),
+      f => new FunnelResponse(hpret.mkCode(f).getOrElse(BAD_REQUEST), hpret.mkMsg(f), hpret.mkMore(f), "Megam::Error", hpret.severity),
       t => new FunnelResponse(hpret.mkCode(t).getOrElse(BAD_REQUEST), hpret.mkMsg(t), hpret.mkMore(t), "Megam::Error", hpret.severity))
   }.some
 

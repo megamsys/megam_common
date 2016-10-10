@@ -1,17 +1,8 @@
-/* 
-** Copyright [2012] [Megam Systems]
+/*
+** Copyright [2013-2016] [Megam Systems]
 **
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
+** https://opensource.org/licenses/MIT
 **
-** http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
 */
 package io.megam.common.amqp.serialization
 
@@ -41,8 +32,8 @@ object MessagePayLoadSerialization extends SerializationBase[MessagePayLoad] {
             // case List(x) =>
             //  JObject(JField(message._1, JArray(message._2)) :: Nil)
             // case _  =>
-            JField(message._1, JString(message._2)) 
-            // }            
+            JField(message._1, JString(message._2))
+            // }
           }).toList :: Nil
       } | List[List[JField]]()
 
@@ -74,24 +65,3 @@ object MessagePayLoadSerialization extends SerializationBase[MessagePayLoad] {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
