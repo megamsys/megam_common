@@ -1,17 +1,8 @@
-/* 
-** Copyright [2012-2013] [Megam Systems]
+/*
+** Copyright [2013-2016] [Megam Systems]
 **
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
+** https://opensource.org/licenses/MIT
 **
-** http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
 */
 package io.megam.concurrent
 
@@ -60,7 +51,7 @@ trait Scheduler {
    * The amount of CPU time that's been scheduled as per ThreadMXBean.
    */
   def cpuTime: Long
-  
+
   /**
    * Total walltime spent in the scheduler.
    */
@@ -70,7 +61,7 @@ trait Scheduler {
    * The number of dispatches performed by this scheduler.
    */
   def numDispatches: Long
-  
+
   /**
    * Executes a function `f` in a blocking fashion.
    *
@@ -109,7 +100,7 @@ object Scheduler extends Scheduler {
   def cpuTime = self.cpuTime
   def wallTime = self.wallTime
   def numDispatches = self.numDispatches
-  
+
   def blocking[T](f: => T)(implicit perm: CanAwait) = self.blocking(f)
 }
 
@@ -148,7 +139,7 @@ class LocalScheduler(lifo: Boolean) extends Scheduler {
 
       if (lifo) {
         if (r2 != null) {
-          rs.addFirst(r2) 
+          rs.addFirst(r2)
           r2 = r1
           r1 = r0
         } else if (r1 != null) {
@@ -236,7 +227,7 @@ class LocalScheduler(lifo: Boolean) extends Scheduler {
   def cpuTime = (activations.iterator map (_.cpuTime)).sum
   def wallTime = (activations.iterator map (_.wallTime)).sum
   def numDispatches = (activations.iterator map (_.numDispatches)).sum
-  
+
   def blocking[T](f: => T)(implicit perm: CanAwait) = f
 }
 
@@ -300,7 +291,7 @@ trait ExecutorScheduler { self: Scheduler =>
   def numDispatches = -1L  // Unsupported
 
   def getExecutor = executor
-  
+
   def blocking[T](f: => T)(implicit perm: CanAwait) = f
 }
 

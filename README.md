@@ -63,7 +63,7 @@ Before your run it,
 	Resolver.bintrayRepo("scalaz", "releases"),
 	Resolver.bintrayRepo("io.megam", "scala"))
 
-	libraryDependencies += "io.megam" % "libcommon" % "1.5.1"
+	libraryDependencies += "io.megam" % "libcommon" % "1.8.2"
 
 ```
 
@@ -75,4 +75,4 @@ We are glad to help if you have questions, or request for new features..
 
 # License
 
-APACHE-V2
+MIT

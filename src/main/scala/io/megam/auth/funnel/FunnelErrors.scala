@@ -1,17 +1,8 @@
 /*
 ** Copyright [2013-2016] [Megam Systems]
 **
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
+** https://opensource.org/licenses/MIT
 **
-** http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
 */
 package io.megam.auth.funnel
 
@@ -37,6 +28,9 @@ object FunnelErrors {
     extends java.lang.Error(msg)
 
   case class MalformedBodyError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
+    extends java.lang.Error(msg)
+
+ case class PermissionNotThere(input: String, msg: String, httpCode: Int = FORBIDDEN)
     extends java.lang.Error(msg)
 
   case class MalformedHeaderError(input: String, msg: String, httpCode: Int = NOT_ACCEPTABLE)
@@ -65,17 +59,18 @@ object FunnelErrors {
         a => """Authentication failure using the email/apikey combination. %n'%s'
             |verify the email and api key combination.
             """.format(a.input).stripMargin,
-        m => """Body received from the api contains invalid input. 'body:' %n'%s'
+        m => """Body received contains invalid input. 'body:' %n'%s'
             |verify the body content as needed for this resource.
             |""".format(m.input).stripMargin,
-        h => """Header received from the api contains invalid input. 'header:' %n'%s'
+        h => """Header received contains invalid input. 'header:' %n'%s'
             |verify the header content as required for this resource.
             |%s""".format(h.input).stripMargin,
         c => """Service layer failed to perform the request
             |verify cassandra or nsq %n'%s'""".format(c.input).stripMargin,
         r => """The resource wasn't found   '%s'""".format(r.input).stripMargin,
+        f => """'admin' authority required to access this resource  '%s'""".format(f.input).stripMargin,
         t => """Ooops ! I know its crazy. We flunked.
-            |Contact info@megam.io with this text.
+            |Contact support with this text.
             """.format(t.getLocalizedMessage).stripMargin)
     }
 
@@ -85,7 +80,7 @@ object FunnelErrors {
 
     def mkCode(err: Throwable): Option[Int] = {
       err.fold(a => a.httpCode.some, m => m.httpCode.some, h => h.httpCode.some, c => c.httpCode.some,
-        r => r.httpCode.some, t => INTERNAL_SERVER_ERROR.some)
+        r => r.httpCode.some, f => f.httpCode.some, t => INTERNAL_SERVER_ERROR.some)
 
     }
 
@@ -100,6 +95,7 @@ object FunnelErrors {
     		  	|%s""".format(c.msg).stripMargin,
         r => """|The error received from the datasource :
     		  	|%s""".format(r.msg).stripMargin,
+        f => null,
         t => """|Pardon us. This is how it happened.
             |Stack trace
             |%s
