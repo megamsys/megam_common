@@ -7,12 +7,15 @@ object Role {
 
   type Authority = Role
 
+  val ADMIN   = "admin"
+  val REGULAR = "regular"
+
   case object Administrator extends Role
   case object RegularUser extends Role
 
   def valueOf(value: String): Role = value match {
-    case "Administrator" => Administrator
-    case "RegularUser"   => RegularUser
+    case ADMIN     => Administrator
+    case REGULAR   => RegularUser
     case _ => throw new IllegalArgumentException()
   }
 

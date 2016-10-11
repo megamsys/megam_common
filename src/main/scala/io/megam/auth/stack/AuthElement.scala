@@ -48,12 +48,7 @@ trait AuthElement extends StackableController with RequestAttributeKeyConstants 
 
     SecurityActions.Authenticated(req, authImpl, masterImpl) match {
       case Success(rawRes) => {
-        play.api.Logger.debug("%s%sAUTHBAG:%s %s%s%s\n".format(Console.YELLOW, Console.BOLD, Console.RESET, Console.BLUE, rawRes, Console.RESET))
-        val ro = req.set(APIKey, rawRes)
-        play.api.Logger.debug("%s%sAUTHBAG0:%s %s%s%s\n".format(Console.YELLOW, Console.BOLD, Console.RESET, Console.BLUE, ro, Console.RESET))
-
-        play.api.Logger.debug("%s%sAUTHBAG1:%s %s%s%s\n".format(Console.YELLOW, Console.BOLD, Console.RESET, Console.BLUE, req.get(APIKey).get, Console.RESET))
-        super.proceed(ro)(f)
+        super.proceed(req.set(APIKey, rawRes))(f)
       }
       case Failure(err) => {
         val g = Action { implicit request =>

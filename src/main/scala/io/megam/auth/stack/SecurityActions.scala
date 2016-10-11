@@ -82,7 +82,7 @@ object SecurityActions {
         funldRequest.clientMasterKey match {
           case Some(p) ⇒ {
             if (dbMasterResp != null && dbResp != null) {
-              val a = AuthBagHMAC(AuthBag(dbResp.email, funldRequest.maybeOrg.get, dbMasterResp.key, dbResp.states.authority),
+              val a = AuthBagHMAC(AuthBag(dbResp.email, funldRequest.maybeOrg.get, dbMasterResp.key,Role.ADMIN),
                 funldRequest.clientAPIHmac.get, toHMAC(dbMasterResp.key, funldRequest.mkSign))
               GoofyCrypto.compareFor(a, "email/masterkey")
             } else {
