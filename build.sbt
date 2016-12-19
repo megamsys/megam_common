@@ -59,6 +59,7 @@ libraryDependencies ++=  Seq(
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-concurrent" % scalazVersion % "test",
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
+		"net.liftweb"       %  "lift-json-ext_2.11" % "3.0.1",
 		"com.typesafe.play" %% "play" % "2.4.8",
 		"com.typesafe.play" %% "play-cache" % "2.4.8",
 		"jp.t2v" %% "play2-auth"        % "0.14.2",

@@ -24,19 +24,21 @@ import play.api.http.Status._
  */
 object GoofyCrypto {
 
-    
+
     def compareFor(ah: AuthBagHMAC, prefix: String): IO[scalaz.\/[  NonEmptyList[Throwable],Option[AuthBag]]] = {
+      play.api.Logger.debug(("%-20s -->[%s, %s]").format("GOOF ", ah.dbhmac, ah.hmac))
+
       if (ah.dbhmac === ah.hmac) {
         play.api.Logger.debug(("%-20s -->[%s]").format("GOOF ", prefix + "  ✓"))
         (ah.bag.some).right[NonEmptyList[Throwable]].pure[IO]
       } else {
         play.api.Logger.debug(("%-20s -->[%s]").format("GOOF ", prefix + "  ✘"))
-        (nels((CannotAuthenticateError("Authorization failure: ", prefix, UNAUTHORIZED))): NonEmptyList[Throwable]).left[Option[AuthBag]].pure[IO]
-        
+        (nels((CannotAuthenticateError("Mismatch HMAC: ", prefix, UNAUTHORIZED))): NonEmptyList[Throwable]).left[Option[AuthBag]].pure[IO]
+
       }
     }
 
-    
+
   /**
    * Calculate the MD5 hash for the specified content (UTF-16 encoded)
    */
@@ -58,8 +60,8 @@ object GoofyCrypto {
     dumpByt(rawHmac.some)
   }
 
-  
-  
+
+
 
   private def dumpByt(bytesOpt: Option[Array[Byte]]): String = {
     val b: Array[String] = (bytesOpt match {
