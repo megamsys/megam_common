@@ -36,7 +36,7 @@ case class FunneledRequest(maybeEmail: Option[String], maybeOrg: Option[String],
    * We massage the email to check if it has a valid format
    */
   val wowEmail = {
-    val EmailRegex = """^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,4})$""".r
+    val EmailRegex = """^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,})$""".r
     maybeEmail.flatMap(x => EmailRegex.findFirstIn(x))
   } match {
     case Some(succ) => Validation.success[Throwable, Option[String]](succ.some)
